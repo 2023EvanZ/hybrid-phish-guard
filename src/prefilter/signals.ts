@@ -251,8 +251,11 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export function textSignals(title: string, text: string, hostname: string): TextSignals {
   const haystack = `${title}\n${text}`;
+  // An address like jane@gmail.com or a link to apple.com is not the page posing as that
+  // brand, so emails and domains are removed before looking for brand names.
+  const prose = haystack.replace(/\S+@\S+/g, " ").replace(/\b(?:[a-z0-9-]+\.)+[a-z]{2,}\S*/gi, " ");
   const brandsMentioned = BRANDS.filter((b) =>
-    b.keywords.some((k) => new RegExp(`\\b${escapeRe(k)}\\b`, "i").test(haystack)),
+    b.keywords.some((k) => new RegExp(`\\b${escapeRe(k)}\\b`, "i").test(prose)),
   );
   return {
     brandsMentioned: brandsMentioned.map((b) => b.name),

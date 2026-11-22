@@ -109,6 +109,12 @@ test("decide: a strongly suspicious URL is checked even before any form appears"
   assert.equal(run("http://192.168.4.20/").shouldCheck, false); // IP alone is not enough
 });
 
+test("textSignals: email addresses and bare domains are not brand mentions", () => {
+  const t = textSignals("Contact us", "Reply to jane.doe@gmail.com or visit help.apple.com/support", "shop.example.com");
+  assert.deepEqual(t.brandsMentioned, []);
+  assert.deepEqual(textSignals("", "Sign in with your Apple ID", "x.example").brandsMentioned, ["Apple"]);
+});
+
 test("decide: text signals raise the score but never open the gate", () => {
   const r = run("https://blog.example.com/", [], "Security alert", "Verify your account within 24 hours");
   assert.equal(r.shouldCheck, false);
