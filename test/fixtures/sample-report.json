@@ -1,0 +1,76 @@
+{
+  "url": "https://wellsfarg0-secure-login.example.ru/verify?user=jane.doe@gmail.com#c2Vzc2lvbg",
+  "prefilter": {
+    "shouldCheck": true,
+    "score": 12,
+    "reasons": [
+      "password-field",
+      "cross-origin-form",
+      "brand-in-host",
+      "brand-text-mismatch",
+      "urgency-language"
+    ]
+  },
+  "features": {
+    "url": "https://wellsfarg0-secure-login.example.ru/verify?user=jane.doe@gmail.com#c2Vzc2lvbg",
+    "title": "Wells Fargo Sign On",
+    "urlSignals": {
+      "hostname": "wellsfarg0-secure-login.example.ru",
+      "registrableDomain": "example.ru",
+      "isHttps": true,
+      "isIp": false,
+      "isPunycode": false,
+      "hasAt": false,
+      "subdomainDepth": 1,
+      "hyphenCount": 2,
+      "suspiciousTld": false,
+      "brandsInHost": [
+        "Wells Fargo"
+      ]
+    },
+    "forms": [
+      {
+        "action": "https://collect.evil.example/p.php?id=8f3a9c2b7d1e4f60a1b2",
+        "method": "post",
+        "crossOrigin": true,
+        "insecure": false,
+        "synthetic": false,
+        "fieldKinds": [
+          "identity",
+          "password"
+        ]
+      }
+    ],
+    "text": {
+      "brandsMentioned": [
+        "Wells Fargo"
+      ],
+      "brandMismatch": [
+        "Wells Fargo"
+      ],
+      "urgencyHits": [
+        "Verify your identity",
+        "account has been locked",
+        "within 24 hours"
+      ]
+    },
+    "links": {
+      "total": 0,
+      "external": 0,
+      "mismatchedText": 0
+    },
+    "textSnippet": "Dear Jane, your account has been locked. Verify your identity within 24 hours. Call 704-555-0199 or reply to jane.doe@gmail.com. Card 4111 1111 1111 1111.",
+    "prefilter": {
+      "shouldCheck": true,
+      "score": 12,
+      "reasons": [
+        "password-field",
+        "cross-origin-form",
+        "brand-in-host",
+        "brand-text-mismatch",
+        "urgency-language"
+      ]
+    },
+    "capturedAt": 0
+  }
+}

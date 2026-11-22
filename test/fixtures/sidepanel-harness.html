@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Side panel harness</title></head>
+<body>
+<!-- Test-only: renders the built side panel (dist/) with stubbed chrome.* APIs and a
+     sample prefilter report, so the panel UI can be checked in a normal browser tab. -->
+<script type="module">
+  const report = await (await fetch("/test/fixtures/sample-report.json")).json();
+  const noop = { addListener() {} };
+  window.chrome = {
+    tabs: {
+      query: async () => [{ id: 1 }],
+      sendMessage: async () => report,
+      onActivated: noop,
+      onUpdated: noop,
+    },
+    storage: { session: { get: async (key) => ({ [key]: report }), onChanged: noop } },
+  };
+  const html = await (await fetch("/dist/sidepanel.html")).text();
+  document.body.innerHTML = new DOMParser().parseFromString(html, "text/html").body.innerHTML;
+  await import("/dist/sidepanel.js");
+</script>
+</body>
+</html>
