@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Hybrid Phish Guard",
+  "version": "0.0.2",
+  "description": "Flags phishing and scam pages with on-device AI, escalating to the cloud only when unsure.",
+  "minimum_chrome_version": "139",
+  "permissions": ["sidePanel", "storage"],
+  "action": { "default_title": "Open Hybrid Phish Guard" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

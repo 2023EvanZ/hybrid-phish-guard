@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hybrid Phish Guard</title>
+    <style>
+      body { font: 13px/1.4 system-ui, sans-serif; margin: 12px; }
+      button { display: block; width: 100%; margin: 6px 0; padding: 8px; text-align: left; }
+      textarea { width: 100%; height: 90px; box-sizing: border-box; }
+      pre { white-space: pre-wrap; word-break: break-word; background: #f3f3f3; color: #111; padding: 8px; max-height: 45vh; overflow: auto; }
+      pre:empty { display: none; }
+      summary { cursor: pointer; margin-top: 16px; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <h3>This page</h3>
+    <p id="page-status">Loading…</p>
+    <button id="inspect">Inspect this page now</button>
+    <pre id="page-features"></pre>
+
+    <details id="diagnostics">
+      <summary>Diagnostics: hybrid inference spike</summary>
+      <textarea id="input">URGENT: Your Wells Fargo account has been locked. Verify your identity within 24 hours at http://wellsfarg0-secure-login.example.ru/verify or your funds will be frozen.</textarea>
+      <button id="avail">1. Check Prompt API availability (raw Chrome API)</button>
+      <button id="init">2. Download / initialise on-device model (Firebase)</button>
+      <button id="device">3. Run ONLY_ON_DEVICE</button>
+      <button id="prefer">4. Run PREFER_ON_DEVICE</button>
+      <button id="cloud">5. Run ONLY_IN_CLOUD</button>
+      <pre id="log"></pre>
+    </details>
+    <script type="module" src="/src/sidepanel.ts"></script>
+  </body>
+</html>
