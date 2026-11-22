@@ -2,10 +2,25 @@
 // and lets the user force a full inspection.
 import { tabKey } from "./shared/messages.ts";
 import type { HpgMessage, PrefilterReport } from "./shared/messages.ts";
+import { triage } from "./triage/pipeline.ts";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const statusEl = $<HTMLParagraphElement>("page-status");
 const featuresEl = $<HTMLPreElement>("page-features");
+const verdictEl = $<HTMLParagraphElement>("page-verdict");
+let renderSeq = 0;
+
+async function showVerdict(report: PrefilterReport | undefined) {
+  const seq = ++renderSeq;
+  verdictEl.textContent = "";
+  if (!report?.features) return;
+  // No model classifiers wired yet, so this is the rules fallback. Firebase-backed
+  // classifiers get passed here once the spike confirms they work in the side panel.
+  const { final } = await triage(report.features);
+  if (seq !== renderSeq) return; // a newer render started meanwhile
+  const pct = Math.round(final.confidence * 100);
+  verdictEl.textContent = `Verdict: ${final.verdict.toUpperCase()} (${final.source}, ${pct}% confident). ${final.reasons.join("; ")}`;
+}
 
 async function activeTabId(): Promise<number | undefined> {
   // Needs no "tabs" permission: we only use the id, never the URL.
@@ -15,6 +30,7 @@ async function activeTabId(): Promise<number | undefined> {
 
 function show(report: PrefilterReport | undefined, source: "auto" | "manual") {
   if (!report) {
+    void showVerdict(undefined);
     statusEl.textContent =
       "No report for this tab yet. It may not be a web page, or it was open before the extension loaded (reload it).";
     featuresEl.textContent = "";
@@ -29,6 +45,7 @@ function show(report: PrefilterReport | undefined, source: "auto" | "manual") {
         ? `Flagged for checking (score ${score}): ${why}`
         : `Skipped: ${why}`;
   featuresEl.textContent = report.features ? JSON.stringify(report.features, null, 2) : "";
+  void showVerdict(report);
 }
 
 async function render() {
