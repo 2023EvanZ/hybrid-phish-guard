@@ -66,3 +66,15 @@ export function badgeFor(report: TriageReport | undefined): { text: string; colo
       return { text: "", color: "#000000" };
   }
 }
+
+/** One sentence on how the verdict was reached, or null when there's nothing to add. */
+export function provenanceNote(report: TriageReport): string | null {
+  const { final, local, escalation, errors } = report;
+  if (final.source === "on-device") return null;
+  if (final.source === "cloud") return `Sent to the cloud because ${ESCALATION_TEXT[escalation.reason]}.`;
+  if (local && escalation.reason === "contradicts-heuristics") {
+    return "The on-device model said \"safe\" despite strong warning signs, so its answer wasn't trusted.";
+  }
+  if (errors.length) return `AI models unavailable (${errors.join("; ")}), so rules decided.`;
+  return local ? null : "No AI model is connected yet, so rules decided.";
+}
