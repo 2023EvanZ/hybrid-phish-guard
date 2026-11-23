@@ -1,23 +1,36 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Side panel harness</title></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Side panel harness</title></head>
 <body>
-<!-- Test-only: renders the built side panel (dist/) with stubbed chrome.* APIs and a
-     sample prefilter report, so the panel UI can be checked in a normal browser tab. -->
+<!-- Test-only: renders the built side panel (dist/) with stubbed chrome.* APIs, so the
+     panel UI can be checked in a normal browser tab. ?state= picks what is stored:
+     phishing (default), suspicious, cloud, skipped, none. -->
 <script type="module">
+  const state = new URLSearchParams(location.search).get("state") ?? "phishing";
   const report = await (await fetch("/test/fixtures/sample-report.json")).json();
+  const verdict = await (await fetch("/test/fixtures/sample-verdict.json")).json();
+  if (state === "suspicious") Object.assign(verdict.triage.final, { verdict: "suspicious", confidence: 0.5 });
+  if (state === "cloud") {
+    Object.assign(verdict.triage.final, { source: "cloud", confidence: 0.93 });
+    verdict.triage.escalation = { escalate: true, reason: "low-confidence" };
+  }
+  const store = {};
+  if (state !== "none") store["tab:1"] = state === "skipped" ? { url: report.url, prefilter: { shouldCheck: false, score: 0, reasons: [] } } : report;
+  if (!["none", "skipped"].includes(state)) store["verdict:1"] = verdict;
   const noop = { addListener() {} };
   window.chrome = {
-    tabs: {
-      query: async () => [{ id: 1 }],
-      sendMessage: async () => report,
-      onActivated: noop,
-      onUpdated: noop,
+    tabs: { query: async () => [{ id: 1 }], sendMessage: async () => report, onActivated: noop, onUpdated: noop },
+    storage: {
+      session: {
+        get: async (keys) => Object.fromEntries([keys].flat().filter((k) => k in store).map((k) => [k, store[k]])),
+        onChanged: noop,
+      },
     },
-    storage: { session: { get: async (key) => ({ [key]: report }), onChanged: noop } },
   };
   const html = await (await fetch("/dist/sidepanel.html")).text();
-  document.body.innerHTML = new DOMParser().parseFromString(html, "text/html").body.innerHTML;
+  const parsed = new DOMParser().parseFromString(html, "text/html");
+  document.head.append(...parsed.head.querySelectorAll("style"));
+  document.body.innerHTML = parsed.body.innerHTML;
   await import("/dist/sidepanel.js");
 </script>
 </body>

@@ -1,0 +1,24 @@
+{
+  "url": "https://wellsfarg0-secure-login.example.ru/verify",
+  "manual": false,
+  "triage": {
+    "final": {
+      "verdict": "phishing",
+      "confidence": 0.75,
+      "reasons": [
+        "Web address imitates a known brand",
+        "Sensitive form submits to a different site",
+        "Page names a brand it isn't hosted by"
+      ],
+      "source": "rules",
+      "latencyMs": 0
+    },
+    "local": null,
+    "cloud": null,
+    "escalation": {
+      "escalate": true,
+      "reason": "no-local-result"
+    },
+    "errors": []
+  }
+}
