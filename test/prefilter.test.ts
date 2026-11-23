@@ -115,7 +115,7 @@ test("textSignals: email addresses and bare domains are not brand mentions", () 
   assert.deepEqual(textSignals("", "Sign in with your Apple ID", "x.example").brandsMentioned, ["Apple"]);
 });
 
-test("decide: text signals raise the score but never open the gate", () => {
+test("decide: generic text signals raise the score but never open the gate", () => {
   const r = run("https://blog.example.com/", [], "Security alert", "Verify your account within 24 hours");
   assert.equal(r.shouldCheck, false);
   assert.ok(r.reasons.includes("urgency-language"));
@@ -130,4 +130,21 @@ test("decide: form and site builder pages are always checked, at no score cost",
   assert.equal(run("https://forms.office.com/Pages/ResponsePage.aspx?id=x").shouldCheck, true);
   // A Google Doc or Sheet is not a form builder page.
   assert.equal(run("https://docs.google.com/document/d/abc/edit").shouldCheck, false);
+});
+
+test("scam scripts open the gate; mentions without the full script don't", () => {
+  const tech = run("https://alert.example.com/", [], "", "Your computer is infected with spyware. Call support at 1-888-555-0147.");
+  assert.equal(tech.shouldCheck, true);
+  assert.ok(tech.reasons.includes("tech-support-pitch"));
+  const crypto = run("https://x.example.com/", [], "", "Send 0.1 BTC to the address below and receive double back.");
+  assert.ok(crypto.reasons.includes("crypto-giveaway"));
+  const seed = run("https://x.example.com/", [], "", "Paste your 12 or 24 word phrase to sync.");
+  assert.ok(seed.reasons.includes("seed-phrase-request"));
+
+  // Half a script is not enough.
+  assert.equal(run("https://x.example.com/", [], "", "A virus was detected in the wild last week.").shouldCheck, false);
+  assert.equal(run("https://x.example.com/", [], "", "Never share your Secret Recovery Phrase.").shouldCheck, false);
+  assert.equal(run("https://x.example.com/", [], "", "Bitcoin fell 4% on Tuesday.").shouldCheck, false);
+  // Allowlisted sites stay skipped.
+  assert.equal(run("https://www.youtube.com/watch?v=x", [], "", "Send 1 ETH and get 2x back!").shouldCheck, false);
 });

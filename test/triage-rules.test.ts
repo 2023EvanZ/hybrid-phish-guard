@@ -25,3 +25,11 @@ test("rules: no signals means 'safe' with a placeholder reason", () => {
   assert.equal(r.verdict, "safe");
   assert.deepEqual(r.reasons, ["No strong warning signs found"]);
 });
+
+test("scam-script reasons are explained first", () => {
+  const r = rulesVerdict(makeFeatures({
+    url: "https://alert-windows-defender.click/",
+    text: "Security alert: your computer is infected. Call Microsoft Support at 1-888-555-0147 immediately.",
+  }));
+  assert.equal(r.reasons[0], "Fake virus alert telling you to call for help");
+});

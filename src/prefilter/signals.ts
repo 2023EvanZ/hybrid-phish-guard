@@ -32,7 +32,10 @@ export type ReasonCode =
   | "not-https"
   | "brand-text-mismatch"
   | "urgency-language"
-  | "form-builder-host";
+  | "form-builder-host"
+  | "tech-support-pitch"
+  | "crypto-giveaway"
+  | "seed-phrase-request";
 
 // ---------------------------------------------------------------- fields & forms
 
@@ -228,11 +231,15 @@ export function urlSignals(url: URL): UrlSignals {
 
 // ---------------------------------------------------------------------- text
 
+export type ScamPattern = "tech-support-pitch" | "crypto-giveaway" | "seed-phrase-request";
+
 export interface TextSignals {
   brandsMentioned: string[];
   /** Mentioned brands that do not own this page's host. */
   brandMismatch: string[];
   urgencyHits: string[];
+  /** Scam scripts specific enough to open the gate without any form or URL signal. */
+  scamPatterns: ScamPattern[];
 }
 
 const URGENCY_PATTERNS: RegExp[] = [
@@ -252,6 +259,32 @@ const URGENCY_PATTERNS: RegExp[] = [
   /package (could not|couldn't) be delivered/i,
 ];
 
+// Each scam needs two parts to match, so a page that merely mentions a virus, bitcoin
+// or a recovery phrase doesn't count. Matching stays within a sentence: the gap between
+// parts may not cross ".", "!" or "?", except a decimal point ("0.1 BTC").
+const gap = (n: number) => `(?:[^.!?]|\\.(?=\\d)){0,${n}}`;
+const re = (src: string) => new RegExp(src, "i");
+
+const SCAM_PATTERNS: Record<ScamPattern, RegExp[]> = {
+  // "Your computer is infected ... call support", the fake virus-alert script.
+  "tech-support-pitch": [
+    re(`\\b(computer|pc|device|system|windows|mac|browser)\\b${gap(40)}\\b(infected|blocked|locked|compromised|hacked)\\b|\\b(virus|spyware|trojan|malware)\\b${gap(20)}\\b(detected|found|alert)\\b`),
+    re(`\\bcall\\b${gap(40)}\\b(support|helpline|help desk|technician|toll[- ]free|now|immediately)\\b|\\b\\d{3}[-. )]\\s?\\d{3}[-. ]\\d{4}\\b`),
+  ],
+  // "Send 0.1 BTC to this address and receive double back."
+  "crypto-giveaway": [
+    re(`\\bsend\\b${gap(40)}\\b(btc|eth|bitcoin|ethereum|usdt|sol|crypto)\\b${gap(80)}\\b(double|2x|twice|back)\\b`),
+  ],
+  // "Enter your Secret Recovery Phrase" / "paste your 12 or 24 word phrase".
+  "seed-phrase-request": [
+    re(`\\b(enter|paste|type|import|input|submit)\\b${gap(30)}\\b(recovery|seed|secret|mnemonic)\\s+phrase\\b|\\b(enter|paste|type|input|submit)\\b${gap(30)}\\b(12|24)\\b${gap(20)}\\bwords?\\b`),
+  ],
+};
+
+export function scamPatterns(text: string): ScamPattern[] {
+  return (Object.keys(SCAM_PATTERNS) as ScamPattern[]).filter((p) => SCAM_PATTERNS[p].every((re) => re.test(text)));
+}
+
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export function textSignals(title: string, text: string, hostname: string): TextSignals {
@@ -269,6 +302,7 @@ export function textSignals(title: string, text: string, hostname: string): Text
       const m = haystack.match(re);
       return m ? [m[0]] : [];
     }),
+    scamPatterns: scamPatterns(haystack),
   };
 }
 
@@ -285,9 +319,10 @@ export interface PrefilterResult {
 export const URL_ONLY_THRESHOLD = 3;
 
 /**
- * The gate uses only URL and form signals, which are cheap to compute. Text signals are
- * optional: when present they raise the score and add reasons but never flip the gate,
- * so the expensive innerText read only happens for pages that already passed.
+ * The gate opens on a sensitive form, a risky URL, a form-builder page, or a specific scam
+ * script in the text (tech-support pitch, crypto giveaway, seed-phrase request). Generic
+ * text signals (brand mentions, pressure phrases) raise the score but never open the
+ * gate: news and advice pages use the same words.
  */
 export function decide(
   url: UrlSignals,
@@ -327,8 +362,10 @@ export function decide(
 
   if (text?.brandMismatch.length) add("brand-text-mismatch", 2);
   if (text?.urgencyHits.length) add("urgency-language", Math.min(text.urgencyHits.length, 3));
+  for (const p of text?.scamPatterns ?? []) add(p, 3);
 
   const sensitiveForm = forms.hasPassword || forms.hasPayment || forms.hasBankOrSsn || forms.hasOtp;
-  const passesGate = !allowlisted && (sensitiveForm || urlScore >= URL_ONLY_THRESHOLD || url.formBuilder);
+  const scamText = Boolean(text?.scamPatterns.length);
+  const passesGate = !allowlisted && (sensitiveForm || urlScore >= URL_ONLY_THRESHOLD || url.formBuilder || scamText);
   return { shouldCheck: Boolean(opts.force) || passesGate, score, reasons };
 }

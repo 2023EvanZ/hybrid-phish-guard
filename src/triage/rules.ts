@@ -24,11 +24,14 @@ const REASON_TEXT: Partial<Record<ReasonCode, string>> = {
   "bank-or-ssn-field": "Asks for bank or Social Security numbers",
   "otp-field": "Asks for a one-time code",
   "suspicious-tld": "Uses a domain ending common in scams",
+  "tech-support-pitch": "Fake virus alert telling you to call for help",
+  "crypto-giveaway": "Promises to multiply crypto you send",
+  "seed-phrase-request": "Asks for a wallet recovery phrase",
 };
 
 // Most telling first, so the top 3 are the ones worth showing.
 const PRIORITY: ReasonCode[] = [
-  "brand-in-host", "cross-origin-form", "brand-text-mismatch", "insecure-form", "punycode-host",
+  "seed-phrase-request", "tech-support-pitch", "crypto-giveaway", "brand-in-host", "cross-origin-form", "brand-text-mismatch", "insecure-form", "punycode-host",
   "at-in-url", "ip-host", "urgency-language", "bank-or-ssn-field", "payment-field",
   "otp-field", "password-field", "suspicious-tld",
 ];
