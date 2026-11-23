@@ -22,7 +22,8 @@ page loads
 
 - **Prefilter** ([src/prefilter](src/prefilter)): cheap URL, form and text checks run on every page. Catches brand lookalikes (`wellsfarg0-secure-login…`), credential forms that submit to a different site, raw IPs, punycode, and scam scripts that need no form (fake virus alerts, crypto giveaways, seed-phrase requests). A short allowlist skips big sites; Google Forms/Sites and Microsoft Forms pages, which are widely abused for phishing, are always checked. Page text for the gate is read without forcing layout.
 - **Feature extraction** ([src/content](src/content)): reads form *attributes* only, never what you type. Watches for login forms that render late in single-page apps.
-- **Triage** ([src/triage](src/triage)): a prompt sized for Gemini Nano's context window, a parser that tolerates the format drift small models produce, and an escalation policy.
+- **Triage** ([src/triage](src/triage)): a prompt sized for Gemini Nano's context window, a parser that tolerates the format drift small models produce, and an escalation policy. Runs in the background service worker for now (rules only); see the status note above.
+- **Warnings**: a "phishing" verdict puts a banner at the top of the page (in a closed shadow root, so the page can't restyle or rewrite it) with **Leave this page** and **Dismiss**. "Suspicious" only sets an amber toolbar badge and shows in the side panel: the rules fallback rates about a third of benign login pages suspicious on the eval set, and bannering those would train people to ignore the banner. The side panel shows the verdict, its reasons, and how it was reached (on-device, cloud after redaction, or rules).
 
 ### Privacy and safety design
 
