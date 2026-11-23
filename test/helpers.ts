@@ -2,7 +2,7 @@
 // functions, so triage tests don't need a DOM.
 import { decide, formSignals, textSignals, urlSignals } from "../src/prefilter/signals.ts";
 import type { FieldDescriptor, FormDescriptor } from "../src/prefilter/signals.ts";
-import type { PageFeatures } from "../src/shared/messages.ts";
+import type { LinkStats, PageFeatures } from "../src/shared/messages.ts";
 
 export const field = (over: Partial<FieldDescriptor>): FieldDescriptor => ({
   type: "text", name: "", id: "", autocomplete: "", placeholder: "", label: "", ...over,
@@ -13,6 +13,7 @@ export function makeFeatures(opts: {
   title?: string;
   text?: string;
   forms?: FormDescriptor[];
+  links?: LinkStats;
 }): PageFeatures {
   const url = new URL(opts.url);
   const title = opts.title ?? "";
@@ -26,7 +27,7 @@ export function makeFeatures(opts: {
     urlSignals: u,
     forms: f.forms,
     text: t,
-    links: { total: 0, external: 0, mismatchedText: 0 },
+    links: opts.links ?? { total: 0, external: 0, mismatchedText: 0 },
     textSnippet: text.slice(0, 1500),
     prefilter: decide(u, f, t),
     capturedAt: 0,
