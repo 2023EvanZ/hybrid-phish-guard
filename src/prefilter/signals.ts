@@ -7,6 +7,7 @@ import {
   SUSPICIOUS_TLDS,
   brandOwnsHost,
   isAllowlisted,
+  isFormBuilderPage,
   isIpHost,
   registrableDomain,
 } from "./domains.ts";
@@ -30,7 +31,8 @@ export type ReasonCode =
   | "suspicious-tld"
   | "not-https"
   | "brand-text-mismatch"
-  | "urgency-language";
+  | "urgency-language"
+  | "form-builder-host";
 
 // ---------------------------------------------------------------- fields & forms
 
@@ -171,6 +173,8 @@ export interface UrlSignals {
   suspiciousTld: boolean;
   /** Brands whose name appears in the hostname but which do not own it. */
   brandsInHost: string[];
+  /** Google Forms/Sites or Microsoft Forms: always checked, see isFormBuilderPage. */
+  formBuilder: boolean;
 }
 
 const LEET: Record<string, string> = { "0": "o", "1": "l", "3": "e", "4": "a", "5": "s", "7": "t" };
@@ -218,6 +222,7 @@ export function urlSignals(url: URL): UrlSignals {
     brandsInHost: BRANDS.filter((b) => !brandOwnsHost(b, hostname) && hostMentionsBrand(tokens, b)).map(
       (b) => b.name,
     ),
+    formBuilder: isFormBuilderPage(url),
   };
 }
 
@@ -318,11 +323,12 @@ export function decide(
   if (url.hyphenCount >= 3) add("many-hyphens", 1, true);
   if (url.suspiciousTld) add("suspicious-tld", 1, true);
   if (!url.isHttps) add("not-https", 1);
+  if (url.formBuilder) add("form-builder-host", 0);
 
   if (text?.brandMismatch.length) add("brand-text-mismatch", 2);
   if (text?.urgencyHits.length) add("urgency-language", Math.min(text.urgencyHits.length, 3));
 
   const sensitiveForm = forms.hasPassword || forms.hasPayment || forms.hasBankOrSsn || forms.hasOtp;
-  const passesGate = !allowlisted && (sensitiveForm || urlScore >= URL_ONLY_THRESHOLD);
+  const passesGate = !allowlisted && (sensitiveForm || urlScore >= URL_ONLY_THRESHOLD || url.formBuilder);
   return { shouldCheck: Boolean(opts.force) || passesGate, score, reasons };
 }

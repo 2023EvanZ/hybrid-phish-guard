@@ -120,3 +120,14 @@ test("decide: text signals raise the score but never open the gate", () => {
   assert.equal(r.shouldCheck, false);
   assert.ok(r.reasons.includes("urgency-language"));
 });
+
+test("decide: form and site builder pages are always checked, at no score cost", () => {
+  const forms = run("https://docs.google.com/forms/d/e/abc/viewform", [form([field({ name: "entry.1" })])]);
+  assert.equal(forms.shouldCheck, true);
+  assert.equal(forms.score, 0);
+  assert.ok(forms.reasons.includes("form-builder-host"));
+  assert.equal(run("https://sites.google.com/view/anything/home").shouldCheck, true);
+  assert.equal(run("https://forms.office.com/Pages/ResponsePage.aspx?id=x").shouldCheck, true);
+  // A Google Doc or Sheet is not a form builder page.
+  assert.equal(run("https://docs.google.com/document/d/abc/edit").shouldCheck, false);
+});

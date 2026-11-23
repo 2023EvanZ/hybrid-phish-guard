@@ -57,6 +57,18 @@ export function isAllowlisted(hostname: string): boolean {
   return ALLOWLIST.has(registrableDomain(host));
 }
 
+// Form and site builders on trusted domains, where a credential-harvesting page has no
+// password field, no odd URL and a same-origin submit, so nothing else in the prefilter
+// would notice it. Pages here are always checked; this adds no points to the score, so
+// it costs a model call but never makes a page look suspicious on its own.
+const FORM_BUILDER_HOSTS = ["sites.google.com", "forms.office.com", "forms.microsoft.com"];
+
+export function isFormBuilderPage(url: URL): boolean {
+  const host = url.hostname.toLowerCase();
+  if (FORM_BUILDER_HOSTS.some((h) => hostMatches(host, h))) return true;
+  return host === "docs.google.com" && url.pathname.startsWith("/forms/");
+}
+
 export interface Brand {
   name: string;
   /** Lowercase; multi-word keywords are matched with and without spaces. */
