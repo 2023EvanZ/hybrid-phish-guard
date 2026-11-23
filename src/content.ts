@@ -1,12 +1,15 @@
 // Content script (top frame only). Runs the prefilter when the page settles, keeps
-// watching for late-rendered login forms for a short window, and answers on-demand
-// "inspect this page" requests from the side panel.
+// watching for late-rendered login forms for a short window, answers on-demand
+// "inspect this page" requests from the side panel, and shows the warning banner when
+// the background's verdict calls for it.
 //
 // Built separately as a classic IIFE script (vite.content.config.ts): content scripts
 // cannot be ES modules.
 
+import { showBanner } from "./content/banner.ts";
 import { buildFeatures, quickDecision } from "./content/extract.ts";
-import type { HpgMessage, PrefilterReport } from "./shared/messages.ts";
+import type { HpgMessage, PrefilterReport, ReportReply } from "./shared/messages.ts";
+import { shouldShowBanner, verdictView } from "./triage/present.ts";
 
 const WATCH_MS = 15_000;
 const DEBOUNCE_MS = 750;
@@ -15,10 +18,20 @@ let flagged = false;
 let observer: MutationObserver | undefined;
 let debounce: ReturnType<typeof setTimeout> | undefined;
 
-function send(report: PrefilterReport) {
-  const msg: HpgMessage = { type: "hpg/report", report };
-  // Rejects when the extension was reloaded and this script is orphaned; nothing to do.
-  chrome.runtime.sendMessage(msg).catch(() => {});
+async function send(report: PrefilterReport, manual = false): Promise<void> {
+  const msg: HpgMessage = { type: "hpg/report", report, manual };
+  let reply: ReportReply | undefined;
+  try {
+    reply = await chrome.runtime.sendMessage(msg);
+  } catch {
+    return; // the extension was reloaded and this script is orphaned
+  }
+  const verdict = reply?.verdict;
+  if (verdict && shouldShowBanner(verdict)) {
+    showBanner(document, verdictView(verdict), {
+      onLeave: () => void chrome.runtime.sendMessage({ type: "hpg/leave" } satisfies HpgMessage).catch(() => {}),
+    });
+  }
 }
 
 function evaluate(initial: boolean) {
@@ -30,10 +43,10 @@ function evaluate(initial: boolean) {
     // Forced: the gate already passed. The full read uses innerText, which drops hidden
     // text the quick gate may have matched, and must not undo that decision.
     const features = buildFeatures(document, location.href, { force: true });
-    send({ url: location.href, prefilter: features.prefilter, features });
+    void send({ url: location.href, prefilter: features.prefilter, features });
   } else if (initial) {
     // Report the skip once so the side panel can say why the page wasn't checked.
-    send({ url: location.href, prefilter: quick });
+    void send({ url: location.href, prefilter: quick });
   }
 }
 
@@ -57,7 +70,11 @@ function start() {
 chrome.runtime.onMessage.addListener((msg: HpgMessage, _sender, sendResponse) => {
   if (msg.type !== "hpg/inspect") return;
   const features = buildFeatures(document, location.href, { force: true });
-  sendResponse({ url: location.href, prefilter: features.prefilter, features } satisfies PrefilterReport);
+  const report: PrefilterReport = { url: location.href, prefilter: features.prefilter, features };
+  // Through the background like any other report, so the verdict is stored for the
+  // panel and the banner appears if it's phishing.
+  void send(report, true).finally(() => sendResponse(report));
+  return true; // async reply
 });
 
 if (document.readyState === "loading") {
