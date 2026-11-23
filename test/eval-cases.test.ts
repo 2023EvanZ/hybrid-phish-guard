@@ -27,7 +27,8 @@ test("rules fallback does not regress below the recorded baseline", async () => 
   const { summarize } = await import("../eval/metrics.ts");
   const { rulesClassifier } = await import("../src/triage/rules.ts");
   const s = summarize(await evaluateCases(ALL_CASES, rulesClassifier));
-  assert.ok(s.lenient.tp >= 24, `lenient TP ${s.lenient.tp} < 24`);
+  assert.equal(s.gate.phishingChecked, 1, "every phishing case must reach a classifier");
+  assert.ok(s.lenient.tp >= 30, `lenient TP ${s.lenient.tp} < 30`);
   assert.ok(s.lenient.fp <= 12, `lenient FP ${s.lenient.fp} > 12`);
   assert.ok(s.strict.fp <= 0, `strict FP ${s.strict.fp} > 0`);
 });
