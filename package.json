@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc --noEmit && vite build && vite build -c vite.content.config.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.ts"
+    "test": "node --test test/*.test.ts",
+    "eval": "node eval/run.ts"
   },
   "dependencies": {
     "firebase": "^13.3.0"
