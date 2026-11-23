@@ -38,6 +38,7 @@ Requires Node 22.18+ and Chrome 139+.
 npm install
 npm test        # unit tests (node:test, no extra dependencies)
 npm run build   # type-check and build to dist/
+npm run eval    # score the classifier on the labeled eval set (see eval/README.md)
 ```
 
 Load `dist/` at `chrome://extensions` with Developer mode on (**Load unpacked**).
