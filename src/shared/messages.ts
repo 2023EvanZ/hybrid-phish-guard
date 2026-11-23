@@ -1,4 +1,5 @@
 import type { FormSummary, PrefilterResult, TextSignals, UrlSignals } from "../prefilter/signals.ts";
+import type { TriageReport } from "../triage/pipeline.ts";
 
 export interface LinkStats {
   total: number;
@@ -31,7 +32,23 @@ export interface PrefilterReport {
 }
 
 export type HpgMessage =
-  | { type: "hpg/report"; report: PrefilterReport }
-  | { type: "hpg/inspect" };
+  /** Content script -> background. Answered with a ReportReply. */
+  | { type: "hpg/report"; report: PrefilterReport; manual?: boolean }
+  /** Side panel -> content script. Answered with the forced PrefilterReport. */
+  | { type: "hpg/inspect" }
+  /** In-page banner -> background: take the user away from this page. */
+  | { type: "hpg/leave" };
+
+/** The verdict for a reported page, or null when the page wasn't checked. */
+export interface ReportReply {
+  verdict: TriageReport | null;
+}
+
+export interface StoredVerdict {
+  url: string;
+  manual: boolean;
+  triage: TriageReport;
+}
 
 export const tabKey = (tabId: number) => `tab:${tabId}`;
+export const verdictKey = (tabId: number) => `verdict:${tabId}`;
