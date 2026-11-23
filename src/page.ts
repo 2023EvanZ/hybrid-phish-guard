@@ -1,25 +1,56 @@
-// "This page" section of the side panel: shows the prefilter report for the active tab
-// and lets the user force a full inspection.
-import { tabKey } from "./shared/messages.ts";
-import type { HpgMessage, PrefilterReport } from "./shared/messages.ts";
-import { triage } from "./triage/pipeline.ts";
+// "This page" section of the side panel: shows the active tab's verdict (computed and
+// stored by the background) and lets the user force a full inspection.
+import { tabKey, verdictKey } from "./shared/messages.ts";
+import type { HpgMessage, PrefilterReport, StoredVerdict } from "./shared/messages.ts";
+import { provenanceNote, verdictView } from "./triage/present.ts";
+import type { Tone } from "./triage/present.ts";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+const card = $<HTMLElement>("verdict");
+const headlineEl = $<HTMLHeadingElement>("v-headline");
+const detailEl = $<HTMLParagraphElement>("v-detail");
+const reasonsEl = $<HTMLUListElement>("v-reasons");
+const noteEl = $<HTMLParagraphElement>("v-note");
 const statusEl = $<HTMLParagraphElement>("page-status");
 const featuresEl = $<HTMLPreElement>("page-features");
-const verdictEl = $<HTMLParagraphElement>("page-verdict");
-let renderSeq = 0;
+const inspectBtn = $<HTMLButtonElement>("inspect");
 
-async function showVerdict(report: PrefilterReport | undefined) {
-  const seq = ++renderSeq;
-  verdictEl.textContent = "";
-  if (!report?.features) return;
-  // No model classifiers wired yet, so this is the rules fallback. Firebase-backed
-  // classifiers get passed here once the spike confirms they work in the side panel.
-  const { final } = await triage(report.features);
-  if (seq !== renderSeq) return; // a newer render started meanwhile
-  const pct = Math.round(final.confidence * 100);
-  verdictEl.textContent = `Verdict: ${final.verdict.toUpperCase()} (${final.source}, ${pct}% confident). ${final.reasons.join("; ")}`;
+function paint(tone: Tone, headline: string, detail: string, reasons: string[] = [], note: string | null = null) {
+  card.dataset.tone = tone;
+  headlineEl.textContent = headline;
+  detailEl.textContent = detail;
+  reasonsEl.replaceChildren(
+    ...reasons.map((r) => {
+      const li = document.createElement("li");
+      li.textContent = r;
+      return li;
+    }),
+  );
+  noteEl.textContent = note ?? "";
+}
+
+function skipText(report: PrefilterReport): string {
+  if (report.prefilter.reasons.includes("allowlisted")) return "A well-known site, so it isn't checked automatically.";
+  return "No login or payment form, and nothing unusual in the address or text.";
+}
+
+function show(report: PrefilterReport | undefined, verdict: StoredVerdict | undefined) {
+  featuresEl.textContent = report?.features ? JSON.stringify(report.features, null, 2) : "";
+  if (!report) {
+    paint("neutral", "No report for this tab", "It may not be a web page, or it was open before the extension loaded. Reload it to check.");
+    statusEl.textContent = "";
+    return;
+  }
+  const { score, reasons } = report.prefilter;
+  statusEl.textContent = `Heuristic score ${score}${reasons.length ? `: ${reasons.join(", ")}` : ""}`;
+  if (verdict) {
+    const v = verdictView(verdict.triage);
+    paint(v.tone, v.headline, v.detail + (verdict.manual ? " (checked on request)" : ""), v.reasons, provenanceNote(verdict.triage));
+  } else if (report.features) {
+    paint("neutral", "Checking…", "");
+  } else {
+    paint("neutral", "Not checked", skipText(report));
+  }
 }
 
 async function activeTabId(): Promise<number | undefined> {
@@ -28,44 +59,34 @@ async function activeTabId(): Promise<number | undefined> {
   return tab?.id;
 }
 
-function show(report: PrefilterReport | undefined, source: "auto" | "manual") {
-  if (!report) {
-    void showVerdict(undefined);
-    statusEl.textContent =
-      "No report for this tab yet. It may not be a web page, or it was open before the extension loaded (reload it).";
-    featuresEl.textContent = "";
-    return;
-  }
-  const { shouldCheck, score, reasons } = report.prefilter;
-  const why = reasons.length ? reasons.join(", ") : "no sensitive form or risky URL";
-  statusEl.textContent =
-    source === "manual"
-      ? `Manual inspection (score ${score}): ${why}`
-      : shouldCheck
-        ? `Flagged for checking (score ${score}): ${why}`
-        : `Skipped: ${why}`;
-  featuresEl.textContent = report.features ? JSON.stringify(report.features, null, 2) : "";
-  void showVerdict(report);
-}
-
+let renderSeq = 0;
 async function render() {
+  const seq = ++renderSeq;
   const id = await activeTabId();
-  if (id === undefined) return show(undefined, "auto");
-  const key = tabKey(id);
-  const stored = await chrome.storage.session.get(key);
-  show(stored[key] as PrefilterReport | undefined, "auto");
+  if (id === undefined) return show(undefined, undefined);
+  const stored = await chrome.storage.session.get([tabKey(id), verdictKey(id)]);
+  if (seq !== renderSeq) return; // a newer render started meanwhile
+  show(stored[tabKey(id)] as PrefilterReport | undefined, stored[verdictKey(id)] as StoredVerdict | undefined);
 }
 
-$("inspect").onclick = async () => {
+inspectBtn.onclick = async () => {
   const id = await activeTabId();
   if (id === undefined) return;
+  inspectBtn.disabled = true;
+  paint("neutral", "Checking…", "");
   try {
-    const msg: HpgMessage = { type: "hpg/inspect" };
-    show((await chrome.tabs.sendMessage(id, msg)) as PrefilterReport, "manual");
+    // The content script routes the report through the background, which stores the
+    // verdict; the storage listener below repaints.
+    await chrome.tabs.sendMessage(id, { type: "hpg/inspect" } satisfies HpgMessage);
+    await render();
   } catch {
-    statusEl.textContent =
-      "Can't inspect this tab. Chrome blocks extensions on chrome:// pages and the Web Store; for other pages opened before the extension loaded, reload the page.";
-    featuresEl.textContent = "";
+    paint(
+      "neutral",
+      "Can't check this tab",
+      "Chrome blocks extensions on chrome:// pages and the Web Store. For other pages opened before the extension loaded, reload the page.",
+    );
+  } finally {
+    inspectBtn.disabled = false;
   }
 };
 

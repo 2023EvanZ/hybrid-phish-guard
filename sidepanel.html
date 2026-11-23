@@ -4,20 +4,56 @@
     <meta charset="utf-8" />
     <title>Hybrid Phish Guard</title>
     <style>
-      body { font: 13px/1.4 system-ui, sans-serif; margin: 12px; }
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff; --fg: #111827; --muted: #6b7280; --code-bg: #f3f4f6;
+        --danger-bg: #fef2f2; --danger-edge: #dc2626; --danger-fg: #991b1b;
+        --warning-bg: #fffbeb; --warning-edge: #d97706; --warning-fg: #92400e;
+        --ok-bg: #f0fdf4; --ok-edge: #16a34a; --ok-fg: #166534;
+        --neutral-bg: #f9fafb; --neutral-edge: #9ca3af; --neutral-fg: #374151;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #111827; --fg: #f3f4f6; --muted: #9ca3af; --code-bg: #1f2937;
+          --danger-bg: #3b0d0d; --danger-fg: #fecaca;
+          --warning-bg: #3a2604; --warning-fg: #fde68a;
+          --ok-bg: #052e16; --ok-fg: #bbf7d0;
+          --neutral-bg: #1f2937; --neutral-fg: #e5e7eb;
+        }
+      }
+      body { font: 13px/1.45 system-ui, sans-serif; margin: 12px; background: var(--bg); color: var(--fg); }
+      h1 { font-size: 14px; margin: 0 0 10px; }
+      .card { border-left: 4px solid var(--neutral-edge); background: var(--neutral-bg); color: var(--neutral-fg); padding: 10px 12px; border-radius: 6px; }
+      .card[data-tone="danger"] { border-color: var(--danger-edge); background: var(--danger-bg); color: var(--danger-fg); }
+      .card[data-tone="warning"] { border-color: var(--warning-edge); background: var(--warning-bg); color: var(--warning-fg); }
+      .card[data-tone="ok"] { border-color: var(--ok-edge); background: var(--ok-bg); color: var(--ok-fg); }
+      .card h2 { font-size: 16px; margin: 0 0 4px; }
+      .card p { margin: 4px 0; }
+      .card ul { margin: 6px 0; padding-left: 18px; }
+      .card ul:empty, .card p:empty { display: none; }
+      .note { font-size: 12px; opacity: .85; }
+      .muted { color: var(--muted); font-size: 12px; }
       button { display: block; width: 100%; margin: 6px 0; padding: 8px; text-align: left; }
       textarea { width: 100%; height: 90px; box-sizing: border-box; }
-      pre { white-space: pre-wrap; word-break: break-word; background: #f3f3f3; color: #111; padding: 8px; max-height: 45vh; overflow: auto; }
+      pre { white-space: pre-wrap; word-break: break-word; background: var(--code-bg); color: var(--fg); padding: 8px; max-height: 45vh; overflow: auto; }
       pre:empty { display: none; }
       summary { cursor: pointer; margin-top: 16px; font-weight: 600; }
     </style>
   </head>
   <body>
-    <h3>This page</h3>
-    <p id="page-status">Loading…</p>
-    <p id="page-verdict"></p>
-    <button id="inspect">Inspect this page now</button>
-    <pre id="page-features"></pre>
+    <h1>This page</h1>
+    <section id="verdict" class="card" data-tone="neutral" role="status" aria-live="polite">
+      <h2 id="v-headline">Loading…</h2>
+      <p id="v-detail"></p>
+      <ul id="v-reasons"></ul>
+      <p id="v-note" class="note"></p>
+    </section>
+    <p id="page-status" class="muted"></p>
+    <button id="inspect">Check this page now</button>
+    <details>
+      <summary>Technical details</summary>
+      <pre id="page-features"></pre>
+    </details>
 
     <details id="diagnostics">
       <summary>Diagnostics: hybrid inference spike</summary>
