@@ -77,12 +77,38 @@ export function linkStats(doc: Document, pageUrl: URL): LinkStats {
   return stats;
 }
 
+const SKIP_TEXT_IN = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "SVG"]);
+
 /**
- * Cheap gate: URL + form attributes only, no layout. Runs on every DOM-mutation batch.
+ * Page text without layout: walks text nodes (skipping scripts and styles) instead of
+ * reading innerText, which forces a style and layout pass. Includes hidden text, which
+ * is fine for a gate. Stops at `limit` characters.
+ */
+export function quickText(doc: Document, limit = SCAN_TEXT_CHARS): string {
+  if (!doc.body) return "";
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {
+    acceptNode: (n) => (SKIP_TEXT_IN.has(n.parentElement?.tagName.toUpperCase() ?? "") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+  });
+  const parts: string[] = [];
+  let length = 0;
+  for (let n = walker.nextNode(); n && length < limit; n = walker.nextNode()) {
+    const t = n.nodeValue?.trim();
+    if (t) {
+      parts.push(t);
+      length += t.length + 1;
+    }
+  }
+  return parts.join(" ").slice(0, limit);
+}
+
+/**
+ * Cheap gate: URL, form attributes and layout-free page text. Runs on every
+ * DOM-mutation batch while the page is being watched.
  */
 export function quickDecision(doc: Document, href: string): PrefilterResult {
   const url = new URL(href);
-  return decide(urlSignals(url), formSignals(describeForms(doc), url));
+  const u = urlSignals(url);
+  return decide(u, formSignals(describeForms(doc), url), textSignals(doc.title, quickText(doc), u.hostname));
 }
 
 /**

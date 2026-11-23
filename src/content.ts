@@ -27,7 +27,9 @@ function evaluate(initial: boolean) {
   if (quick.shouldCheck) {
     flagged = true;
     stopWatching();
-    const features = buildFeatures(document, location.href);
+    // Forced: the gate already passed. The full read uses innerText, which drops hidden
+    // text the quick gate may have matched, and must not undo that decision.
+    const features = buildFeatures(document, location.href, { force: true });
     send({ url: location.href, prefilter: features.prefilter, features });
   } else if (initial) {
     // Report the skip once so the side panel can say why the page wasn't checked.
