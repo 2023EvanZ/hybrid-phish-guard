@@ -26,6 +26,38 @@ content script runs, then passed through the prefilter gate and a classifier.
 - **Strict**: only a `phishing` verdict counts as a warning.
 - **Lenient**: `suspicious` counts too (the UI warns on both).
 
+## Models: Gemini Nano, cloud Gemini, hybrid (2026-11-23)
+
+Run in Chrome 157 from the model eval page (side panel → Diagnostics → 7). Raw output:
+[results/2026-11-23-models.json](results/2026-11-23-models.json). One run; model output
+varies between runs, and with 38 benign cases one false alarm moves FPR by 2.6 points.
+
+| System | Strict precision | Strict recall | Lenient precision | Lenient recall | Lenient F1 | Lenient FPR |
+|---|---|---|---|---|---|---|
+| Rules only | 100% | 34.4% | 71.4% | 93.8% | 81.1% | 31.6% |
+| Gemini Nano (on-device) | 93.9% | 96.9% | 54.2% | 100% | 70.3% | 71.1% |
+| Gemini (cloud, redacted) | 100% | 96.9% | 94.1% | 100% | 97.0% | 5.3% |
+| **Hybrid (what users see)** | 93.9% | 96.9% | 91.4% | 100% | 95.5% | 7.9% |
+
+- **Latency**: Nano mean 3.0 s, max 4.3 s (warm; well under the 10 s timeout); cloud
+  mean 1.6 s, max 8.8 s. 1 of 63 Nano answers was unparseable; no cloud failures.
+- **Escalation**: 27 of 63 checked pages (43%) went to the cloud: 24 because Nano said
+  "suspicious", 2 low confidence, 1 unparseable.
+- **Nano almost never says "safe"** (3 of 31 checked benign pages). It says "phishing"
+  on phishing and "suspicious" on nearly everything else, so in practice Nano *catches*
+  and the cloud *clears*. The 43% escalation rate is a product of the 50/50 eval mix:
+  on real traffic, where checked pages are mostly legitimate logins, most checks would
+  go to the cloud (redacted). This is the main thing to fix in the prompt.
+- **Hybrid false alarms come from confident Nano mistakes**, which skip the cloud:
+  the home router (Nano "phishing" 95%: HTTP + IP address + password) and a MetaMask
+  help article that explains seed phrases (Nano "phishing" 90%, cloud "safe" 95%). Both
+  would show the banner. The third, a hyphenated credit union login, is "suspicious"
+  from both models.
+- **Strict miss**: the Microsoft Forms password-reset page is "suspicious" from both
+  models (badge, no banner).
+- Confidence carries some signal (Nano 93% mean when right vs 74% when wrong), but Nano
+  uses a few fixed values (0.95, 0.7, ...), so thresholds can only be coarse.
+
 ## Baseline: rules fallback (2026-11-23)
 
 | | Precision | Recall | F1 | FPR |
