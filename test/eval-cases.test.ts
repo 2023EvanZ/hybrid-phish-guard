@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { caseFeatures } from "../eval/case.ts";
+import { HELDOUT_CASES } from "../eval/cases/heldout.ts";
 import { ALL_CASES } from "../eval/cases/index.ts";
 
 test("eval cases have unique ids, notes, and build into features", () => {
@@ -10,6 +11,21 @@ test("eval cases have unique ids, notes, and build into features", () => {
     ids.add(c.id);
     assert.ok(c.note.length > 0, `${c.id} needs a note`);
     assert.equal(c.id.startsWith("p-"), c.label === "phishing", `${c.id}: prefix must match label`);
+    assert.doesNotThrow(() => caseFeatures(c), c.id);
+  }
+});
+
+// Shape checks only. No score floor on purpose: a floor would turn the held-out cases
+// into something to tune against.
+test("held-out cases are separate from the dev set and build into features", () => {
+  const dev = new Set(ALL_CASES.map((c) => c.id));
+  const ids = new Set<string>();
+  for (const c of HELDOUT_CASES) {
+    assert.ok(!dev.has(c.id) && !ids.has(c.id), `duplicate id ${c.id}`);
+    ids.add(c.id);
+    assert.ok(c.note.length > 0, `${c.id} needs a note`);
+    assert.equal(c.id.startsWith("h-p-"), c.label === "phishing", `${c.id}: prefix must match label`);
+    assert.ok(c.id.startsWith("h-p-") || c.id.startsWith("h-b-"), `${c.id}: held-out ids start with h-`);
     assert.doesNotThrow(() => caseFeatures(c), c.id);
   }
 });

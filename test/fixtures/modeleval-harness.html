@@ -11,7 +11,7 @@
       async sendMessage({ req }) {
         await sleep(15);
         if (req.prompt.startsWith("Reply with")) return { ok: true, text: "OK" };
-        const score = Number(/\(score (\d+)\)/.exec(req.prompt)?.[1] ?? 0);
+        const score = Number(/risk score (\d+)/.exec(req.prompt)?.[1] ?? 0);
         if (req.mode === "on-device" && score === 5) return { ok: true, text: "I think it is fine." }; // unparseable
         const verdict = score >= 7 ? "phishing" : score >= 4 ? "suspicious" : "safe";
         const confidence = req.mode === "cloud" ? 0.9 : score >= 7 ? 0.95 : 0.6;

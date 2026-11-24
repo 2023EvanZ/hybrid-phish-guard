@@ -1,6 +1,7 @@
 // Model eval page (opened from the side panel diagnostics). Drives eval/models.ts with the
 // real models, reached through the background, which owns the offscreen document.
 import { caseFeatures } from "../eval/case.ts";
+import { HELDOUT_CASES } from "../eval/cases/heldout.ts";
 import { ALL_CASES } from "../eval/cases/index.ts";
 import { lenient } from "../eval/metrics.ts";
 import type { Confusion } from "../eval/metrics.ts";
@@ -28,9 +29,15 @@ const log = (msg: string) => {
 const send = (req: OffscreenRequest) => chrome.runtime.sendMessage({ type: "hpg/model", req } satisfies HpgMessage);
 const classifier = (mode: ModelMode) => modelClassifier(offscreenTextModel(mode, send), mode);
 
-const checkedCount = ALL_CASES.filter((c) => caseFeatures(c).prefilter.shouldCheck).length;
+// Dev cases first, then the held-out cases, which are scored separately: the dev set
+// has been tuned against, the held-out set hasn't (see eval/cases/heldout.ts).
+const CASES = [...ALL_CASES, ...HELDOUT_CASES];
+const HELDOUT_IDS = new Set(HELDOUT_CASES.map((c) => c.id));
+const isHeldout = (r: CaseRun) => HELDOUT_IDS.has(r.id);
+
+const checkedCount = CASES.filter((c) => caseFeatures(c).prefilter.shouldCheck).length;
 $("plan").textContent =
-  `${ALL_CASES.length} cases; ${checkedCount} pass the prefilter gate, so up to ${checkedCount} calls per model. ` +
+  `${ALL_CASES.length} dev cases + ${HELDOUT_CASES.length} held-out cases; ${checkedCount} pass the prefilter gate, so up to ${checkedCount} calls per model. ` +
   "Cases run one at a time; cloud rate limits are retried after 30 s.";
 
 // ---------- rendering ----------
@@ -72,13 +79,11 @@ function cellFor(a: Attempt | null, label: CaseRun["label"]) {
   return { text: `${r.verdict} ${Math.round(r.confidence * 100)}% · ${r.latencyMs} ms`, cls: wrong ? "bad" : "" };
 }
 
-function render(runs: CaseRun[]) {
-  $("results").hidden = runs.length === 0;
-  const rep = report(runs);
+const conf = (c: Confusion) => [pct(c.precision), pct(c.recall), pct(c.f1), pct(c.falsePositiveRate)];
 
-  const conf = (c: Confusion) => [pct(c.precision), pct(c.recall), pct(c.f1), pct(c.falsePositiveRate)];
+function scoresTable(target: HTMLTableElement, rep: ReturnType<typeof report>) {
   table(
-    $("scores"),
+    target,
     ["System", "Precision", "Recall", "F1", "False alarms", "Strict precision", "Strict recall", "TP / FP / FN / TN (lenient)"],
     SYSTEMS.flatMap((s) => {
       const sum = rep.systems[s];
@@ -88,15 +93,26 @@ function render(runs: CaseRun[]) {
     }),
     new Set([1, 2, 3, 4, 5, 6]),
   );
+}
 
-  const h = rep.hybrid;
-  const fmt = (o: Record<string, number>) => Object.entries(o).map(([k, v]) => `${k} ${v}`).join(", ") || "none";
-  const hybridEl = $("hybrid");
-  hybridEl.replaceChildren(
-    el("p", `Sent to the cloud: ${pct(h.escalationRate)} of ${h.checked} checked pages.`),
-    el("p", `Escalation decisions: ${fmt(h.reasons)}.`),
-    el("p", `Final verdict came from: ${fmt(h.finalSource)}.`),
-  );
+const fmt = (o: Record<string, number>) => Object.entries(o).map(([k, v]) => `${k} ${v}`).join(", ") || "none";
+const hybridLines = (name: string, h: ReturnType<typeof report>["hybrid"]) => [
+  el("p", `${name}: sent to the cloud ${pct(h.escalationRate)} of ${h.checked} checked pages. Escalation decisions: ${fmt(h.reasons)}. Final verdict came from: ${fmt(h.finalSource)}.`),
+];
+
+function render(runs: CaseRun[]) {
+  $("results").hidden = runs.length === 0;
+  const dev = runs.filter((r) => !isHeldout(r));
+  const held = runs.filter(isHeldout);
+  const rep = report(runs); // model stats (latency, failures) over every call
+  const devRep = report(dev);
+  const heldRep = report(held);
+
+  scoresTable($("scores"), devRep);
+  $("heldout-section").hidden = held.length === 0;
+  if (held.length) scoresTable($("heldout-scores"), heldRep);
+
+  $("hybrid").replaceChildren(...hybridLines("Dev cases", devRep.hybrid), ...(held.length ? hybridLines("Held-out cases", heldRep.hybrid) : []));
 
   const row = (name: string, s: ModelStats | null) =>
     s ? [name, String(s.calls), String(s.failures), ms(s.meanLatencyMs), ms(s.maxLatencyMs), pct(s.meanConfidenceRight), pct(s.meanConfidenceWrong)] : [];
@@ -112,13 +128,15 @@ function render(runs: CaseRun[]) {
 
   table(
     $("cases"),
-    ["Case", "Label", "Gate score", "Rules", "On-device", "Cloud", "Hybrid"],
+    ["Case", "Set", "Label", "Gate score", "Rules", "On-device", "Cloud", "Hybrid"],
     runs.map((r) => {
-      if (!r.checked) return [r.id, r.label, String(r.score), "skipped", "—", "—", { text: "not checked", cls: r.label === "phishing" ? "bad" : "" }];
+      const set = isHeldout(r) ? "held-out" : "dev";
+      if (!r.checked) return [r.id, set, r.label, String(r.score), "skipped", "—", "—", { text: "not checked", cls: r.label === "phishing" ? "bad" : "" }];
       const rules = r.rules!;
       const hyb = r.hybrid!.final;
       return [
         r.id,
+        set,
         r.label,
         String(r.score),
         { text: `${rules.verdict}`, cls: lenient(rules.verdict) !== (r.label === "phishing") ? "bad" : "" },
@@ -127,7 +145,7 @@ function render(runs: CaseRun[]) {
         { text: `${hyb.verdict} (${hyb.source})`, cls: lenient(hyb.verdict) !== (r.label === "phishing") ? "bad" : "" },
       ];
     }),
-    new Set([2]),
+    new Set([3]),
   );
 }
 
@@ -177,12 +195,12 @@ runBtn.onclick = async () => {
         log(`warm-up failed: ${String(e)}`);
       }
     }
-    for (const [i, c] of ALL_CASES.entries()) {
+    for (const [i, c] of CASES.entries()) {
       if (stopRequested) {
-        log(`Stopped after ${runs.length} of ${ALL_CASES.length} cases; scores cover those only.`);
+        log(`Stopped after ${runs.length} of ${CASES.length} cases; scores cover those only.`);
         break;
       }
-      progressEl.textContent = `${i + 1} / ${ALL_CASES.length}  ${c.id}`;
+      progressEl.textContent = `${i + 1} / ${CASES.length}  ${c.id}`;
       runs.push(await runCase(c, { local, cloud }));
       render(runs);
     }
@@ -207,7 +225,10 @@ downloadBtn.onclick = () => {
     startedAt,
     models: { onDevice: useLocal.checked, cloud: useCloud.checked },
     userAgent: navigator.userAgent,
-    report: report(runs),
+    // report: dev cases only, comparable with earlier runs. heldoutReport: held-out cases.
+    report: report(runs.filter((r) => !isHeldout(r))),
+    heldoutReport: report(runs.filter(isHeldout)),
+    heldoutIds: [...HELDOUT_IDS],
     runs,
   };
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));

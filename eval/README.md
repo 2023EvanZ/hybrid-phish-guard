@@ -26,6 +26,32 @@ content script runs, then passed through the prefilter gate and a classifier.
 - **Strict**: only a `phishing` verdict counts as a warning.
 - **Lenient**: `suspicious` counts too (the UI warns on both).
 
+## Held-out cases (2026-11-24)
+
+15 cases (7 phishing, 8 benign) in [cases/heldout.ts](cases/heldout.ts), written after
+model run 3 and before the next policy change. They were committed (1366d2a) before
+anything scored them, the rules engine included, and stay out of `ALL_CASES`, the rules
+test floors and any tuning. Rules: no case is edited, dropped or relabeled after a score is
+seen; once they inform a change they stop counting as held out. The eval page and
+`npm run eval` score them separately.
+
+Caveats: the same person wrote the dev cases, the prompt and these cases, and knew Nano's
+weak spots while writing them. With 7 and 8 cases, one case moves a rate by 12-14 points.
+
+**Rules engine on held-out vs dev (lenient):**
+
+| Set | Precision | Recall | F1 | FPR |
+|---|---|---|---|---|
+| Dev (70 cases) | 73.2% | 93.8% | 82.2% | 28.9% |
+| Held-out (15 cases) | 80.0% | 57.1% | 66.7% | 12.5% |
+
+The recall drop is the overfitting the held-out set exists to show: the rules and their
+brand list were grown against the dev cases. Missed: `h-p-toll-unpaid` (score 2; toll
+brand only in the text), `h-p-att-webflow` (score 3), and `h-p-coinbase-callback`, a
+phone-number scam with no form that the prefilter gate **skips**, so no model sees it
+either. The gate passes 6 of 7 held-out phishing pages. False alarm:
+`h-b-city-utility-paymentus` (score 6), a city bill form that posts to its payment processor.
+
 ## Models, run 3: schema-constrained Nano (2026-11-23)
 
 Changes since run 2: Nano's output is constrained to the verdict JSON schema

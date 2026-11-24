@@ -55,9 +55,14 @@
     <p id="plan" class="muted"></p>
     <pre id="log"></pre>
     <section id="results" hidden>
-      <h2>Scores</h2>
+      <h2>Scores: dev cases</h2>
       <p class="muted">Lenient counts "phishing" or "suspicious" as a warning; strict counts only "phishing" (the banner). Pages the prefilter skips count as no warning. A failed model call counts as no warning for that model alone.</p>
       <div class="scroll"><table id="scores"></table></div>
+      <div id="heldout-section" hidden>
+        <h2>Scores: held-out cases</h2>
+        <p class="muted">Written before the next policy change and never tuned against (eval/cases/heldout.ts). Few cases, so one case moves a rate by 12-14 points.</p>
+        <div class="scroll"><table id="heldout-scores"></table></div>
+      </div>
       <h2>Hybrid pipeline</h2>
       <div id="hybrid"></div>
       <h2>Models</h2>

@@ -7,6 +7,7 @@
 import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { rulesClassifier } from "../src/triage/rules.ts";
+import { HELDOUT_CASES } from "./cases/heldout.ts";
 import { ALL_CASES } from "./cases/index.ts";
 import { evaluateCases } from "./evaluate.ts";
 import { summarize } from "./metrics.ts";
@@ -38,7 +39,18 @@ for (const e of s.errors) {
   console.log(`  ${kind} ${e.id.padEnd(30)} predicted ${e.prediction.padEnd(10)} score ${e.score}`);
 }
 
+// Held-out cases (eval/cases/heldout.ts) are scored on their own and never folded into
+// the dev numbers above.
+const held = summarize(await evaluateCases(HELDOUT_CASES, rulesClassifier));
+console.log(`\nHeld-out: ${held.n.phishing} phishing, ${held.n.benign} benign`);
+console.log(line("Strict", held.strict));
+console.log(line("Lenient", held.lenient));
+for (const e of held.errors) {
+  const kind = e.label === "phishing" ? "MISSED " : "FALSE+ ";
+  console.log(`  ${kind} ${e.id.padEnd(30)} predicted ${e.prediction.padEnd(10)} score ${e.score}`);
+}
+
 if (values.json) {
-  writeFileSync(values.json, JSON.stringify({ classifier: rulesClassifier.source, summary: s, outcomes }, null, 2));
+  writeFileSync(values.json, JSON.stringify({ classifier: rulesClassifier.source, summary: s, outcomes, heldout: held }, null, 2));
   console.log(`\nWrote ${values.json}`);
 }
