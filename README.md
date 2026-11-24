@@ -30,6 +30,7 @@ page loads
 - **No silent cloud fallback.** The on-device model runs in `ONLY_ON_DEVICE` mode, not `PREFER_ON_DEVICE`, because the latter would fall back to the cloud with the unredacted page. Escalation is explicit and always goes through redaction.
 - **Redaction before the cloud** ([src/triage/redact.ts](src/triage/redact.ts)): emails, phone/card/account numbers, greeting names, URL query strings, fragments and per-victim URL tokens are removed. The phishing evidence (domain, path shape, form targets) is kept. This is best effort; names outside greetings and street addresses are not detected.
 - **Prompt-injection guard.** Page text is marked untrusted in the prompt and cannot close its delimiter. If the local model still says "safe" on a page the rules score as high risk, the verdict is not trusted and is escalated.
+- **Nano decides alone only when the evidence agrees.** A Nano "phishing" on a page the rules score under 5 goes to the cloud before any banner. So does a Nano "safe" on a page that asks for a password, card, bank details or a one-time code under a brand it isn't hosted by, which is where an unknown lookalike domain would be. Nano doesn't reliably catch one-letter typos.
 
 ## Development
 

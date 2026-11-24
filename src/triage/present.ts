@@ -33,6 +33,7 @@ export const ESCALATION_TEXT: Record<EscalationReason, string> = {
   suspicious: "the on-device model rated it suspicious",
   "contradicts-heuristics": "the on-device model's \"safe\" contradicted strong warning signs",
   "unsupported-phishing": "the on-device model's \"phishing\" had little supporting evidence",
+  "unverified-brand": "the page asks for sensitive details under a brand it isn't hosted by",
   confident: "the on-device model was confident",
 };
 

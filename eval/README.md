@@ -26,6 +26,36 @@ content script runs, then passed through the prefilter gate and a classifier.
 - **Strict**: only a `phishing` verdict counts as a warning.
 - **Lenient**: `suspicious` counts too (the UI warns on both).
 
+## Policy change after run 3 (2026-11-24)
+
+Shipped in [src/triage/policy.ts](../src/triage/policy.ts), made after the held-out cases
+were frozen and before any model saw them:
+
+- `lowRiskScore` 4 to 5: a Nano "phishing" on a page scoring 4 or less goes to the cloud
+  before any banner.
+- New `unverified-brand` escalation: a Nano "safe" on a page that names a brand it isn't
+  hosted by (`brand-text-mismatch`) and has a password, payment, bank/SSN or one-time-code
+  field goes to the cloud. The run 3 replay tried passwords only; the shipped check covers
+  all four sensitive field types.
+- The prompt is unchanged (it still describes the score as "under 4 is low"), so the next
+  run measures the policy alone.
+
+Offline replay of the recorded answers through the real `shouldEscalate`, local timeout
+included. The old-policy row reproduces run 3's recorded hybrid result exactly. These are
+the dev cases the change was designed on, so they show that it does what it was built to do,
+not how well it generalizes. That is the held-out set's job.
+
+| Run | Policy | False alarms | Misses | Sent to cloud | Benign sent to cloud |
+|---|---|---|---|---|---|
+| 2 | old | 0 | 1 | 18 / 63 (29%) | 7 |
+| 2 | new | 0 | 0 | 26 / 63 (41%) | 11 |
+| 3 | old | 2 | 1 | 16 / 63 (25%) | 6 |
+| 3 | new | 0 | 0 | 28 / 63 (44%) | 12 |
+
+The cost is privacy and latency: about 4 in 10 checked pages now get a cloud call (on
+redacted features, about 1 s), against 1 in 4 before. That is still far below run 1, where
+28 of 31 benign pages went to the cloud.
+
 ## Held-out cases (2026-11-24)
 
 15 cases (7 phishing, 8 benign) in [cases/heldout.ts](cases/heldout.ts), written after
