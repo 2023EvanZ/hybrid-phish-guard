@@ -37,7 +37,9 @@ export type HpgMessage =
   /** Side panel -> content script. Answered with the forced PrefilterReport. */
   | { type: "hpg/inspect" }
   /** In-page banner -> background: take the user away from this page. */
-  | { type: "hpg/leave" };
+  | { type: "hpg/leave" }
+  /** Side panel diagnostics -> background: create the offscreen document and probe it. */
+  | { type: "hpg/probe-offscreen" };
 
 /** The verdict for a reported page, or null when the page wasn't checked. */
 export interface ReportReply {
@@ -52,3 +54,27 @@ export interface StoredVerdict {
 
 export const tabKey = (tabId: number) => `tab:${tabId}`;
 export const verdictKey = (tabId: number) => `verdict:${tabId}`;
+
+// --- Offscreen document (hosts the Firebase models; the Prompt API isn't exposed in
+// service workers). Only the background talks to it. Content scripts' runtime messages
+// also reach every extension page, so the offscreen side ignores anything without
+// `target: "offscreen"`.
+
+/** "on-device" is ONLY_ON_DEVICE; "cloud" is ONLY_IN_CLOUD. There is no PREFER mode. */
+export type ModelMode = "on-device" | "cloud";
+
+export type OffscreenRequest =
+  | { target: "offscreen"; type: "generate"; mode: ModelMode; prompt: string }
+  | { target: "offscreen"; type: "probe" };
+
+export type GenerateReply = { ok: true; text: string } | { ok: false; error: string };
+
+export interface ProbeReply {
+  /** Is the LanguageModel global defined in the offscreen document? */
+  languageModelGlobal: boolean;
+  availability: string | null;
+  /** Result of the warm-up run at load: how long it took, or why it failed. */
+  warmup: { ms: number } | { error: string } | "pending";
+  /** A fresh tiny on-device call made for the probe. */
+  probe: { ms: number; text: string } | { error: string };
+}
