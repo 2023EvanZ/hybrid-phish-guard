@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Model Eval</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff; --fg: #111827; --muted: #6b7280; --line: #e5e7eb; --code-bg: #f3f4f6;
+        --bad-bg: #fef2f2; --bad-fg: #991b1b; --accent: #2563eb;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #111827; --fg: #f3f4f6; --muted: #9ca3af; --line: #374151; --code-bg: #1f2937;
+          --bad-bg: #3b0d0d; --bad-fg: #fecaca; --accent: #60a5fa;
+        }
+      }
+      body { font: 14px/1.5 system-ui, sans-serif; margin: 0 auto; padding: 16px; max-width: 1100px; background: var(--bg); color: var(--fg); }
+      h1 { font-size: 20px; margin: 0 0 4px; }
+      h2 { font-size: 16px; margin: 28px 0 8px; }
+      p { margin: 6px 0; }
+      .muted { color: var(--muted); font-size: 13px; }
+      .controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; margin: 16px 0; }
+      button { font: inherit; padding: 6px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--code-bg); color: var(--fg); cursor: pointer; }
+      button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+      button:disabled { opacity: .5; cursor: default; }
+      #progress { font-variant-numeric: tabular-nums; }
+      .scroll { overflow-x: auto; }
+      table { border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; min-width: 100%; }
+      th, td { text-align: left; padding: 5px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+      th { font-weight: 600; }
+      td.num, th.num { text-align: right; }
+      td.bad { background: var(--bad-bg); color: var(--bad-fg); }
+      pre { background: var(--code-bg); padding: 8px 10px; border-radius: 6px; white-space: pre-wrap; font-size: 12px; max-height: 240px; overflow: auto; }
+      #log:empty { display: none; }
+    </style>
+  </head>
+  <body>
+    <h1>Model eval</h1>
+    <p class="muted">
+      Runs the labeled eval cases through Gemini Nano (on-device) and Gemini (cloud, redacted pages only) via the
+      offscreen document, then replays both answers through the real triage pipeline to score the hybrid verdict.
+      Cases are written by the same person as the rules, so treat the numbers as a comparison between systems, not
+      real-world accuracy.
+    </p>
+    <div class="controls">
+      <label><input type="checkbox" id="use-local" checked /> On-device</label>
+      <label><input type="checkbox" id="use-cloud" checked /> Cloud</label>
+      <button id="run" class="primary">Run eval</button>
+      <button id="stop" disabled>Stop</button>
+      <button id="download" disabled>Download JSON</button>
+      <span id="progress" class="muted"></span>
+    </div>
+    <p id="plan" class="muted"></p>
+    <pre id="log"></pre>
+    <section id="results" hidden>
+      <h2>Scores</h2>
+      <p class="muted">Lenient counts "phishing" or "suspicious" as a warning; strict counts only "phishing" (the banner). Pages the prefilter skips count as no warning. A failed model call counts as no warning for that model alone.</p>
+      <div class="scroll"><table id="scores"></table></div>
+      <h2>Hybrid pipeline</h2>
+      <div id="hybrid"></div>
+      <h2>Models</h2>
+      <div class="scroll"><table id="models"></table></div>
+      <div id="errors"></div>
+      <h2>Per case</h2>
+      <p class="muted">Red cells are wrong under the lenient rule.</p>
+      <div class="scroll"><table id="cases"></table></div>
+    </section>
+    <script type="module" src="/src/modeleval.ts"></script>
+  </body>
+</html>

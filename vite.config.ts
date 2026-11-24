@@ -12,6 +12,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         sidepanel: resolve(import.meta.dirname, "sidepanel.html"),
+        modeleval: resolve(import.meta.dirname, "modeleval.html"),
         offscreen: resolve(import.meta.dirname, "offscreen.html"),
         background: resolve(import.meta.dirname, "src/background.ts"),
       },

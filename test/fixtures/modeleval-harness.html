@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Model eval harness</title></head>
+<body>
+<!-- Test-only: renders the built model eval page (dist/) with chrome.runtime.sendMessage
+     stubbed by fake models, so the page can be checked in a normal browser tab. -->
+<script type="module">
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  window.chrome = {
+    runtime: {
+      async sendMessage({ req }) {
+        await sleep(15);
+        if (req.prompt.startsWith("Reply with")) return { ok: true, text: "OK" };
+        const score = Number(/\(score (\d+)\)/.exec(req.prompt)?.[1] ?? 0);
+        if (req.mode === "on-device" && score === 5) return { ok: true, text: "I think it is fine." }; // unparseable
+        const verdict = score >= 7 ? "phishing" : score >= 4 ? "suspicious" : "safe";
+        const confidence = req.mode === "cloud" ? 0.9 : score >= 7 ? 0.95 : 0.6;
+        return { ok: true, text: JSON.stringify({ verdict, confidence, reasons: [`fake ${req.mode} reason`] }) };
+      },
+    },
+  };
+  const html = await (await fetch("/dist/modeleval.html")).text();
+  const parsed = new DOMParser().parseFromString(html, "text/html");
+  document.head.append(...parsed.head.querySelectorAll("style"));
+  document.body.innerHTML = parsed.body.innerHTML;
+  await import("/dist/modeleval.js");
+</script>
+</body>
+</html>

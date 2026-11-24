@@ -75,3 +75,5 @@ $("offscreen").onclick = async () => {
     log(`[offscreen] FAILED: ${String(err)}`);
   }
 };
+
+$("modeleval").onclick = () => void chrome.tabs.create({ url: chrome.runtime.getURL("modeleval.html") });
