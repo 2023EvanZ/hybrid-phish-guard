@@ -28,7 +28,13 @@ test("a confident 'safe' on a high-risk page escalates (prompt-injection guard)"
 });
 
 test("thresholds are configurable", () => {
-  const strict = { minConfidence: 0.95, highRiskScore: 100 };
+  const strict = { minConfidence: 0.95, highRiskScore: 100, lowRiskScore: 0 };
   assert.equal(shouldEscalate(local("phishing", 0.9), phishFeatures(), strict).reason, "low-confidence");
   assert.equal(shouldEscalate(local("safe", 0.99), phishFeatures(), strict).escalate, false);
+});
+
+test("a 'phishing' on a low-risk page escalates (no banner on a hunch alone)", () => {
+  assert.ok(benignFeatures().prefilter.score < 4);
+  assert.deepEqual(shouldEscalate(local("phishing", 0.95), benignFeatures()), { escalate: true, reason: "unsupported-phishing" });
+  assert.equal(shouldEscalate(local("phishing", 0.95), phishFeatures()).escalate, false);
 });
