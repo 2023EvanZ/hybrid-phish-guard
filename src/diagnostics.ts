@@ -1,5 +1,6 @@
 import { getGenerativeModel, InferenceMode } from "firebase/ai";
 import { ai, configMissing } from "./firebase";
+import type { HpgMessage } from "./shared/messages.ts";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const logEl = $<HTMLPreElement>("log");
@@ -64,3 +65,13 @@ $("init").onclick = async () => {
 $("device").onclick = () => run("device");
 $("prefer").onclick = () => run("prefer");
 $("cloud").onclick = () => run("cloud");
+
+$("offscreen").onclick = async () => {
+  log("[offscreen] probing (creates the document if needed)...");
+  try {
+    const reply = await chrome.runtime.sendMessage({ type: "hpg/probe-offscreen" } satisfies HpgMessage);
+    log(`[offscreen] ${JSON.stringify(reply)}`);
+  } catch (err) {
+    log(`[offscreen] FAILED: ${String(err)}`);
+  }
+};
