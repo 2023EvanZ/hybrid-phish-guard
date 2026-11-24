@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit && vite build && vite build -c vite.content.config.ts",
+    "build:release": "tsc --noEmit && vite build --mode release && vite build -c vite.content.config.ts --mode release && node scripts/package-release.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.ts",
     "eval": "node eval/run.ts"

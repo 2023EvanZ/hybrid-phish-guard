@@ -4,12 +4,12 @@ import { resolve } from "node:path";
 // Content scripts must be classic scripts, so this entry is built on its own as a
 // self-contained IIFE (no shared chunks, no `import`). Runs after the main build,
 // which owns emptying dist/ and copying public/.
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   publicDir: false,
   build: {
     outDir: "dist",
     emptyOutDir: false,
-    sourcemap: true,
+    sourcemap: mode !== "release",
     lib: {
       entry: resolve(import.meta.dirname, "src/content.ts"),
       formats: ["iife"],
@@ -17,4 +17,4 @@ export default defineConfig({
       fileName: () => "content.js",
     },
   },
-});
+}));
