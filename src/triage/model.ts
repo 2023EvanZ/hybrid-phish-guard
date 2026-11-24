@@ -25,7 +25,8 @@ export function modelClassifier(
       const t0 = now();
       const text = await model.generate(buildTriagePrompt(features));
       const parsed = parseVerdict(text);
-      if (!parsed.ok) throw new Error(`${source} model output rejected: ${parsed.error}`);
+      // A short snippet of the raw output makes format failures diagnosable from an eval run.
+      if (!parsed.ok) throw new Error(`${source} model output rejected: ${parsed.error} (output: ${JSON.stringify(text.slice(0, 80))})`);
       return { ...parsed.value, source, latencyMs: Math.round(now() - t0) };
     },
   };
