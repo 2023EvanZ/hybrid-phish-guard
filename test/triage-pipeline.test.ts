@@ -82,7 +82,7 @@ test("modelClassifier: prompt in, parsed verdict out; bad output throws", async 
   let t = 0;
   const r = await modelClassifier(good, "on-device", () => (t += 50)).classify(phishFeatures());
   assert.deepEqual(r, { verdict: "phishing", confidence: 0.88, reasons: ["fake login"], source: "on-device", latencyMs: 50 });
-  assert.match(prompts[0], /Brands imitated in the web address: Wells Fargo/);
+  assert.match(prompts[0], /Brands imitated in the web address, .*: Wells Fargo/);
 
   const bad: TextModel = { generate: async () => "Looks dodgy to me!" };
   await assert.rejects(modelClassifier(bad, "on-device").classify(phishFeatures()), /output rejected: no JSON/);

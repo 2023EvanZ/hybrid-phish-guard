@@ -75,7 +75,9 @@ function describe(f: PageFeatures): string {
   });
   lines.push(
     "Signals:",
-    `- Brands imitated in the web address: ${list(u.brandsInHost)}`,
+    // Eval run 2: Nano read a bare "none" here as proof of no imitation and missed a
+    // misspelled brand the list doesn't know. Say what the list can't see.
+    `- Brands imitated in the web address, from a short brand list that misses most misspellings (check the address yourself): ${list(u.brandsInHost)}`,
     `- Brands named on a page they don't host: ${list(f.text.brandMismatch)}`,
     `- Pressure phrases: ${list(f.text.urgencyHits.map((h) => `"${sanitize(h)}"`))}`,
     `- Links: ${f.links.total} total, ${f.links.external} to other sites, ${f.links.mismatchedText} whose text names a different site`,
