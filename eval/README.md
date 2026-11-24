@@ -26,6 +26,57 @@ content script runs, then passed through the prefilter gate and a classifier.
 - **Strict**: only a `phishing` verdict counts as a warning.
 - **Lenient**: `suspicious` counts too (the UI warns on both).
 
+## Models, run 3: schema-constrained Nano (2026-11-23)
+
+Changes since run 2: Nano's output is constrained to the verdict JSON schema
+(`responseConstraint`), and the prompt's brand line says the list misses most misspellings
+and tells the model to check the address itself. Two changes in one run, so a shift in
+Nano's verdicts can't be pinned on either one. Raw output:
+[results/2026-11-23-models-run3.json](results/2026-11-23-models-run3.json).
+
+| System | Strict precision | Strict recall | Lenient precision | Lenient recall | Lenient F1 | Lenient FPR |
+|---|---|---|---|---|---|---|
+| Rules only | 100% | 34.4% | 73.2% | 93.8% | 82.2% | 28.9% |
+| Gemini Nano (on-device) | 88.0% | 68.8% | 78.9% | 93.8% | 85.7% | 21.1% |
+| Gemini (cloud, redacted) | 100% | 100% | 100% | 100% | 100% | 0% |
+| **Hybrid (what users see)** | 93.9% | 96.9% | 93.9% | 96.9% | 95.4% | 5.3% |
+
+- **The schema constraint worked**: 0 invalid-JSON answers (run 2: 5). Nano latency is
+  unchanged (median 2.93 s, p90 3.60 s; run 2: 2.92 s / 3.55 s). Of the 5 former
+  failures, 2 are now confident "phishing" and 3 are "suspicious" (sent to the cloud).
+- **Regression: 2 hybrid false alarms** (run 2: 0). On `b-authorize-net-checkout` and
+  `b-library-bibliocommons`, legitimate forms that post to a payment or auth provider
+  (score 4), Nano went from "suspicious" 70% to "phishing" 85%. That is confident enough
+  to skip the cloud, and 4 is not under the `lowRiskScore` cutoff of 4. One of its reasons
+  was "Cross-origin form detected with a high risk score", although the prompt says
+  under 4 is low and 8 or more is high.
+- **`p-paypai` still missed; the brand-line rewording did nothing.** Nano said "safe" 90%
+  again, now citing "Registered domain matches the brand in the URL", which is false.
+  Prompt wording doesn't get Nano to notice a one-letter typo.
+- The policy's mirror check did its job once: `b-metamask-help-import` (score 3) got a
+  Nano "phishing", escalated as `unsupported-phishing`, and the cloud cleared it.
+- **1 lost reply, then 1 timeout.** On `p-usps-redelivery` the call failed with "message
+  channel closed before a response was received", and the next case took 12.1 s (cold-model
+  territory), so it timed out. Unverified guess: the offscreen document died and was
+  recreated, so Nano had to load again. Both cases escalated and were caught.
+- Cloud was back to normal: mean 0.85 s, max 2.1 s, no failures, every case right.
+- Escalation fell to 25% (16 of 63), because Nano answers more often and more confidently.
+
+**Counterfactual policies, replayed offline on the recorded answers of runs 2 and 3.**
+These are tuned on the same data, so they show direction only:
+
+| Policy | Run 2 FP / FN | Run 3 FP / FN | Run 3 escalated (benign) |
+|---|---|---|---|
+| Current (`lowRiskScore` 4) | 0 / 1 | 2 / 1 | 15 (6) |
+| `lowRiskScore` 5 | 0 / 1 | 0 / 1 | 22 (8) |
+| `lowRiskScore` 5, plus escalate a Nano "safe" when the page asks for a password and names a brand it isn't hosted by | 0 / 0 | 0 / 0 | 27 (12) |
+
+The replay ignores the 10 s local timeout, so its escalation counts can be off by one
+from the table above. The structural lesson matters more than the numbers: Nano's verdict
+should stand alone only when it agrees with the rules' evidence. Where they disagree in a
+way that hurts, cloud review costs about 1 s. Prompt edits have changed *which* cases
+Nano gets wrong more than *how many*.
+
 ## Models, run 2: evidence-based prompt (2026-11-23)
 
 Changes since run 1: the prompt defines each verdict by evidence and says a form alone
