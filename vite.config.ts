@@ -1,7 +1,8 @@
 import { defineConfig } from "vite";
 import { resolve } from "node:path";
 
-// Two entries: the side panel page (where the model runs) and the MV3 service worker.
+// Entries: the side panel page, the offscreen document (where the models run) and the
+// MV3 service worker.
 // Everything is bundled locally because MV3 forbids remotely hosted code.
 export default defineConfig({
   build: {
@@ -11,6 +12,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         sidepanel: resolve(import.meta.dirname, "sidepanel.html"),
+        offscreen: resolve(import.meta.dirname, "offscreen.html"),
         background: resolve(import.meta.dirname, "src/background.ts"),
       },
       output: {

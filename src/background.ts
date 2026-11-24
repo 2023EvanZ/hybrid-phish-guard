@@ -3,22 +3,68 @@
 // closes). The content script gets the verdict back as the reply to its report, so a
 // verdict can only ever reach the document that asked for it.
 //
-// Models: Chrome's Prompt API is unavailable in workers, so the on-device classifier
-// can't run here. Until the Firebase spike settles where it lives (side panel or an
-// offscreen document), triage runs with no classifiers and returns the rules verdict.
+// Models: Chrome's Prompt API is unavailable in workers, so both Firebase models live in
+// an offscreen document (src/offscreen.ts). The pipeline here still owns prompt building,
+// redaction and parsing; the offscreen document only turns prompts into text.
 import { verdictKey, tabKey } from "./shared/messages.ts";
-import type { HpgMessage, PrefilterReport, ReportReply, StoredVerdict } from "./shared/messages.ts";
+import type { HpgMessage, OffscreenRequest, PrefilterReport, ReportReply, StoredVerdict } from "./shared/messages.ts";
+import { modelClassifier } from "./triage/model.ts";
 import { triage } from "./triage/pipeline.ts";
 import type { TriageDeps } from "./triage/pipeline.ts";
 import { badgeFor } from "./triage/present.ts";
+import { offscreenTextModel } from "./triage/remote.ts";
 
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((err) => console.error("sidePanel.setPanelBehavior failed", err));
 
-async function classifiers(): Promise<TriageDeps> {
-  return {};
+const OFFSCREEN_URL = "offscreen.html";
+let creating: Promise<void> | null = null;
+
+async function ensureOffscreen(): Promise<void> {
+  if (await chrome.offscreen.hasDocument()) return;
+  // Single-flight: concurrent reports must not race to create two documents (Chrome
+  // allows one per extension and throws on the second).
+  creating ??= chrome.offscreen
+    .createDocument({
+      url: OFFSCREEN_URL,
+      // There is no Prompt-API reason. DOM_PARSER is the closest fit; the justification
+      // says what it's really for. Fine unpacked; a Web Store review could object.
+      reasons: ["DOM_PARSER"],
+      justification: "Runs Gemini Nano (Chrome Prompt API), which is unavailable in service workers, to classify pages on-device.",
+    })
+    .finally(() => {
+      creating = null;
+    });
+  await creating;
 }
+
+async function sendOffscreen(req: OffscreenRequest): Promise<unknown> {
+  await ensureOffscreen();
+  try {
+    return await chrome.runtime.sendMessage(req);
+  } catch (e) {
+    // A just-created document may not have registered its listener yet.
+    if (!String(e).includes("Receiving end does not exist")) throw e;
+    await new Promise((r) => setTimeout(r, 300));
+    return chrome.runtime.sendMessage(req);
+  }
+}
+
+const deps: TriageDeps = {
+  local: modelClassifier(offscreenTextModel("on-device", sendOffscreen), "on-device"),
+  cloud: modelClassifier(offscreenTextModel("cloud", sendOffscreen), "cloud"),
+};
+
+async function classifiers(): Promise<TriageDeps> {
+  return deps;
+}
+
+// Create the document (and so start the Nano warm-up) as soon as the browser or the
+// extension starts, not on the first checked page.
+const warm = () => void ensureOffscreen().catch((err) => console.error("offscreen document failed", err));
+chrome.runtime.onStartup.addListener(warm);
+chrome.runtime.onInstalled.addListener(warm);
 
 // Bumped on every navigation, so a slow verdict for the previous document isn't stored
 // against the new one. Lost if the worker restarts mid-triage; the window is tiny for
@@ -55,6 +101,12 @@ async function leave(tabId: number) {
 }
 
 chrome.runtime.onMessage.addListener((msg: HpgMessage, sender, sendResponse) => {
+  if (msg?.type === "hpg/probe-offscreen" && sender.id === chrome.runtime.id && !sender.tab) {
+    sendOffscreen({ target: "offscreen", type: "probe" })
+      .then(sendResponse)
+      .catch((err) => sendResponse({ error: String(err) }));
+    return true;
+  }
   const tabId = sender.tab?.id;
   if (tabId === undefined || sender.frameId !== 0) return;
   if (msg.type === "hpg/report") {
