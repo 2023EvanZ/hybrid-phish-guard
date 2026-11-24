@@ -12,9 +12,15 @@
 import { getGenerativeModel, InferenceMode } from "firebase/ai";
 import { ai, configMissing } from "./firebase.ts";
 import type { GenerateReply, ModelMode, OffscreenRequest, ProbeReply } from "./shared/messages.ts";
+import { VERDICT_JSON_SCHEMA } from "./triage/prompt.ts";
 
 const models: Record<ModelMode, ReturnType<typeof getGenerativeModel>> = {
-  "on-device": getGenerativeModel(ai, { mode: InferenceMode.ONLY_ON_DEVICE }),
+  // responseConstraint makes Chrome's Prompt API decode only output matching the schema.
+  // Eval run 2 had 5 of 63 Nano answers rejected as invalid JSON, all on phishing pages.
+  "on-device": getGenerativeModel(ai, {
+    mode: InferenceMode.ONLY_ON_DEVICE,
+    onDeviceParams: { promptOptions: { responseConstraint: VERDICT_JSON_SCHEMA } },
+  }),
   cloud: getGenerativeModel(ai, { mode: InferenceMode.ONLY_IN_CLOUD }),
 };
 
