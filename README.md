@@ -2,7 +2,7 @@
 
 A Chrome extension that warns you about phishing and scam pages using **on-device AI first**. The page you're looking at only leaves your machine when the local model is unsure, and then only after personal data has been stripped out.
 
-> **Status: work in progress** for the #BuildHybridAI 2026 hackathon. The prefilter, page analysis, triage pipeline and redaction work and are tested. The Firebase AI Logic models are **not wired in yet**, so verdicts currently come from the rules fallback.
+> **Status: work in progress** for the #BuildHybridAI 2026 hackathon. The prefilter, page analysis, triage pipeline and redaction are tested. Gemini Nano (on-device) and Gemini (cloud) run through Firebase AI Logic from an offscreen document; both have been confirmed working in Chrome, but end-to-end page verdicts are still being validated.
 
 ## Why
 
@@ -22,7 +22,7 @@ page loads
 
 - **Prefilter** ([src/prefilter](src/prefilter)): cheap URL, form and text checks run on every page. Catches brand lookalikes (`wellsfarg0-secure-login…`), credential forms that submit to a different site, raw IPs, punycode, and scam scripts that need no form (fake virus alerts, crypto giveaways, seed-phrase requests). A short allowlist skips big sites; Google Forms/Sites and Microsoft Forms pages, which are widely abused for phishing, are always checked. Page text for the gate is read without forcing layout.
 - **Feature extraction** ([src/content](src/content)): reads form *attributes* only, never what you type. Watches for login forms that render late in single-page apps.
-- **Triage** ([src/triage](src/triage)): a prompt sized for Gemini Nano's context window, a parser that tolerates the format drift small models produce, and an escalation policy. Runs in the background service worker for now (rules only); see the status note above.
+- **Triage** ([src/triage](src/triage)): a prompt sized for Gemini Nano's context window, a parser that tolerates the format drift small models produce, and an escalation policy. The pipeline runs in the background service worker. The models run in an offscreen document ([src/offscreen.ts](src/offscreen.ts)), because Chrome's Prompt API isn't available in service workers; it only turns prompts into text, so redaction and parsing stay in the tested pipeline. Gemini Nano is warmed up when the document loads (first call ~8–16 s, then ~1 s).
 - **Warnings**: a "phishing" verdict puts a banner at the top of the page (in a closed shadow root, so the page can't restyle or rewrite it) with **Leave this page** and **Dismiss**. "Suspicious" only sets an amber toolbar badge and shows in the side panel: the rules fallback rates about a third of benign login pages suspicious on the eval set, and bannering those would train people to ignore the banner. The side panel shows the verdict, its reasons, and how it was reached (on-device, cloud after redaction, or rules).
 
 ### Privacy and safety design
@@ -49,6 +49,10 @@ The Firebase-backed models need a Firebase project with AI Logic enabled on the 
 ### Testing in a normal browser tab
 
 `test/fixtures/` holds sample pages (a fake bank login, a news article, a late-loading login form, a form that hides its destination) plus a stub for the extension APIs, so the built content script can be exercised on ordinary pages. `sidepanel-harness.html` renders the built side panel with a sample report. Serve the repository root over HTTP and open the fixtures under `*.localhost` hostnames, which Chrome resolves to your machine, e.g. `http://wellsfarg0-secure-login.localhost:8765/test/fixtures/phish-login.html`.
+
+### Testing the installed extension
+
+`demo/` holds the same sample pages without the API stub, for the real extension loaded from `dist/`. Serve the repository root (`python3 -m http.server 8765`) and open e.g. `http://wellsfarg0-secure-login.localhost:8765/demo/phish-login.html`.
 
 ## License
 

