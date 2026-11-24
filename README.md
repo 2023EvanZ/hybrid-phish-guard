@@ -2,7 +2,34 @@
 
 A Chrome extension that warns you about phishing and scam pages using **on-device AI first**. The page you're looking at only leaves your machine when the local model is unsure, and then only after personal data has been stripped out.
 
-> **Status: work in progress** for the #BuildHybridAI 2026 hackathon. The prefilter, page analysis, triage pipeline and redaction are tested. Gemini Nano (on-device) and Gemini (cloud) run through Firebase AI Logic from an offscreen document; both have been confirmed working in Chrome, but end-to-end page verdicts are still being validated.
+> **Status: work in progress** for the #BuildHybridAI 2026 hackathon. The prefilter, page analysis, triage pipeline and redaction are tested. Gemini Nano (on-device) and Gemini (cloud) run through Firebase AI Logic from an offscreen document; both work end to end in Chrome (real pages, in-page banner), and three model eval runs are recorded in [eval/README.md](eval/README.md).
+
+## Try it
+
+You need desktop Chrome 139 or newer.
+
+1. Download `hybrid-phish-guard-<version>.zip` from the latest [release](../../releases) and unzip it.
+2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked**, and pick the unzipped folder.
+3. Click the extension's toolbar icon to open the side panel. It shows the verdict for the current tab.
+
+**Gemini Nano (on-device).** Chrome only runs Gemini Nano on machines that meet its hardware and disk-space requirements. To check, open the side panel, go to **Diagnostics**, and click **1**. If it says `downloadable`, click **2** to download the model; this can take several minutes. Without Gemini Nano everything still works, but every checked page goes to the cloud model, always with personal details removed, and the side panel says so.
+
+**Demo pages.** These are harmless fake scam pages that run only on your machine; nothing is hosted publicly. Clone this repository, run `python3 -m http.server 8765` in its root, then open:
+
+| Page | What it shows |
+|---|---|
+| `http://wellsfarg0-secure-login.localhost:8765/demo/phish-login.html` | A lookalike bank login that sends passwords to another site. Expect a red banner. |
+| `http://windows-security-alert.localhost:8765/demo/tech-support.html` | A fake virus alert with a phone number and no form. Expect a warning. |
+| `http://news.localhost:8765/demo/benign-article.html` | An ordinary article. Expect no banner. |
+
+Chrome sends any `*.localhost` address to your own machine, so the fake hostnames never reach the internet.
+
+**Model eval.** In the side panel, go to **Diagnostics** and click **7**. This runs the 85 labeled cases through Gemini Nano, the cloud model and the hybrid pipeline. Allow about 6 minutes. See [eval/README.md](eval/README.md) for results and caveats.
+
+**What the release does and doesn't do.**
+- The zip calls the cloud model through this project's Firebase app.
+- Firebase App Check is **not** enforced. An MV3 extension can't load reCAPTCHA, and a debug token can't safely ship in a public zip.
+- The zip has no sourcemaps and no debug token; `scripts/package-release.ts` checks for both before zipping.
 
 ## Why
 
@@ -39,13 +66,14 @@ Requires Node 22.18+ and Chrome 139+.
 ```bash
 npm install
 npm test        # unit tests (node:test, no extra dependencies)
-npm run build   # type-check and build to dist/
+npm run build   # type-check and build to dist/ (development: App Check debug mode, sourcemaps)
+npm run build:release  # release build, checked and zipped to release/ (needs .env)
 npm run eval    # score the classifier on the labeled eval set (see eval/README.md)
 ```
 
 Load `dist/` at `chrome://extensions` with Developer mode on (**Load unpacked**).
 
-The Firebase-backed models need a Firebase project with AI Logic enabled on the Gemini Developer API. Copy `.env.example` to `.env`, fill in the web app config, and rebuild. App Check runs with a debug token during development.
+The Firebase-backed models need a Firebase project with AI Logic enabled on the Gemini Developer API. Copy `.env.example` to `.env`, fill in the web app config, and rebuild. App Check runs with a debug token in development builds only; release builds leave App Check out (see [Try it](#try-it)).
 
 ### Testing in a normal browser tab
 
@@ -53,7 +81,7 @@ The Firebase-backed models need a Firebase project with AI Logic enabled on the 
 
 ### Testing the installed extension
 
-`demo/` holds the same sample pages without the API stub, for the real extension loaded from `dist/`. Serve the repository root (`python3 -m http.server 8765`) and open e.g. `http://wellsfarg0-secure-login.localhost:8765/demo/phish-login.html`.
+`demo/` holds the same sample pages without the API stub, for the real extension loaded from `dist/`. Serve the repository root (`python3 -m http.server 8765`) and open the pages listed under [Try it](#try-it).
 
 ## License
 
