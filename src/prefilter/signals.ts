@@ -9,6 +9,7 @@ import {
   isAllowlisted,
   isFormBuilderPage,
   isIpHost,
+  isPrivateIp,
   registrableDomain,
 } from "./domains.ts";
 import type { Brand } from "./domains.ts";
@@ -22,6 +23,7 @@ export type ReasonCode =
   | "cross-origin-form"
   | "insecure-form"
   | "ip-host"
+  | "private-network"
   | "punycode-host"
   | "brand-in-host"
   | "at-in-url"
@@ -169,6 +171,8 @@ export interface UrlSignals {
   registrableDomain: string;
   isHttps: boolean;
   isIp: boolean;
+  /** A private-network IP (router, printer, local server). See isPrivateIp. */
+  privateNetwork: boolean;
   isPunycode: boolean;
   hasAt: boolean;
   subdomainDepth: number;
@@ -217,6 +221,7 @@ export function urlSignals(url: URL): UrlSignals {
     registrableDomain: domain,
     isHttps: url.protocol === "https:",
     isIp,
+    privateNetwork: isIp && isPrivateIp(hostname),
     isPunycode: labels.some((l) => l.startsWith("xn--")),
     hasAt: url.username !== "" || url.password !== "",
     subdomainDepth: isIp ? 0 : labels.length - domain.split(".").length,
@@ -347,9 +352,13 @@ export function decide(
   if (forms.hasBankOrSsn) add("bank-or-ssn-field", 2);
   if (forms.hasOtp) add("otp-field", 1);
   if (forms.crossOriginHosts.length) add("cross-origin-form", 2);
-  if (forms.hasInsecureAction) add("insecure-form", 2);
+  // Private-network devices (routers, printers) are plain-HTTP IP addresses by nature;
+  // those signals only mean something on the public internet.
+  const lan = url.privateNetwork;
+  if (forms.hasInsecureAction && !lan) add("insecure-form", 2);
 
-  if (url.isIp) add("ip-host", 2, true);
+  if (lan) add("private-network", 0);
+  else if (url.isIp) add("ip-host", 2, true);
   if (url.isPunycode) add("punycode-host", 2, true);
   if (url.brandsInHost.length) add("brand-in-host", 3, true);
   if (url.hasAt) add("at-in-url", 2, true);
@@ -357,7 +366,7 @@ export function decide(
   if (url.hostname.length > 40) add("long-host", 1, true);
   if (url.hyphenCount >= 3) add("many-hyphens", 1, true);
   if (url.suspiciousTld) add("suspicious-tld", 1, true);
-  if (!url.isHttps) add("not-https", 1);
+  if (!url.isHttps && !lan) add("not-https", 1);
   if (url.formBuilder) add("form-builder-host", 0);
 
   if (text?.brandMismatch.length) add("brand-text-mismatch", 2);

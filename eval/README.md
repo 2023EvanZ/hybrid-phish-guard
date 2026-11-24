@@ -63,7 +63,7 @@ varies between runs, and with 38 benign cases one false alarm moves FPR by 2.6 p
 | | Precision | Recall | F1 | FPR |
 |---|---|---|---|---|
 | Strict | 100% | 34.4% | 51.2% | 0% |
-| Lenient | 71.4% | 93.8% | 81.1% | 31.6% |
+| Lenient | 73.2% | 93.8% | 82.2% | 28.9% |
 
 Gate: 100% of phishing cases reach a classifier; 81.6% of benign cases do (see the
 login-heavy caveat above).
@@ -73,8 +73,8 @@ Where the rules still fail:
   text scores) and an OTP page whose host says "bofa" rather than a listed brand
   keyword. Both now reach the model; the rules alone call them safe.
 - **False alarms**: every brand on an unlisted domain (7/7: wellsfargoadvisors.com,
-  dhl.de, appleinsider.com, ...), every legitimate cross-site form post (3/3), the home
-  router, and one deeply nested enterprise login. Unchanged; these are for the model.
+  dhl.de, appleinsider.com, ...), every legitimate cross-site form post (3/3) and one
+  deeply nested enterprise login. Unchanged; these are for the model.
 
 ### History
 
@@ -84,6 +84,7 @@ Where the rules still fail:
 | 2026-11-23 | +6 benign traps written before the gate change (no metric change) | 78.1% | 75.0% | 31.6% |
 | 2026-11-23 | Always check Google Forms/Sites, Microsoft Forms | 87.5% | 81.3% | 31.6% |
 | 2026-11-23 | Scam scripts open the gate (tech support, crypto giveaway, seed phrase) | 100% | 93.8% | 31.6% |
+| 2026-11-23 | Private-network IPs (routers, printers) don't score as IP/HTTP signals | 100% | 93.8% | 28.9% |
 
 The FPR drop in the second row is only the larger benign denominator.
 

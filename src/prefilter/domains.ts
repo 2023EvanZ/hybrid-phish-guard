@@ -16,6 +16,21 @@ export function isIpHost(host: string): boolean {
   return /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.startsWith("[");
 }
 
+/**
+ * Loopback, private (RFC 1918), link-local and IPv6 unique-local addresses: routers,
+ * printers, NAS boxes and local dev servers. Only IP literals; a name like
+ * "x.localhost" is deliberately not covered, so test pages can pose as public sites.
+ */
+export function isPrivateIp(host: string): boolean {
+  const v4 = /^(\d{1,3})\.(\d{1,3})\.\d{1,3}\.\d{1,3}$/.exec(host);
+  if (v4) {
+    const [a, b] = [Number(v4[1]), Number(v4[2])];
+    return a === 10 || a === 127 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254);
+  }
+  const v6 = host.startsWith("[") ? host.slice(1, -1).toLowerCase() : null;
+  return v6 !== null && (v6 === "::1" || /^f[cd][0-9a-f]{2}:/.test(v6) || /^fe[89ab][0-9a-f]:/.test(v6));
+}
+
 export function registrableDomain(hostname: string): string {
   const host = hostname.toLowerCase().replace(/\.$/, "");
   if (isIpHost(host)) return host;

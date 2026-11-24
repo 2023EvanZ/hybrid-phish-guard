@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isAllowlisted, registrableDomain } from "../src/prefilter/domains.ts";
+import { isAllowlisted, isPrivateIp, registrableDomain } from "../src/prefilter/domains.ts";
 import {
   classifyField,
   decide,
@@ -147,4 +147,22 @@ test("scam scripts open the gate; mentions without the full script don't", () =>
   assert.equal(run("https://x.example.com/", [], "", "Bitcoin fell 4% on Tuesday.").shouldCheck, false);
   // Allowlisted sites stay skipped.
   assert.equal(run("https://www.youtube.com/watch?v=x", [], "", "Send 1 ETH and get 2x back!").shouldCheck, false);
+});
+
+test("isPrivateIp: loopback, RFC 1918, link-local and IPv6 local ranges only", () => {
+  for (const h of ["10.0.0.1", "127.0.0.1", "172.16.0.1", "172.31.255.1", "192.168.1.1", "169.254.1.1", "[::1]", "[fd12:3456::1]", "[fe80::1]"]) {
+    assert.equal(isPrivateIp(h), true, h);
+  }
+  for (const h of ["172.32.0.1", "185.234.72.19", "8.8.8.8", "[2001:db8::1]", "router.localhost", "192.168.example.com"]) {
+    assert.equal(isPrivateIp(h), false, h);
+  }
+});
+
+test("decide: a router login on a private IP is checked but not scored as an IP/HTTP phish", () => {
+  const lan = run("http://192.168.1.1/login.html", [form([field({ type: "password" })])]);
+  assert.equal(lan.shouldCheck, true); // still reaches the model
+  assert.deepEqual(lan.reasons, ["password-field", "private-network"]);
+  const pub = run("http://185.234.72.19/login.php", [form([field({ type: "password" })])]);
+  assert.ok(pub.reasons.includes("ip-host") && pub.reasons.includes("not-https"));
+  assert.ok(pub.score > lan.score);
 });
