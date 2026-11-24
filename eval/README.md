@@ -26,7 +26,35 @@ content script runs, then passed through the prefilter gate and a classifier.
 - **Strict**: only a `phishing` verdict counts as a warning.
 - **Lenient**: `suspicious` counts too (the UI warns on both).
 
-## Models: Gemini Nano, cloud Gemini, hybrid (2026-11-23)
+## Models, run 2: evidence-based prompt (2026-11-23)
+
+Changes since run 1: the prompt defines each verdict by evidence and says a form alone
+is normal; form-content flags are no longer listed as warning signs; a Nano "phishing"
+on a page scoring under 4 gets a cloud second opinion; private-network IPs don't score.
+Raw output: [results/2026-11-23-models-run2.json](results/2026-11-23-models-run2.json).
+These changes were designed after seeing run 1's failures, so this run flatters them.
+
+| System | Strict precision | Strict recall | Lenient precision | Lenient recall | Lenient F1 | Lenient FPR |
+|---|---|---|---|---|---|---|
+| Rules only | 100% | 34.4% | 73.2% | 93.8% | 82.2% | 28.9% |
+| Gemini Nano (on-device) | 95.5% | 65.6% | 78.8% | 81.3% | 80.0% | 18.4% |
+| Gemini (cloud, redacted) | 100% | 100% | 97.0% | 100% | 98.5% | 2.6% |
+| **Hybrid (what users see)** | 100% | 96.9% | 100% | 96.9% | 98.4% | 0% |
+
+- **The goal was met**: Nano now calls 24 of 31 checked benign pages "safe" (run 1: 3).
+  Benign pages sent to the cloud fell from 28 of 31 to 7 of 31. Overall escalation 29%.
+- **Nano got worse at phishing on its own** (strict recall 96.9% to 65.6%): it says
+  "suspicious" on several clear lookalikes, which escalate and are caught by the cloud.
+- **5 unparseable Nano answers, all on phishing pages** (run 1: 1). Each escalated, so
+  the hybrid caught them, but that is safety by accident.
+- **The one hybrid miss**: `p-paypai` (paypai.com). Nano said "safe" 90%, citing "No
+  brand imitation in URL", which repeats the prompt's "Brands imitated in the web
+  address: none". The rules' brand list doesn't know "paypai", and Nano took the list's
+  silence as a finding instead of reading the address itself.
+- Cloud latency rose to mean 4.1 s, max 16.6 s (run 1: 1.6 s / 8.8 s), with the same
+  model and nearly the same prompt; likely service-side variance. The cloud timeout is 20 s.
+
+## Models, run 1: first prompt (2026-11-23)
 
 Run in Chrome 157 from the model eval page (side panel → Diagnostics → 7). Raw output:
 [results/2026-11-23-models.json](results/2026-11-23-models.json). One run; model output

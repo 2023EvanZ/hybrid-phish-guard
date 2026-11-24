@@ -1,0 +1,5970 @@
+{
+  "startedAt": "2026-11-24T01:59:46.179Z",
+  "models": {
+    "onDevice": true,
+    "cloud": true
+  },
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
+  "report": {
+    "systems": {
+      "rules": {
+        "n": {
+          "phishing": 32,
+          "benign": 38
+        },
+        "gate": {
+          "phishingChecked": 1,
+          "benignChecked": 0.8157894736842105
+        },
+        "strict": {
+          "tp": 11,
+          "fp": 0,
+          "fn": 21,
+          "tn": 38,
+          "precision": 1,
+          "recall": 0.34375,
+          "f1": 0.5116279069767442,
+          "falsePositiveRate": 0
+        },
+        "lenient": {
+          "tp": 30,
+          "fp": 11,
+          "fn": 2,
+          "tn": 27,
+          "precision": 0.7317073170731707,
+          "recall": 0.9375,
+          "f1": 0.821917808219178,
+          "falsePositiveRate": 0.2894736842105263
+        },
+        "byCategory": [
+          {
+            "category": "bank-login",
+            "label": "benign",
+            "n": 6,
+            "flagged": 0,
+            "checked": 4
+          },
+          {
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "n": 7,
+            "flagged": 7,
+            "checked": 7
+          },
+          {
+            "category": "cross-origin-legit",
+            "label": "benign",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          },
+          {
+            "category": "government",
+            "label": "benign",
+            "n": 4,
+            "flagged": 0,
+            "checked": 4
+          },
+          {
+            "category": "local-device",
+            "label": "benign",
+            "n": 1,
+            "flagged": 0,
+            "checked": 1
+          },
+          {
+            "category": "no-form",
+            "label": "benign",
+            "n": 1,
+            "flagged": 0,
+            "checked": 0
+          },
+          {
+            "category": "ordinary-login",
+            "label": "benign",
+            "n": 4,
+            "flagged": 1,
+            "checked": 4
+          },
+          {
+            "category": "ordinary-payment",
+            "label": "benign",
+            "n": 2,
+            "flagged": 0,
+            "checked": 2
+          },
+          {
+            "category": "security-news",
+            "label": "benign",
+            "n": 7,
+            "flagged": 0,
+            "checked": 3
+          },
+          {
+            "category": "user-content-legit",
+            "label": "benign",
+            "n": 3,
+            "flagged": 0,
+            "checked": 3
+          },
+          {
+            "category": "at-in-url",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "brand-lookalike",
+            "label": "phishing",
+            "n": 5,
+            "flagged": 5,
+            "checked": 5
+          },
+          {
+            "category": "compromised-site",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          },
+          {
+            "category": "crypto",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          },
+          {
+            "category": "delivery-toll",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "fake-shop",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "free-hosting",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "government",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "ip-host",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "otp-relay",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 1,
+            "checked": 2
+          },
+          {
+            "category": "punycode",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "refund-scam",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "tech-support",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "typosquat",
+            "label": "phishing",
+            "n": 4,
+            "flagged": 4,
+            "checked": 4
+          },
+          {
+            "category": "user-content",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 2,
+            "checked": 3
+          }
+        ],
+        "errors": [
+          {
+            "id": "p-ms-forms-helpdesk",
+            "category": "user-content",
+            "label": "phishing",
+            "prediction": "safe",
+            "score": 1
+          },
+          {
+            "id": "p-bofa-otp",
+            "category": "otp-relay",
+            "label": "phishing",
+            "prediction": "safe",
+            "score": 3
+          },
+          {
+            "id": "b-wellsfargo-advisors",
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 7
+          },
+          {
+            "id": "b-paypal-community",
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 5
+          },
+          {
+            "id": "b-appleinsider",
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 7
+          },
+          {
+            "id": "b-chase-center",
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 7
+          },
+          {
+            "id": "b-dhl-de",
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 7
+          },
+          {
+            "id": "b-short-keyword-irs",
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 5
+          },
+          {
+            "id": "b-short-keyword-steam",
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 5
+          },
+          {
+            "id": "b-authorize-net-checkout",
+            "category": "cross-origin-legit",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 4
+          },
+          {
+            "id": "b-saas-auth-domain",
+            "category": "cross-origin-legit",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 4
+          },
+          {
+            "id": "b-library-bibliocommons",
+            "category": "cross-origin-legit",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 4
+          },
+          {
+            "id": "b-deep-subdomains",
+            "category": "ordinary-login",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 4
+          }
+        ]
+      },
+      "on-device": {
+        "n": {
+          "phishing": 32,
+          "benign": 38
+        },
+        "gate": {
+          "phishingChecked": 1,
+          "benignChecked": 0.8157894736842105
+        },
+        "strict": {
+          "tp": 21,
+          "fp": 1,
+          "fn": 11,
+          "tn": 37,
+          "precision": 0.9545454545454546,
+          "recall": 0.65625,
+          "f1": 0.7777777777777778,
+          "falsePositiveRate": 0.02631578947368421
+        },
+        "lenient": {
+          "tp": 26,
+          "fp": 7,
+          "fn": 6,
+          "tn": 31,
+          "precision": 0.7878787878787878,
+          "recall": 0.8125,
+          "f1": 0.8,
+          "falsePositiveRate": 0.18421052631578946
+        },
+        "byCategory": [
+          {
+            "category": "bank-login",
+            "label": "benign",
+            "n": 6,
+            "flagged": 0,
+            "checked": 4
+          },
+          {
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "n": 7,
+            "flagged": 0,
+            "checked": 7
+          },
+          {
+            "category": "cross-origin-legit",
+            "label": "benign",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          },
+          {
+            "category": "government",
+            "label": "benign",
+            "n": 4,
+            "flagged": 0,
+            "checked": 4
+          },
+          {
+            "category": "local-device",
+            "label": "benign",
+            "n": 1,
+            "flagged": 0,
+            "checked": 1
+          },
+          {
+            "category": "no-form",
+            "label": "benign",
+            "n": 1,
+            "flagged": 0,
+            "checked": 0
+          },
+          {
+            "category": "ordinary-login",
+            "label": "benign",
+            "n": 4,
+            "flagged": 2,
+            "checked": 4
+          },
+          {
+            "category": "ordinary-payment",
+            "label": "benign",
+            "n": 2,
+            "flagged": 0,
+            "checked": 2
+          },
+          {
+            "category": "security-news",
+            "label": "benign",
+            "n": 7,
+            "flagged": 2,
+            "checked": 3
+          },
+          {
+            "category": "user-content-legit",
+            "label": "benign",
+            "n": 3,
+            "flagged": 0,
+            "checked": 3
+          },
+          {
+            "category": "at-in-url",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "brand-lookalike",
+            "label": "phishing",
+            "n": 5,
+            "flagged": 5,
+            "checked": 5
+          },
+          {
+            "category": "compromised-site",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          },
+          {
+            "category": "crypto",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          },
+          {
+            "category": "delivery-toll",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "fake-shop",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 0,
+            "checked": 1
+          },
+          {
+            "category": "free-hosting",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "government",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "ip-host",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "otp-relay",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 1,
+            "checked": 2
+          },
+          {
+            "category": "punycode",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "refund-scam",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "tech-support",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "typosquat",
+            "label": "phishing",
+            "n": 4,
+            "flagged": 2,
+            "checked": 4
+          },
+          {
+            "category": "user-content",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 1,
+            "checked": 3
+          }
+        ],
+        "errors": [
+          {
+            "id": "p-paypai",
+            "category": "typosquat",
+            "label": "phishing",
+            "prediction": "safe",
+            "score": 4
+          },
+          {
+            "id": "p-arnazon",
+            "category": "typosquat",
+            "label": "phishing",
+            "prediction": "safe",
+            "score": 4
+          },
+          {
+            "id": "p-google-forms-m365",
+            "category": "user-content",
+            "label": "phishing",
+            "prediction": "safe",
+            "score": 4
+          },
+          {
+            "id": "p-google-sites-wf",
+            "category": "user-content",
+            "label": "phishing",
+            "prediction": "safe",
+            "score": 4
+          },
+          {
+            "id": "p-chase-mfa",
+            "category": "otp-relay",
+            "label": "phishing",
+            "prediction": "safe",
+            "score": 8
+          },
+          {
+            "id": "p-fake-shop",
+            "category": "fake-shop",
+            "label": "phishing",
+            "prediction": "safe",
+            "score": 4
+          },
+          {
+            "id": "b-authorize-net-checkout",
+            "category": "cross-origin-legit",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 4
+          },
+          {
+            "id": "b-saas-auth-domain",
+            "category": "cross-origin-legit",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 4
+          },
+          {
+            "id": "b-library-bibliocommons",
+            "category": "cross-origin-legit",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 4
+          },
+          {
+            "id": "b-deep-subdomains",
+            "category": "ordinary-login",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 4
+          },
+          {
+            "id": "b-zoho-2fa",
+            "category": "ordinary-login",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 2
+          },
+          {
+            "id": "b-crypto-scam-warning",
+            "category": "security-news",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 3
+          },
+          {
+            "id": "b-metamask-help-import",
+            "category": "security-news",
+            "label": "benign",
+            "prediction": "phishing",
+            "score": 3
+          }
+        ]
+      },
+      "cloud": {
+        "n": {
+          "phishing": 32,
+          "benign": 38
+        },
+        "gate": {
+          "phishingChecked": 1,
+          "benignChecked": 0.8157894736842105
+        },
+        "strict": {
+          "tp": 32,
+          "fp": 0,
+          "fn": 0,
+          "tn": 38,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1,
+          "falsePositiveRate": 0
+        },
+        "lenient": {
+          "tp": 32,
+          "fp": 1,
+          "fn": 0,
+          "tn": 37,
+          "precision": 0.9696969696969697,
+          "recall": 1,
+          "f1": 0.9846153846153847,
+          "falsePositiveRate": 0.02631578947368421
+        },
+        "byCategory": [
+          {
+            "category": "bank-login",
+            "label": "benign",
+            "n": 6,
+            "flagged": 0,
+            "checked": 4
+          },
+          {
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "n": 7,
+            "flagged": 1,
+            "checked": 7
+          },
+          {
+            "category": "cross-origin-legit",
+            "label": "benign",
+            "n": 3,
+            "flagged": 0,
+            "checked": 3
+          },
+          {
+            "category": "government",
+            "label": "benign",
+            "n": 4,
+            "flagged": 0,
+            "checked": 4
+          },
+          {
+            "category": "local-device",
+            "label": "benign",
+            "n": 1,
+            "flagged": 0,
+            "checked": 1
+          },
+          {
+            "category": "no-form",
+            "label": "benign",
+            "n": 1,
+            "flagged": 0,
+            "checked": 0
+          },
+          {
+            "category": "ordinary-login",
+            "label": "benign",
+            "n": 4,
+            "flagged": 0,
+            "checked": 4
+          },
+          {
+            "category": "ordinary-payment",
+            "label": "benign",
+            "n": 2,
+            "flagged": 0,
+            "checked": 2
+          },
+          {
+            "category": "security-news",
+            "label": "benign",
+            "n": 7,
+            "flagged": 0,
+            "checked": 3
+          },
+          {
+            "category": "user-content-legit",
+            "label": "benign",
+            "n": 3,
+            "flagged": 0,
+            "checked": 3
+          },
+          {
+            "category": "at-in-url",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "brand-lookalike",
+            "label": "phishing",
+            "n": 5,
+            "flagged": 5,
+            "checked": 5
+          },
+          {
+            "category": "compromised-site",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          },
+          {
+            "category": "crypto",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          },
+          {
+            "category": "delivery-toll",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "fake-shop",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "free-hosting",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "government",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "ip-host",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "otp-relay",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "punycode",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "refund-scam",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "tech-support",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "typosquat",
+            "label": "phishing",
+            "n": 4,
+            "flagged": 4,
+            "checked": 4
+          },
+          {
+            "category": "user-content",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          }
+        ],
+        "errors": [
+          {
+            "id": "b-short-keyword-irs",
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "prediction": "suspicious",
+            "score": 5
+          }
+        ]
+      },
+      "hybrid": {
+        "n": {
+          "phishing": 32,
+          "benign": 38
+        },
+        "gate": {
+          "phishingChecked": 1,
+          "benignChecked": 0.8157894736842105
+        },
+        "strict": {
+          "tp": 31,
+          "fp": 0,
+          "fn": 1,
+          "tn": 38,
+          "precision": 1,
+          "recall": 0.96875,
+          "f1": 0.9841269841269841,
+          "falsePositiveRate": 0
+        },
+        "lenient": {
+          "tp": 31,
+          "fp": 0,
+          "fn": 1,
+          "tn": 38,
+          "precision": 1,
+          "recall": 0.96875,
+          "f1": 0.9841269841269841,
+          "falsePositiveRate": 0
+        },
+        "byCategory": [
+          {
+            "category": "bank-login",
+            "label": "benign",
+            "n": 6,
+            "flagged": 0,
+            "checked": 4
+          },
+          {
+            "category": "brand-unlisted-domain",
+            "label": "benign",
+            "n": 7,
+            "flagged": 0,
+            "checked": 7
+          },
+          {
+            "category": "cross-origin-legit",
+            "label": "benign",
+            "n": 3,
+            "flagged": 0,
+            "checked": 3
+          },
+          {
+            "category": "government",
+            "label": "benign",
+            "n": 4,
+            "flagged": 0,
+            "checked": 4
+          },
+          {
+            "category": "local-device",
+            "label": "benign",
+            "n": 1,
+            "flagged": 0,
+            "checked": 1
+          },
+          {
+            "category": "no-form",
+            "label": "benign",
+            "n": 1,
+            "flagged": 0,
+            "checked": 0
+          },
+          {
+            "category": "ordinary-login",
+            "label": "benign",
+            "n": 4,
+            "flagged": 0,
+            "checked": 4
+          },
+          {
+            "category": "ordinary-payment",
+            "label": "benign",
+            "n": 2,
+            "flagged": 0,
+            "checked": 2
+          },
+          {
+            "category": "security-news",
+            "label": "benign",
+            "n": 7,
+            "flagged": 0,
+            "checked": 3
+          },
+          {
+            "category": "user-content-legit",
+            "label": "benign",
+            "n": 3,
+            "flagged": 0,
+            "checked": 3
+          },
+          {
+            "category": "at-in-url",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "brand-lookalike",
+            "label": "phishing",
+            "n": 5,
+            "flagged": 5,
+            "checked": 5
+          },
+          {
+            "category": "compromised-site",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          },
+          {
+            "category": "crypto",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          },
+          {
+            "category": "delivery-toll",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "fake-shop",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "free-hosting",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "government",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "ip-host",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "otp-relay",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "punycode",
+            "label": "phishing",
+            "n": 1,
+            "flagged": 1,
+            "checked": 1
+          },
+          {
+            "category": "refund-scam",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "tech-support",
+            "label": "phishing",
+            "n": 2,
+            "flagged": 2,
+            "checked": 2
+          },
+          {
+            "category": "typosquat",
+            "label": "phishing",
+            "n": 4,
+            "flagged": 3,
+            "checked": 4
+          },
+          {
+            "category": "user-content",
+            "label": "phishing",
+            "n": 3,
+            "flagged": 3,
+            "checked": 3
+          }
+        ],
+        "errors": [
+          {
+            "id": "p-paypai",
+            "category": "typosquat",
+            "label": "phishing",
+            "prediction": "safe",
+            "score": 4
+          }
+        ]
+      }
+    },
+    "local": {
+      "calls": 63,
+      "failures": 5,
+      "errors": [
+        {
+          "error": "on-device model output rejected: model output is not valid JSON",
+          "count": 5
+        }
+      ],
+      "meanLatencyMs": 3008.6724137931033,
+      "maxLatencyMs": 4130,
+      "meanConfidenceRight": 0.8940000000000003,
+      "meanConfidenceWrong": 0.7375
+    },
+    "cloud": {
+      "calls": 63,
+      "failures": 0,
+      "errors": [],
+      "meanLatencyMs": 4116.523809523809,
+      "maxLatencyMs": 16647,
+      "meanConfidenceRight": 0.9498387096774192,
+      "meanConfidenceWrong": 0.6
+    },
+    "hybrid": {
+      "checked": 63,
+      "escalationRate": 0.2857142857142857,
+      "reasons": {
+        "confident": 45,
+        "suspicious": 9,
+        "no-local-result": 5,
+        "low-confidence": 2,
+        "unsupported-phishing": 2
+      },
+      "finalSource": {
+        "on-device": 45,
+        "cloud": 18
+      }
+    }
+  },
+  "runs": [
+    {
+      "id": "p-paypal-resolution",
+      "category": "brand-lookalike",
+      "label": "phishing",
+      "score": 8,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL imitates PayPal",
+            "Pressure phrase 'unusual activity'",
+            "Form submits to the same site but the domain is suspicious (paypal-account-resolution.com)"
+          ],
+          "source": "on-device",
+          "latencyMs": 3511
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.99,
+          "reasons": [
+            "The domain name imitates PayPal but does not belong to PayPal.",
+            "Uses urgency language (\"unusual activity\") to pressure users into logging in.",
+            "High risk score from the rules engine for brand imitation and deceptive phrasing."
+          ],
+          "source": "cloud",
+          "latencyMs": 1292
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL imitates PayPal",
+            "Pressure phrase 'unusual activity'",
+            "Form submits to the same site but the domain is suspicious (paypal-account-resolution.com)"
+          ],
+          "source": "on-device",
+          "latencyMs": 3511
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL imitates PayPal",
+            "Pressure phrase 'unusual activity'",
+            "Form submits to the same site but the domain is suspicious (paypal-account-resolution.com)"
+          ],
+          "source": "on-device",
+          "latencyMs": 3511
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-appleid-top",
+      "category": "brand-lookalike",
+      "label": "phishing",
+      "score": 10,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Brand imitated in web address (Apple)",
+            "Suspicious TLD (.top)",
+            "Urgency language ('within 24 hours')"
+          ],
+          "source": "on-device",
+          "latencyMs": 3552
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 1,
+          "reasons": [
+            "The domain 'support-icloud.top' mimics Apple but is not owned by Apple",
+            "Uses fake account suspension and urgency language to pressure users",
+            "Collects Apple ID credentials on a deceptive third-party site"
+          ],
+          "source": "cloud",
+          "latencyMs": 950
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Brand imitated in web address (Apple)",
+            "Suspicious TLD (.top)",
+            "Urgency language ('within 24 hours')"
+          ],
+          "source": "on-device",
+          "latencyMs": 3552
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Brand imitated in web address (Apple)",
+            "Suspicious TLD (.top)",
+            "Urgency language ('within 24 hours')"
+          ],
+          "source": "on-device",
+          "latencyMs": 3552
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-chase-subdomain-telegram",
+      "category": "brand-lookalike",
+      "label": "phishing",
+      "score": 11,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Sensitive form submits to a different site",
+          "Page names a brand it isn't hosted by"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to a different site (api.telegram.org)",
+            "Imitates a brand (Chase) but uses a different domain (verify-session.net)",
+            "Pressure phrase: \"confirm your identity\" (implies urgency and potential scam)"
+          ],
+          "source": "on-device",
+          "latencyMs": 4130
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 1,
+          "reasons": [
+            "URL imitates Chase on an unrelated domain",
+            "Login form submits credentials to Telegram instead of Chase",
+            "Uses urgency language to pressure the user"
+          ],
+          "source": "cloud",
+          "latencyMs": 781
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to a different site (api.telegram.org)",
+            "Imitates a brand (Chase) but uses a different domain (verify-session.net)",
+            "Pressure phrase: \"confirm your identity\" (implies urgency and potential scam)"
+          ],
+          "source": "on-device",
+          "latencyMs": 4130
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to a different site (api.telegram.org)",
+            "Imitates a brand (Chase) but uses a different domain (verify-session.net)",
+            "Pressure phrase: \"confirm your identity\" (implies urgency and potential scam)"
+          ],
+          "source": "on-device",
+          "latencyMs": 4130
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-office365-webapp",
+      "category": "free-hosting",
+      "label": "phishing",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "URL imitates Microsoft (office365-mailbox-upgrade)",
+            "Brand 'Microsoft' mentioned but site is not Microsoft",
+            "Form asks for identity and password, potentially for account takeover"
+          ],
+          "source": "on-device",
+          "latencyMs": 3189
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Imitates Microsoft on an unrelated free hosting domain (web.app)",
+            "Prompts for Microsoft account credentials under false pretenses"
+          ],
+          "source": "cloud",
+          "latencyMs": 1070
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "URL imitates Microsoft (office365-mailbox-upgrade)",
+            "Brand 'Microsoft' mentioned but site is not Microsoft",
+            "Form asks for identity and password, potentially for account takeover"
+          ],
+          "source": "on-device",
+          "latencyMs": 3189
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "URL imitates Microsoft (office365-mailbox-upgrade)",
+            "Brand 'Microsoft' mentioned but site is not Microsoft",
+            "Form asks for identity and password, potentially for account takeover"
+          ],
+          "source": "on-device",
+          "latencyMs": 3189
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-netflix-billing",
+      "category": "brand-lookalike",
+      "label": "phishing",
+      "score": 8,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Brand imitated in the web address (Netflix)",
+            "Urgency language ('on hold', 'update')",
+            "Form submits to the same site (Netflix-billing-update.com)"
+          ],
+          "source": "on-device",
+          "latencyMs": 3374
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL uses the Netflix brand name but is hosted on an unrelated domain",
+            "Uses urgency language claiming membership is on hold",
+            "Collects payment card details on a non-official domain"
+          ],
+          "source": "cloud",
+          "latencyMs": 7125
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL uses the Netflix brand name but is hosted on an unrelated domain",
+            "Uses urgency language claiming membership is on hold",
+            "Collects payment card details on a non-official domain"
+          ],
+          "source": "cloud",
+          "latencyMs": 7125
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Brand imitated in the web address (Netflix)",
+            "Urgency language ('on hold', 'update')",
+            "Form submits to the same site (Netflix-billing-update.com)"
+          ],
+          "source": "on-device",
+          "latencyMs": 3374
+        },
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL uses the Netflix brand name but is hosted on an unrelated domain",
+            "Uses urgency language claiming membership is on hold",
+            "Collects payment card details on a non-official domain"
+          ],
+          "source": "cloud",
+          "latencyMs": 7125
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "suspicious"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-usps-redelivery",
+      "category": "delivery-toll",
+      "label": "phishing",
+      "score": 10,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Suspicious TLD (.top)",
+            "Brand imitated in the web address (USPS)",
+            "Pressure phrases ('within 48 hours', 'package could not be delivered')"
+          ],
+          "source": "on-device",
+          "latencyMs": 3628
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 1,
+          "reasons": [
+            "Imitates USPS on an unrelated domain (.top)",
+            "Demands payment for a suspicious redelivery fee",
+            "Uses urgency pressure tactics"
+          ],
+          "source": "cloud",
+          "latencyMs": 7933
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Suspicious TLD (.top)",
+            "Brand imitated in the web address (USPS)",
+            "Pressure phrases ('within 48 hours', 'package could not be delivered')"
+          ],
+          "source": "on-device",
+          "latencyMs": 3628
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Suspicious TLD (.top)",
+            "Brand imitated in the web address (USPS)",
+            "Pressure phrases ('within 48 hours', 'package could not be delivered')"
+          ],
+          "source": "on-device",
+          "latencyMs": 3628
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-wellsfargo-leet",
+      "category": "typosquat",
+      "label": "phishing",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "URL imitates a legitimate brand (Wells Fargo)",
+            "Brand is named on a page hosted by a different domain",
+            "Form submits to the same site as the deceptive URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 3010
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain name uses typosquatting (wel1sfarg0) to imitate Wells Fargo.",
+            "The page mimics the official Wells Fargo login interface while hosted on an unrelated domain."
+          ],
+          "source": "cloud",
+          "latencyMs": 16647
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "URL imitates a legitimate brand (Wells Fargo)",
+            "Brand is named on a page hosted by a different domain",
+            "Form submits to the same site as the deceptive URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 3010
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "URL imitates a legitimate brand (Wells Fargo)",
+            "Brand is named on a page hosted by a different domain",
+            "Form submits to the same site as the deceptive URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 3010
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-paypai",
+      "category": "typosquat",
+      "label": "phishing",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No brand imitation in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2810
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain name 'paypai.com' uses typosquatting ('i' instead of 'l') to imitate PayPal.",
+            "The page displays PayPal branding while hosted on an unrelated domain.",
+            "It attempts to collect login credentials using a deceptive address."
+          ],
+          "source": "cloud",
+          "latencyMs": 869
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No brand imitation in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2810
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No brand imitation in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2810
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-arnazon",
+      "category": "typosquat",
+      "label": "phishing",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": false,
+        "error": "on-device model output rejected: model output is not valid JSON"
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain name 'arnazon-orders.com' typosats Amazon to deceive users.",
+            "The page displays Amazon branding while hosted on an unrelated domain.",
+            "It uses a fake order and payment issue pretext to prompt credential entry."
+          ],
+          "source": "cloud",
+          "latencyMs": 746
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain name 'arnazon-orders.com' typosats Amazon to deceive users.",
+            "The page displays Amazon branding while hosted on an unrelated domain.",
+            "It uses a fake order and payment issue pretext to prompt credential entry."
+          ],
+          "source": "cloud",
+          "latencyMs": 746
+        },
+        "local": null,
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain name 'arnazon-orders.com' typosats Amazon to deceive users.",
+            "The page displays Amazon branding while hosted on an unrelated domain.",
+            "It uses a fake order and payment issue pretext to prompt credential entry."
+          ],
+          "source": "cloud",
+          "latencyMs": 746
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "no-local-result"
+        },
+        "errors": [
+          "on-device model output rejected: model output is not valid JSON"
+        ]
+      }
+    },
+    {
+      "id": "p-steam-typo",
+      "category": "typosquat",
+      "label": "phishing",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "URL imitates a known brand (Steam)",
+            "Form submits to the same site, but requests login credentials",
+            "Visible text encourages login via a trade offer, which is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 3152
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain name (steamcommunlty.com) uses typosquatting ('rn' instead of 'un') to imitate Steam.",
+            "The page asks for login credentials while impersonating a brand it does not belong to."
+          ],
+          "source": "cloud",
+          "latencyMs": 727
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "URL imitates a known brand (Steam)",
+            "Form submits to the same site, but requests login credentials",
+            "Visible text encourages login via a trade offer, which is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 3152
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "URL imitates a known brand (Steam)",
+            "Form submits to the same site, but requests login credentials",
+            "Visible text encourages login via a trade offer, which is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 3152
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-apple-punycode",
+      "category": "punycode",
+      "label": "phishing",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Page names a brand it isn't hosted by",
+          "Web address uses lookalike characters",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.75,
+          "reasons": [
+            "Punycode host: xn--pple-43d.com is suspicious.",
+            "Brand text mismatch: The URL contains 'Apple' but the domain is 'xn--pple-43d.com'.",
+            "The form directly asks for Apple ID (username/email and password)."
+          ],
+          "source": "on-device",
+          "latencyMs": 4032
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Uses a Punycode domain (xn--pple-43d.com) to imitate Apple",
+            "Prominent Apple branding on an unrelated domain",
+            "Requests Apple ID credentials on a suspicious third-party site"
+          ],
+          "source": "cloud",
+          "latencyMs": 736
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Uses a Punycode domain (xn--pple-43d.com) to imitate Apple",
+            "Prominent Apple branding on an unrelated domain",
+            "Requests Apple ID credentials on a suspicious third-party site"
+          ],
+          "source": "cloud",
+          "latencyMs": 736
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.75,
+          "reasons": [
+            "Punycode host: xn--pple-43d.com is suspicious.",
+            "Brand text mismatch: The URL contains 'Apple' but the domain is 'xn--pple-43d.com'.",
+            "The form directly asks for Apple ID (username/email and password)."
+          ],
+          "source": "on-device",
+          "latencyMs": 4032
+        },
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Uses a Punycode domain (xn--pple-43d.com) to imitate Apple",
+            "Prominent Apple branding on an unrelated domain",
+            "Requests Apple ID credentials on a suspicious third-party site"
+          ],
+          "source": "cloud",
+          "latencyMs": 736
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "suspicious"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-coinbase-ip",
+      "category": "ip-host",
+      "label": "phishing",
+      "score": 9,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Page names a brand it isn't hosted by",
+          "Sensitive form is sent without encryption",
+          "Hosted on a raw IP address"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "IP address instead of domain",
+            "HTTP protocol",
+            "Form submits to the same site but is unencrypted"
+          ],
+          "source": "on-device",
+          "latencyMs": 2657
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.99,
+          "reasons": [
+            "Uses a raw IP address instead of the official Coinbase domain",
+            "Imitates Coinbase login on an unencrypted (HTTP) connection",
+            "High risk score from security rules engine"
+          ],
+          "source": "cloud",
+          "latencyMs": 13666
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "IP address instead of domain",
+            "HTTP protocol",
+            "Form submits to the same site but is unencrypted"
+          ],
+          "source": "on-device",
+          "latencyMs": 2657
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "IP address instead of domain",
+            "HTTP protocol",
+            "Form submits to the same site but is unencrypted"
+          ],
+          "source": "on-device",
+          "latencyMs": 2657
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-linkedin-at",
+      "category": "at-in-url",
+      "label": "phishing",
+      "score": 6,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Page names a brand it isn't hosted by",
+          "Web address hides the real destination",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "URL contains a suspicious subdomain (login-session.ru instead of linkedin.com)",
+            "Attempts to impersonate LinkedIn",
+            "Form submits to the same site but the URL is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 3201
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Domain name (login-session.ru) does not belong to LinkedIn",
+            "Imitates LinkedIn login while hosted on an unrelated Russian domain",
+            "Rules engine detected brand-text mismatch"
+          ],
+          "source": "cloud",
+          "latencyMs": 12288
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "URL contains a suspicious subdomain (login-session.ru instead of linkedin.com)",
+            "Attempts to impersonate LinkedIn",
+            "Form submits to the same site but the URL is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 3201
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "URL contains a suspicious subdomain (login-session.ru instead of linkedin.com)",
+            "Attempts to impersonate LinkedIn",
+            "Form submits to the same site but the URL is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 3201
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-google-forms-m365",
+      "category": "user-content",
+      "label": "phishing",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Page names a brand it isn't hosted by",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": false,
+        "error": "on-device model output rejected: model output is not valid JSON"
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Google Forms hosting a Microsoft login page",
+            "Urgent pressure language threatening account deactivation",
+            "Brand name mismatch between the hosting domain and the targeted brand"
+          ],
+          "source": "cloud",
+          "latencyMs": 3664
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Google Forms hosting a Microsoft login page",
+            "Urgent pressure language threatening account deactivation",
+            "Brand name mismatch between the hosting domain and the targeted brand"
+          ],
+          "source": "cloud",
+          "latencyMs": 3664
+        },
+        "local": null,
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Google Forms hosting a Microsoft login page",
+            "Urgent pressure language threatening account deactivation",
+            "Brand name mismatch between the hosting domain and the targeted brand"
+          ],
+          "source": "cloud",
+          "latencyMs": 3664
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "no-local-result"
+        },
+        "errors": [
+          "on-device model output rejected: model output is not valid JSON"
+        ]
+      }
+    },
+    {
+      "id": "p-google-sites-wf",
+      "category": "user-content",
+      "label": "phishing",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Page names a brand it isn't hosted by",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": false,
+        "error": "on-device model output rejected: model output is not valid JSON"
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "Uses Wells Fargo branding on a Google Sites domain",
+            "Creates false urgency with a security alert",
+            "Attempts to direct users to verify identity on an unrelated third-party page"
+          ],
+          "source": "cloud",
+          "latencyMs": 748
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "Uses Wells Fargo branding on a Google Sites domain",
+            "Creates false urgency with a security alert",
+            "Attempts to direct users to verify identity on an unrelated third-party page"
+          ],
+          "source": "cloud",
+          "latencyMs": 748
+        },
+        "local": null,
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "Uses Wells Fargo branding on a Google Sites domain",
+            "Creates false urgency with a security alert",
+            "Attempts to direct users to verify identity on an unrelated third-party page"
+          ],
+          "source": "cloud",
+          "latencyMs": 748
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "no-local-result"
+        },
+        "errors": [
+          "on-device model output rejected: model output is not valid JSON"
+        ]
+      }
+    },
+    {
+      "id": "p-ms-forms-helpdesk",
+      "category": "user-content",
+      "label": "phishing",
+      "score": 1,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.6,
+          "reasons": [
+            "Password expiry message suggests urgency",
+            "Form hosted on Microsoft's forms.office.com, which is legitimate.",
+            "Missing login/payment fields is unusual for a password reset form."
+          ],
+          "source": "on-device",
+          "latencyMs": 3468
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "Uses urgency tactics ('password will expire in 24 hours') to prompt credential entry",
+            "Imitates an IT helpdesk password reset on a generic Microsoft Form"
+          ],
+          "source": "cloud",
+          "latencyMs": 825
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "Uses urgency tactics ('password will expire in 24 hours') to prompt credential entry",
+            "Imitates an IT helpdesk password reset on a generic Microsoft Form"
+          ],
+          "source": "cloud",
+          "latencyMs": 825
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.6,
+          "reasons": [
+            "Password expiry message suggests urgency",
+            "Form hosted on Microsoft's forms.office.com, which is legitimate.",
+            "Missing login/payment fields is unusual for a password reset form."
+          ],
+          "source": "on-device",
+          "latencyMs": 3468
+        },
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "Uses urgency tactics ('password will expire in 24 hours') to prompt credential entry",
+            "Imitates an IT helpdesk password reset on a generic Microsoft Form"
+          ],
+          "source": "cloud",
+          "latencyMs": 825
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "low-confidence"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-dhl-compromised-wp",
+      "category": "compromised-site",
+      "label": "phishing",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "The page claims to be DHL, but the URL belongs to oakridge-dental.com.",
+            "The login form requests email and password.",
+            "Brand-text-mismatch rule triggers, indicating a potential discrepancy between the claimed brand (DHL) and the hosting domain."
+          ],
+          "source": "on-device",
+          "latencyMs": 3795
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "A dental website is hosting a fake DHL login page",
+            "Asks for email credentials under the guise of parcel delivery"
+          ],
+          "source": "cloud",
+          "latencyMs": 2694
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "A dental website is hosting a fake DHL login page",
+            "Asks for email credentials under the guise of parcel delivery"
+          ],
+          "source": "cloud",
+          "latencyMs": 2694
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "The page claims to be DHL, but the URL belongs to oakridge-dental.com.",
+            "The login form requests email and password.",
+            "Brand-text-mismatch rule triggers, indicating a potential discrepancy between the claimed brand (DHL) and the hosting domain."
+          ],
+          "source": "on-device",
+          "latencyMs": 3795
+        },
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "A dental website is hosting a fake DHL login page",
+            "Asks for email credentials under the guise of parcel delivery"
+          ],
+          "source": "cloud",
+          "latencyMs": 2694
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "suspicious"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-ms-compromised-formsubmit",
+      "category": "compromised-site",
+      "label": "phishing",
+      "score": 6,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Sensitive form submits to a different site",
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to a different domain (formsubmit.co)",
+            "Visible text mentions Microsoft, which is inconsistent with the domain",
+            "Cross-origin form detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 3065
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "A login form on a landscaping site submits credentials to an unrelated third-party service (formsubmit.co).",
+            "The page uses Microsoft branding and text (\"Sign in to your Microsoft account\") while hosted on an unrelated domain."
+          ],
+          "source": "cloud",
+          "latencyMs": 691
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to a different domain (formsubmit.co)",
+            "Visible text mentions Microsoft, which is inconsistent with the domain",
+            "Cross-origin form detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 3065
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to a different domain (formsubmit.co)",
+            "Visible text mentions Microsoft, which is inconsistent with the domain",
+            "Cross-origin form detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 3065
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-generic-crossorigin-php",
+      "category": "compromised-site",
+      "label": "phishing",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Sensitive form submits to a different site",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to a different site (hk-host-2291.xyz)",
+            "Cross-origin-form risk score is high (4)",
+            "The URL is suspicious (login-portal-verify.com)"
+          ],
+          "source": "on-device",
+          "latencyMs": 3448
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Credential harvesting form on a generic domain",
+            "Form submits data to an unrelated third-party site",
+            "Uses a generic session expiration pretext to prompt login"
+          ],
+          "source": "cloud",
+          "latencyMs": 948
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to a different site (hk-host-2291.xyz)",
+            "Cross-origin-form risk score is high (4)",
+            "The URL is suspicious (login-portal-verify.com)"
+          ],
+          "source": "on-device",
+          "latencyMs": 3448
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to a different site (hk-host-2291.xyz)",
+            "Cross-origin-form risk score is high (4)",
+            "The URL is suspicious (login-portal-verify.com)"
+          ],
+          "source": "on-device",
+          "latencyMs": 3448
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-docusign-netlify",
+      "category": "free-hosting",
+      "label": "phishing",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Brand imitation in URL (DocuSign)",
+            "Form submits to the same site",
+            "Use of the word 'review' might be suspicious considering the context"
+          ],
+          "source": "on-device",
+          "latencyMs": 2915
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain (netlify.app) does not belong to DocuSign",
+            "Imitates DocuSign brand to steal login credentials",
+            "Known pattern for credential harvesting via free hosting services"
+          ],
+          "source": "cloud",
+          "latencyMs": 681
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain (netlify.app) does not belong to DocuSign",
+            "Imitates DocuSign brand to steal login credentials",
+            "Known pattern for credential harvesting via free hosting services"
+          ],
+          "source": "cloud",
+          "latencyMs": 681
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Brand imitation in URL (DocuSign)",
+            "Form submits to the same site",
+            "Use of the word 'review' might be suspicious considering the context"
+          ],
+          "source": "on-device",
+          "latencyMs": 2915
+        },
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain (netlify.app) does not belong to DocuSign",
+            "Imitates DocuSign brand to steal login credentials",
+            "Known pattern for credential harvesting via free hosting services"
+          ],
+          "source": "cloud",
+          "latencyMs": 681
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "suspicious"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-metamask-seed",
+      "category": "crypto",
+      "label": "phishing",
+      "score": 8,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Asks for a wallet recovery phrase",
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL imitates MetaMask",
+            "Seed phrase request detected",
+            "Brand-in-host detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 2503
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 1,
+          "reasons": [
+            "The URL uses a third-party hosting service (pages.dev) while imitating MetaMask.",
+            "The page asks for a Secret Recovery Phrase, which is a classic cryptocurrency wallet phishing tactic.",
+            "High risk score from detection rules (brand-in-host and seed-phrase-request)."
+          ],
+          "source": "cloud",
+          "latencyMs": 14866
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL imitates MetaMask",
+            "Seed phrase request detected",
+            "Brand-in-host detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 2503
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL imitates MetaMask",
+            "Seed phrase request detected",
+            "Brand-in-host detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 2503
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-wallet-sync-nobrand",
+      "category": "crypto",
+      "label": "phishing",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Asks for a wallet recovery phrase",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "Urgency language: \"Act now\"",
+            "Seed phrase request: asks for a wallet recovery phrase",
+            "Registered domain 'web.app' is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 2922
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 1,
+          "reasons": [
+            "Requests a wallet seed phrase, which is a definitive indicator of a cryptocurrency theft scam",
+            "Uses pressure phrases ('Act now') and artificial urgency to manipulate the user",
+            "Hosted on a generic third-party app domain (web.app) instead of an official crypto wallet provider"
+          ],
+          "source": "cloud",
+          "latencyMs": 8468
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "Urgency language: \"Act now\"",
+            "Seed phrase request: asks for a wallet recovery phrase",
+            "Registered domain 'web.app' is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 2922
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "Urgency language: \"Act now\"",
+            "Seed phrase request: asks for a wallet recovery phrase",
+            "Registered domain 'web.app' is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 2922
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-bofa-otp",
+      "category": "otp-relay",
+      "label": "phishing",
+      "score": 3,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Page names a brand it isn't hosted by",
+          "Asks for a one-time code"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "Imitates Bank of America's brand in URL and visible text",
+            "Requests OTP via a form",
+            "Forms submit to the same site, but the URL is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 3336
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain bofa-verify-alerts.com is not owned by Bank of America",
+            "The page uses Bank of America branding to deceive users",
+            "Requests sensitive verification codes on an unauthentic domain"
+          ],
+          "source": "cloud",
+          "latencyMs": 2242
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain bofa-verify-alerts.com is not owned by Bank of America",
+            "The page uses Bank of America branding to deceive users",
+            "Requests sensitive verification codes on an unauthentic domain"
+          ],
+          "source": "cloud",
+          "latencyMs": 2242
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "Imitates Bank of America's brand in URL and visible text",
+            "Requests OTP via a form",
+            "Forms submit to the same site, but the URL is suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 3336
+        },
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain bofa-verify-alerts.com is not owned by Bank of America",
+            "The page uses Bank of America branding to deceive users",
+            "Requests sensitive verification codes on an unauthentic domain"
+          ],
+          "source": "cloud",
+          "latencyMs": 2242
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "unsupported-phishing"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-chase-mfa",
+      "category": "otp-relay",
+      "label": "phishing",
+      "score": 8,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Asks for a one-time code"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": false,
+        "error": "on-device model output rejected: model output is not valid JSON"
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain imitates Chase but is not owned by Chase.",
+            "The page asks for sensitive login and OTP credentials.",
+            "High risk score from the detection rules engine."
+          ],
+          "source": "cloud",
+          "latencyMs": 816
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain imitates Chase but is not owned by Chase.",
+            "The page asks for sensitive login and OTP credentials.",
+            "High risk score from the detection rules engine."
+          ],
+          "source": "cloud",
+          "latencyMs": 816
+        },
+        "local": null,
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain imitates Chase but is not owned by Chase.",
+            "The page asks for sensitive login and OTP credentials.",
+            "High risk score from the detection rules engine."
+          ],
+          "source": "cloud",
+          "latencyMs": 816
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "no-local-result"
+        },
+        "errors": [
+          "on-device model output rejected: model output is not valid JSON"
+        ]
+      }
+    },
+    {
+      "id": "p-irs-refund",
+      "category": "government",
+      "label": "phishing",
+      "score": 9,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL imitates a legitimate brand (IRS)",
+            "Suspicious top-level domain (.top)",
+            "Pressure phrase indicating urgency ('within 72 hours')"
+          ],
+          "source": "on-device",
+          "latencyMs": 3475
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.98,
+          "reasons": [
+            "The domain name imitates the IRS but does not belong to the official government agency.",
+            "Requests sensitive personal data including Social Security Number and bank details on an unofficial site.",
+            "Uses high-pressure urgency language ('within 72 hours') characteristic of financial scams."
+          ],
+          "source": "cloud",
+          "latencyMs": 859
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL imitates a legitimate brand (IRS)",
+            "Suspicious top-level domain (.top)",
+            "Pressure phrase indicating urgency ('within 72 hours')"
+          ],
+          "source": "on-device",
+          "latencyMs": 3475
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "URL imitates a legitimate brand (IRS)",
+            "Suspicious top-level domain (.top)",
+            "Pressure phrase indicating urgency ('within 72 hours')"
+          ],
+          "source": "on-device",
+          "latencyMs": 3475
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-amazon-refund",
+      "category": "refund-scam",
+      "label": "phishing",
+      "score": 8,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Brand imitation in URL (Amazon)",
+            "Misleading URL (amazon-refund-desk.com)",
+            "Request for payment card under false pretenses of refund"
+          ],
+          "source": "on-device",
+          "latencyMs": 2969
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain name imitates Amazon but does not belong to it",
+            "Uses financial pressure language to trick users into entering payment card details",
+            "High-risk score from the rules engine for brand impersonation and urgency"
+          ],
+          "source": "cloud",
+          "latencyMs": 768
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Brand imitation in URL (Amazon)",
+            "Misleading URL (amazon-refund-desk.com)",
+            "Request for payment card under false pretenses of refund"
+          ],
+          "source": "on-device",
+          "latencyMs": 2969
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Brand imitation in URL (Amazon)",
+            "Misleading URL (amazon-refund-desk.com)",
+            "Request for payment card under false pretenses of refund"
+          ],
+          "source": "on-device",
+          "latencyMs": 2969
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-zelle-recovery",
+      "category": "refund-scam",
+      "label": "phishing",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Asks for bank or Social Security numbers"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "URL imitates a legitimate brand (Zelle)",
+            "Page asks for bank details under the guise of Zelle payment recovery",
+            "Brand-in-host detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 2996
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "The domain name imitates Zelle but is not owned by Zelle.",
+            "The page uses a fake payment recovery pretext to collect bank details.",
+            "The rules engine flagged brand imitation and brand text mismatch."
+          ],
+          "source": "cloud",
+          "latencyMs": 10767
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "URL imitates a legitimate brand (Zelle)",
+            "Page asks for bank details under the guise of Zelle payment recovery",
+            "Brand-in-host detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 2996
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "URL imitates a legitimate brand (Zelle)",
+            "Page asks for bank details under the guise of Zelle payment recovery",
+            "Brand-in-host detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 2996
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-instagram-copyright",
+      "category": "brand-lookalike",
+      "label": "phishing",
+      "score": 10,
+      "checked": true,
+      "rules": {
+        "verdict": "phishing",
+        "confidence": 0.75,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Brand impersonation (Instagram)",
+            "Urgency and threat of account deletion",
+            "Request for identity and password"
+          ],
+          "source": "on-device",
+          "latencyMs": 2684
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.99,
+          "reasons": [
+            "Imitates Instagram on an unrelated domain",
+            "Uses urgent pressure tactics regarding account deletion",
+            "Prompts for login credentials to steal them"
+          ],
+          "source": "cloud",
+          "latencyMs": 820
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Brand impersonation (Instagram)",
+            "Urgency and threat of account deletion",
+            "Request for identity and password"
+          ],
+          "source": "on-device",
+          "latencyMs": 2684
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Brand impersonation (Instagram)",
+            "Urgency and threat of account deletion",
+            "Request for identity and password"
+          ],
+          "source": "on-device",
+          "latencyMs": 2684
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-tech-support-click",
+      "category": "tech-support",
+      "label": "phishing",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Fake virus alert telling you to call for help",
+          "Page names a brand it isn't hosted by",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Suspicious TLD (.click)",
+            "Brand text mismatch (Microsoft)",
+            "Urgency language (Call immediately, Do not close)"
+          ],
+          "source": "on-device",
+          "latencyMs": 2991
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Fake tech support scam alerting about a computer infection",
+            "Uses urgency language to pressure the user",
+            "Impersonates Microsoft support on an unrelated domain"
+          ],
+          "source": "cloud",
+          "latencyMs": 803
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Suspicious TLD (.click)",
+            "Brand text mismatch (Microsoft)",
+            "Urgency language (Call immediately, Do not close)"
+          ],
+          "source": "on-device",
+          "latencyMs": 2991
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Suspicious TLD (.click)",
+            "Brand text mismatch (Microsoft)",
+            "Urgency language (Call immediately, Do not close)"
+          ],
+          "source": "on-device",
+          "latencyMs": 2991
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-tech-support-ip",
+      "category": "tech-support",
+      "label": "phishing",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Fake virus alert telling you to call for help",
+          "Hosted on a raw IP address",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.8,
+          "reasons": [
+            "IP address instead of domain",
+            "No HTTPS",
+            "Urgency language: 'Security alert'"
+          ],
+          "source": "on-device",
+          "latencyMs": 2623
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "Uses a raw IP address instead of a domain name",
+            "Lacks HTTPS encryption",
+            "Displays a fake tech support scareware warning"
+          ],
+          "source": "cloud",
+          "latencyMs": 2881
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.8,
+          "reasons": [
+            "IP address instead of domain",
+            "No HTTPS",
+            "Urgency language: 'Security alert'"
+          ],
+          "source": "on-device",
+          "latencyMs": 2623
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.8,
+          "reasons": [
+            "IP address instead of domain",
+            "No HTTPS",
+            "Urgency language: 'Security alert'"
+          ],
+          "source": "on-device",
+          "latencyMs": 2623
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "p-fake-shop",
+      "category": "fake-shop",
+      "label": "phishing",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Uses pressure tactics (deadlines, account threats)",
+          "Asks for card details"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": false,
+        "error": "on-device model output rejected: model output is not valid JSON"
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "Suspicious domain imitating a major brand (ray-ban-outlet-sale.shop)",
+            "Unrealistic 90% off clearance pricing with high-pressure urgency language",
+            "Requests payment card details on an unverified third-party outlet domain"
+          ],
+          "source": "cloud",
+          "latencyMs": 894
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "Suspicious domain imitating a major brand (ray-ban-outlet-sale.shop)",
+            "Unrealistic 90% off clearance pricing with high-pressure urgency language",
+            "Requests payment card details on an unverified third-party outlet domain"
+          ],
+          "source": "cloud",
+          "latencyMs": 894
+        },
+        "local": null,
+        "cloud": {
+          "verdict": "phishing",
+          "confidence": 0.85,
+          "reasons": [
+            "Suspicious domain imitating a major brand (ray-ban-outlet-sale.shop)",
+            "Unrealistic 90% off clearance pricing with high-pressure urgency language",
+            "Requests payment card details on an unverified third-party outlet domain"
+          ],
+          "source": "cloud",
+          "latencyMs": 894
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "no-local-result"
+        },
+        "errors": [
+          "on-device model output rejected: model output is not valid JSON"
+        ]
+      }
+    },
+    {
+      "id": "p-crypto-giveaway",
+      "category": "crypto",
+      "label": "phishing",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Promises to multiply crypto you send",
+          "Uses pressure tactics (deadlines, account threats)"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Urgency language ('Act now')",
+            "Cryptocurrency giveaway offer (risk score 4)",
+            "Request to send crypto to an external address"
+          ],
+          "source": "on-device",
+          "latencyMs": 2832
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.99,
+          "reasons": [
+            "Classic 'send crypto, get double back' scam",
+            "High-pressure urgency language ('Act now, only 2 hours left')",
+            "Deceptive title and domain promising a fake giveaway"
+          ],
+          "source": "cloud",
+          "latencyMs": 557
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Urgency language ('Act now')",
+            "Cryptocurrency giveaway offer (risk score 4)",
+            "Request to send crypto to an external address"
+          ],
+          "source": "on-device",
+          "latencyMs": 2832
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.95,
+          "reasons": [
+            "Urgency language ('Act now')",
+            "Cryptocurrency giveaway offer (risk score 4)",
+            "Request to send crypto to an external address"
+          ],
+          "source": "on-device",
+          "latencyMs": 2832
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-wellsfargo-real",
+      "category": "bank-login",
+      "label": "benign",
+      "score": 2,
+      "checked": false,
+      "rules": null,
+      "local": null,
+      "cloud": null,
+      "hybrid": null
+    },
+    {
+      "id": "b-navyfederal",
+      "category": "bank-login",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "HTTPS enabled",
+            "Form submits to the same domain",
+            "No brand imitation in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2380
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "The URL belongs to the legitimate Navy Federal Credit Union domain.",
+            "The login form submits to the same site.",
+            "No warning signs or deceptive elements detected."
+          ],
+          "source": "cloud",
+          "latencyMs": 692
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "HTTPS enabled",
+            "Form submits to the same domain",
+            "No brand imitation in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2380
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "HTTPS enabled",
+            "Form submits to the same domain",
+            "No brand imitation in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2380
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-truist",
+      "category": "bank-login",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL belongs to truist.com.",
+            "The HTTPS protocol is enabled.",
+            "The form submits to the same site."
+          ],
+          "source": "on-device",
+          "latencyMs": 2736
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "URL uses the legitimate registered domain (truist.com)",
+            "Form submits securely to the same site",
+            "No warning signs or deceptive indicators detected"
+          ],
+          "source": "cloud",
+          "latencyMs": 2883
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL belongs to truist.com.",
+            "The HTTPS protocol is enabled.",
+            "The form submits to the same site."
+          ],
+          "source": "on-device",
+          "latencyMs": 2736
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL belongs to truist.com.",
+            "The HTTPS protocol is enabled.",
+            "The form submits to the same site."
+          ],
+          "source": "on-device",
+          "latencyMs": 2736
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-credit-union-hyphens",
+      "category": "bank-login",
+      "label": "benign",
+      "score": 3,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No imitated brands in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2683
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.85,
+          "reasons": [
+            "The domain matches the service being accessed",
+            "The login form submits to the same site",
+            "No deceptive branding or high-risk rules triggered"
+          ],
+          "source": "cloud",
+          "latencyMs": 693
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No imitated brands in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2683
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No imitated brands in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2683
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-amazon-uk",
+      "category": "bank-login",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "Site asks for login credentials on its own domain (amazon.co.uk)",
+            "Forms submit to the same site",
+            "No suspicious links or pressure phrases found"
+          ],
+          "source": "on-device",
+          "latencyMs": 2849
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "URL matches the official Amazon domain",
+            "Form submits to the same site",
+            "No warning signs or deceptive elements detected"
+          ],
+          "source": "cloud",
+          "latencyMs": 631
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "Site asks for login credentials on its own domain (amazon.co.uk)",
+            "Forms submit to the same site",
+            "No suspicious links or pressure phrases found"
+          ],
+          "source": "on-device",
+          "latencyMs": 2849
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "Site asks for login credentials on its own domain (amazon.co.uk)",
+            "Forms submit to the same site",
+            "No suspicious links or pressure phrases found"
+          ],
+          "source": "on-device",
+          "latencyMs": 2849
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-aws-signin",
+      "category": "bank-login",
+      "label": "benign",
+      "score": 2,
+      "checked": false,
+      "rules": null,
+      "local": null,
+      "cloud": null,
+      "hybrid": null
+    },
+    {
+      "id": "b-wellsfargo-advisors",
+      "category": "brand-unlisted-domain",
+      "label": "benign",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.85,
+          "reasons": [
+            "HTTPS enabled",
+            "Form submits to the same site",
+            "No signs of imitation or deception"
+          ],
+          "source": "on-device",
+          "latencyMs": 2757
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The URL matches the official domain for Wells Fargo Advisors (wellsfargoadvisors.com)",
+            "The login form submits securely to the same site",
+            "The low risk score from the rules engine does not indicate deception"
+          ],
+          "source": "cloud",
+          "latencyMs": 798
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.85,
+          "reasons": [
+            "HTTPS enabled",
+            "Form submits to the same site",
+            "No signs of imitation or deception"
+          ],
+          "source": "on-device",
+          "latencyMs": 2757
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.85,
+          "reasons": [
+            "HTTPS enabled",
+            "Form submits to the same site",
+            "No signs of imitation or deception"
+          ],
+          "source": "on-device",
+          "latencyMs": 2757
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-paypal-community",
+      "category": "brand-unlisted-domain",
+      "label": "benign",
+      "score": 5,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "HTTPS enabled",
+            "Forms are missing",
+            "Domain matches brand"
+          ],
+          "source": "on-device",
+          "latencyMs": 2363
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Official PayPal community forum hosted on a legitimate domain",
+            "No login, payment, or sensitive data collection forms present",
+            "Low risk score from rules engine with no actual signs of deception"
+          ],
+          "source": "cloud",
+          "latencyMs": 9464
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "HTTPS enabled",
+            "Forms are missing",
+            "Domain matches brand"
+          ],
+          "source": "on-device",
+          "latencyMs": 2363
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "HTTPS enabled",
+            "Forms are missing",
+            "Domain matches brand"
+          ],
+          "source": "on-device",
+          "latencyMs": 2363
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-appleinsider",
+      "category": "brand-unlisted-domain",
+      "label": "benign",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "Forms submit to the same site",
+            "Registered domain is appleinsider.com",
+            "No signs of brand imitation or pressure"
+          ],
+          "source": "on-device",
+          "latencyMs": 2740
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.85,
+          "reasons": [
+            "URL belongs to appleinsider.com, a known legitimate news and forum site",
+            "Form submits securely to the same site",
+            "Rules engine risk score is low (7)"
+          ],
+          "source": "cloud",
+          "latencyMs": 813
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "Forms submit to the same site",
+            "Registered domain is appleinsider.com",
+            "No signs of brand imitation or pressure"
+          ],
+          "source": "on-device",
+          "latencyMs": 2740
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "Forms submit to the same site",
+            "Registered domain is appleinsider.com",
+            "No signs of brand imitation or pressure"
+          ],
+          "source": "on-device",
+          "latencyMs": 2740
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-chase-center",
+      "category": "brand-unlisted-domain",
+      "label": "benign",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "HTTPS is enabled",
+            "Form submits to the same domain",
+            "No clear signs of deception"
+          ],
+          "source": "on-device",
+          "latencyMs": 2652
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.85,
+          "reasons": [
+            "URL belongs to the official domain (chasecenter.com)",
+            "Form submits securely to the same site",
+            "Weak heuristic rules triggered without strong deception evidence"
+          ],
+          "source": "cloud",
+          "latencyMs": 1547
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "HTTPS is enabled",
+            "Form submits to the same domain",
+            "No clear signs of deception"
+          ],
+          "source": "on-device",
+          "latencyMs": 2652
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "HTTPS is enabled",
+            "Form submits to the same domain",
+            "No clear signs of deception"
+          ],
+          "source": "on-device",
+          "latencyMs": 2652
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-dhl-de",
+      "category": "brand-unlisted-domain",
+      "label": "benign",
+      "score": 7,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Page names a brand it isn't hosted by",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "HTTPS secured",
+            "Forms submit to the same domain",
+            "Brand imitated in URL (DHL, legitimate brand)"
+          ],
+          "source": "on-device",
+          "latencyMs": 2856
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "URL is the official dhl.de domain",
+            "Form submits to the same site",
+            "Low risk score from rules engine"
+          ],
+          "source": "cloud",
+          "latencyMs": 4198
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "HTTPS secured",
+            "Forms submit to the same domain",
+            "Brand imitated in URL (DHL, legitimate brand)"
+          ],
+          "source": "on-device",
+          "latencyMs": 2856
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "HTTPS secured",
+            "Forms submit to the same domain",
+            "Brand imitated in URL (DHL, legitimate brand)"
+          ],
+          "source": "on-device",
+          "latencyMs": 2856
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-short-keyword-irs",
+      "category": "brand-unlisted-domain",
+      "label": "benign",
+      "score": 5,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No brand imitation in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2459
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.6,
+          "reasons": [
+            "Domain name includes the acronym of a government agency (IRS)",
+            "Weak brand-in-host warning signal detected"
+          ],
+          "source": "cloud",
+          "latencyMs": 1439
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No brand imitation in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2459
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No brand imitation in URL"
+          ],
+          "source": "on-device",
+          "latencyMs": 2459
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-short-keyword-steam",
+      "category": "brand-unlisted-domain",
+      "label": "benign",
+      "score": 5,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Web address imitates a known brand",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "The URL matches the registered domain.",
+            "The form submits to the same site.",
+            "No pressure phrases or imitated brands are present in the URL."
+          ],
+          "source": "on-device",
+          "latencyMs": 2642
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "URL matches the official domain of the brand (steamboatresort.com)",
+            "Form submits securely to the same site",
+            "Low risk score from rules engine"
+          ],
+          "source": "cloud",
+          "latencyMs": 8749
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "The URL matches the registered domain.",
+            "The form submits to the same site.",
+            "No pressure phrases or imitated brands are present in the URL."
+          ],
+          "source": "on-device",
+          "latencyMs": 2642
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "The URL matches the registered domain.",
+            "The form submits to the same site.",
+            "No pressure phrases or imitated brands are present in the URL."
+          ],
+          "source": "on-device",
+          "latencyMs": 2642
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-authorize-net-checkout",
+      "category": "cross-origin-legit",
+      "label": "benign",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Sensitive form submits to a different site",
+          "Asks for card details"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Form submits to a different site",
+            "Rule engine indicates cross-origin-form risk",
+            "Request for payment details"
+          ],
+          "source": "on-device",
+          "latencyMs": 2760
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The URL belongs to the legitimate domain of the shop.",
+            "Payment form submission to a third-party payment gateway (Authorize.Net) is standard e-commerce practice.",
+            "No deceptive branding, pressure tactics, or phishing indicators present."
+          ],
+          "source": "cloud",
+          "latencyMs": 10939
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The URL belongs to the legitimate domain of the shop.",
+            "Payment form submission to a third-party payment gateway (Authorize.Net) is standard e-commerce practice.",
+            "No deceptive branding, pressure tactics, or phishing indicators present."
+          ],
+          "source": "cloud",
+          "latencyMs": 10939
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Form submits to a different site",
+            "Rule engine indicates cross-origin-form risk",
+            "Request for payment details"
+          ],
+          "source": "on-device",
+          "latencyMs": 2760
+        },
+        "cloud": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The URL belongs to the legitimate domain of the shop.",
+            "Payment form submission to a third-party payment gateway (Authorize.Net) is standard e-commerce practice.",
+            "No deceptive branding, pressure tactics, or phishing indicators present."
+          ],
+          "source": "cloud",
+          "latencyMs": 10939
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "suspicious"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-saas-auth-domain",
+      "category": "cross-origin-legit",
+      "label": "benign",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Sensitive form submits to a different site",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Form submits to a different site (auth.example-saas.com)",
+            "Cross-origin-form signal indicates potential risk",
+            "HTTPS is present, but other discrepancies exist"
+          ],
+          "source": "on-device",
+          "latencyMs": 3549
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "The URL and domain match the expected SaaS service branding.",
+            "The form submission goes to an auth subdomain (auth.example-saas.com) belonging to the same organization.",
+            "No deceptive signs, pressure phrases, or brand imitation detected."
+          ],
+          "source": "cloud",
+          "latencyMs": 715
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "The URL and domain match the expected SaaS service branding.",
+            "The form submission goes to an auth subdomain (auth.example-saas.com) belonging to the same organization.",
+            "No deceptive signs, pressure phrases, or brand imitation detected."
+          ],
+          "source": "cloud",
+          "latencyMs": 715
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Form submits to a different site (auth.example-saas.com)",
+            "Cross-origin-form signal indicates potential risk",
+            "HTTPS is present, but other discrepancies exist"
+          ],
+          "source": "on-device",
+          "latencyMs": 3549
+        },
+        "cloud": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "The URL and domain match the expected SaaS service branding.",
+            "The form submission goes to an auth subdomain (auth.example-saas.com) belonging to the same organization.",
+            "No deceptive signs, pressure phrases, or brand imitation detected."
+          ],
+          "source": "cloud",
+          "latencyMs": 715
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "suspicious"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-library-bibliocommons",
+      "category": "cross-origin-legit",
+      "label": "benign",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Sensitive form submits to a different site",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Form submits to a different site.",
+            "Cross-origin-form signal indicates potential risk.",
+            "While not a clear phishing attempt, the different submission site warrants caution."
+          ],
+          "source": "on-device",
+          "latencyMs": 2941
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.85,
+          "reasons": [
+            "The domain belongs to the City Public Library (citypl.org).",
+            "The form submits to a legitimate library services subdomain (bibliocommons.com).",
+            "No deceptive elements or phishing indicators detected."
+          ],
+          "source": "cloud",
+          "latencyMs": 768
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.85,
+          "reasons": [
+            "The domain belongs to the City Public Library (citypl.org).",
+            "The form submits to a legitimate library services subdomain (bibliocommons.com).",
+            "No deceptive elements or phishing indicators detected."
+          ],
+          "source": "cloud",
+          "latencyMs": 768
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Form submits to a different site.",
+            "Cross-origin-form signal indicates potential risk.",
+            "While not a clear phishing attempt, the different submission site warrants caution."
+          ],
+          "source": "on-device",
+          "latencyMs": 2941
+        },
+        "cloud": {
+          "verdict": "safe",
+          "confidence": 0.85,
+          "reasons": [
+            "The domain belongs to the City Public Library (citypl.org).",
+            "The form submits to a legitimate library services subdomain (bibliocommons.com).",
+            "No deceptive elements or phishing indicators detected."
+          ],
+          "source": "cloud",
+          "latencyMs": 768
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "suspicious"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-home-router",
+      "category": "local-device",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL points to a private network address (192.168.1.1).",
+            "The form submits to the same site.",
+            "The visible text indicates a router login, which is expected for a router's configuration."
+          ],
+          "source": "on-device",
+          "latencyMs": 3582
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "Private network IP address indicating a local router management page",
+            "Form submits to the same local site",
+            "No signs of phishing or brand impersonation"
+          ],
+          "source": "cloud",
+          "latencyMs": 15360
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL points to a private network address (192.168.1.1).",
+            "The form submits to the same site.",
+            "The visible text indicates a router login, which is expected for a router's configuration."
+          ],
+          "source": "on-device",
+          "latencyMs": 3582
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL points to a private network address (192.168.1.1).",
+            "The form submits to the same site.",
+            "The visible text indicates a router login, which is expected for a router's configuration."
+          ],
+          "source": "on-device",
+          "latencyMs": 3582
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-krebs-article",
+      "category": "security-news",
+      "label": "benign",
+      "score": 5,
+      "checked": false,
+      "rules": null,
+      "local": null,
+      "cloud": null,
+      "hybrid": null
+    },
+    {
+      "id": "b-ftc-advice",
+      "category": "security-news",
+      "label": "benign",
+      "score": 5,
+      "checked": false,
+      "rules": null,
+      "local": null,
+      "cloud": null,
+      "hybrid": null
+    },
+    {
+      "id": "b-bank-security-page",
+      "category": "security-news",
+      "label": "benign",
+      "score": 2,
+      "checked": false,
+      "rules": null,
+      "local": null,
+      "cloud": null,
+      "hybrid": null
+    },
+    {
+      "id": "b-news-newsletter",
+      "category": "security-news",
+      "label": "benign",
+      "score": 0,
+      "checked": false,
+      "rules": null,
+      "local": null,
+      "cloud": null,
+      "hybrid": null
+    },
+    {
+      "id": "b-shop-login",
+      "category": "ordinary-login",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Forms submit to the same site",
+            "HTTPS is enabled",
+            "No brand imitation detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 2413
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "The URL belongs to the legitimate domain.",
+            "The login form submits to the same domain.",
+            "No warning signs or deceptive elements detected."
+          ],
+          "source": "cloud",
+          "latencyMs": 1132
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Forms submit to the same site",
+            "HTTPS is enabled",
+            "No brand imitation detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 2413
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Forms submit to the same site",
+            "HTTPS is enabled",
+            "No brand imitation detected"
+          ],
+          "source": "on-device",
+          "latencyMs": 2413
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-etsy",
+      "category": "ordinary-login",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL is etsy.com, the registered domain.",
+            "The forms submit to the same site.",
+            "No warning signs from the rules engine."
+          ],
+          "source": "on-device",
+          "latencyMs": 2830
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "Official Etsy domain",
+            "Sign-in form submits securely to the same site",
+            "No warning signs or deceptive indicators"
+          ],
+          "source": "cloud",
+          "latencyMs": 783
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL is etsy.com, the registered domain.",
+            "The forms submit to the same site.",
+            "No warning signs from the rules engine."
+          ],
+          "source": "on-device",
+          "latencyMs": 2830
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL is etsy.com, the registered domain.",
+            "The forms submit to the same site.",
+            "No warning signs from the rules engine."
+          ],
+          "source": "on-device",
+          "latencyMs": 2830
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-deep-subdomains",
+      "category": "ordinary-login",
+      "label": "benign",
+      "score": 4,
+      "checked": true,
+      "rules": {
+        "verdict": "suspicious",
+        "confidence": 0.5,
+        "reasons": [
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Many subdomains present",
+            "Long host name",
+            "Form submits to the same site (potentially legitimate but warrants further scrutiny due to other risk factors)."
+          ],
+          "source": "on-device",
+          "latencyMs": 2864
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The form submits to the same domain.",
+            "No brand impersonation or deceptive signals detected.",
+            "The risk score from the rules engine is low."
+          ],
+          "source": "cloud",
+          "latencyMs": 717
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The form submits to the same domain.",
+            "No brand impersonation or deceptive signals detected.",
+            "The risk score from the rules engine is low."
+          ],
+          "source": "cloud",
+          "latencyMs": 717
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Many subdomains present",
+            "Long host name",
+            "Form submits to the same site (potentially legitimate but warrants further scrutiny due to other risk factors)."
+          ],
+          "source": "on-device",
+          "latencyMs": 2864
+        },
+        "cloud": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The form submits to the same domain.",
+            "No brand impersonation or deceptive signals detected.",
+            "The risk score from the rules engine is low."
+          ],
+          "source": "cloud",
+          "latencyMs": 717
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "suspicious"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-zoho-2fa",
+      "category": "ordinary-login",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Uses pressure tactics (deadlines, account threats)",
+          "Asks for a one-time code"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.6,
+          "reasons": [
+            "Urgency language detected",
+            "Page requests OTP which is suspicious",
+            "Unusual sign-in activity mentioned"
+          ],
+          "source": "on-device",
+          "latencyMs": 2502
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Authentic Zoho domain matching the service",
+            "Form submits securely to the same site",
+            "Low risk score from rules engine with no spoofing indicators"
+          ],
+          "source": "cloud",
+          "latencyMs": 7884
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Authentic Zoho domain matching the service",
+            "Form submits securely to the same site",
+            "Low risk score from rules engine with no spoofing indicators"
+          ],
+          "source": "cloud",
+          "latencyMs": 7884
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.6,
+          "reasons": [
+            "Urgency language detected",
+            "Page requests OTP which is suspicious",
+            "Unusual sign-in activity mentioned"
+          ],
+          "source": "on-device",
+          "latencyMs": 2502
+        },
+        "cloud": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Authentic Zoho domain matching the service",
+            "Form submits securely to the same site",
+            "Low risk score from rules engine with no spoofing indicators"
+          ],
+          "source": "cloud",
+          "latencyMs": 7884
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "low-confidence"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-shop-checkout",
+      "category": "ordinary-payment",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for card details"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No signs of brand imitation or pressure"
+          ],
+          "source": "on-device",
+          "latencyMs": 2696
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "URL belongs to the legitimate domain allbirds.com",
+            "Form submits securely to the same site",
+            "No warning signs or brand impersonation detected"
+          ],
+          "source": "cloud",
+          "latencyMs": 6578
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No signs of brand imitation or pressure"
+          ],
+          "source": "on-device",
+          "latencyMs": 2696
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Form submits to the same site",
+            "HTTPS is enabled",
+            "No signs of brand imitation or pressure"
+          ],
+          "source": "on-device",
+          "latencyMs": 2696
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-wikimedia-donate",
+      "category": "ordinary-payment",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for card details"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The URL belongs to a reputable organization (wikimedia.org)",
+            "The HTTPS protocol is enabled",
+            "The form submits to the same site"
+          ],
+          "source": "on-device",
+          "latencyMs": 2808
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "Official Wikimedia donation domain",
+            "No deceptive branding or suspicious signals",
+            "Form submits to the same site"
+          ],
+          "source": "cloud",
+          "latencyMs": 633
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The URL belongs to a reputable organization (wikimedia.org)",
+            "The HTTPS protocol is enabled",
+            "The form submits to the same site"
+          ],
+          "source": "on-device",
+          "latencyMs": 2808
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The URL belongs to a reputable organization (wikimedia.org)",
+            "The HTTPS protocol is enabled",
+            "The form submits to the same site"
+          ],
+          "source": "on-device",
+          "latencyMs": 2808
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-irs-directpay",
+      "category": "government",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for bank or Social Security numbers"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "HTTPS enabled",
+            "Form submits to the same domain (irs.gov)",
+            "No signs of deception or imitation of other brands"
+          ],
+          "source": "on-device",
+          "latencyMs": 2802
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "Authentic government domain (irs.gov)",
+            "Forms submit to the same site",
+            "No warning signs from the rules engine"
+          ],
+          "source": "cloud",
+          "latencyMs": 7147
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "HTTPS enabled",
+            "Form submits to the same domain (irs.gov)",
+            "No signs of deception or imitation of other brands"
+          ],
+          "source": "on-device",
+          "latencyMs": 2802
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "HTTPS enabled",
+            "Form submits to the same domain (irs.gov)",
+            "No signs of deception or imitation of other brands"
+          ],
+          "source": "on-device",
+          "latencyMs": 2802
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-ssa-myaccount",
+      "category": "government",
+      "label": "benign",
+      "score": 3,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for a one-time code",
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL belongs to the official SSA domain (ssa.gov).",
+            "The form submits to the same site.",
+            "No phishing or scam indicators are present."
+          ],
+          "source": "on-device",
+          "latencyMs": 3473
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "The URL belongs to the official government domain (ssa.gov)",
+            "The form submits securely to the same site",
+            "No warning signs or deceptive patterns detected"
+          ],
+          "source": "cloud",
+          "latencyMs": 7295
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL belongs to the official SSA domain (ssa.gov).",
+            "The form submits to the same site.",
+            "No phishing or scam indicators are present."
+          ],
+          "source": "on-device",
+          "latencyMs": 3473
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL belongs to the official SSA domain (ssa.gov).",
+            "The form submits to the same site.",
+            "No phishing or scam indicators are present."
+          ],
+          "source": "on-device",
+          "latencyMs": 3473
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-healthcare-gov",
+      "category": "government",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for bank or Social Security numbers"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL matches the registered domain (healthcare.gov)",
+            "The form submits to the same site",
+            "No signs of imitation or pressure"
+          ],
+          "source": "on-device",
+          "latencyMs": 2819
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "Official government domain (healthcare.gov)",
+            "Forms submit to the same site",
+            "No warning signs or brand imitation detected"
+          ],
+          "source": "cloud",
+          "latencyMs": 2503
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL matches the registered domain (healthcare.gov)",
+            "The form submits to the same site",
+            "No signs of imitation or pressure"
+          ],
+          "source": "on-device",
+          "latencyMs": 2819
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL matches the registered domain (healthcare.gov)",
+            "The form submits to the same site",
+            "No signs of imitation or pressure"
+          ],
+          "source": "on-device",
+          "latencyMs": 2819
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-usps-login",
+      "category": "government",
+      "label": "benign",
+      "score": 2,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for a password"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Forms submit to the same site",
+            "Registered domain is usps.com",
+            "HTTPS is enabled"
+          ],
+          "source": "on-device",
+          "latencyMs": 2546
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "The URL matches the official USPS domain.",
+            "The login form submits to the same site.",
+            "No deceptive signals or warning signs detected."
+          ],
+          "source": "cloud",
+          "latencyMs": 8023
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Forms submit to the same site",
+            "Registered domain is usps.com",
+            "HTTPS is enabled"
+          ],
+          "source": "on-device",
+          "latencyMs": 2546
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Forms submit to the same site",
+            "Registered domain is usps.com",
+            "HTTPS is enabled"
+          ],
+          "source": "on-device",
+          "latencyMs": 2546
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-metamask-home",
+      "category": "no-form",
+      "label": "benign",
+      "score": 0,
+      "checked": false,
+      "rules": null,
+      "local": null,
+      "cloud": null,
+      "hybrid": null
+    },
+    {
+      "id": "b-google-form-rsvp",
+      "category": "user-content-legit",
+      "label": "benign",
+      "score": 0,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "No strong warning signs found"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL is a legitimate Google Docs URL.",
+            "No login, payment, or personal data fields are present.",
+            "The form is for RSVP and does not ask for sensitive information."
+          ],
+          "source": "on-device",
+          "latencyMs": 3510
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "Hosted on the legitimate google.com domain",
+            "No suspicious forms requesting sensitive information",
+            "Zero risk score from the rules engine"
+          ],
+          "source": "cloud",
+          "latencyMs": 10709
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL is a legitimate Google Docs URL.",
+            "No login, payment, or personal data fields are present.",
+            "The form is for RSVP and does not ask for sensitive information."
+          ],
+          "source": "on-device",
+          "latencyMs": 3510
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The URL is a legitimate Google Docs URL.",
+            "No login, payment, or personal data fields are present.",
+            "The form is for RSVP and does not ask for sensitive information."
+          ],
+          "source": "on-device",
+          "latencyMs": 3510
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-google-sites-class",
+      "category": "user-content-legit",
+      "label": "benign",
+      "score": 0,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "No strong warning signs found"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The page is hosted on google.com.",
+            "No login or payment forms are present.",
+            "The content is educational and doesn't request sensitive information."
+          ],
+          "source": "on-device",
+          "latencyMs": 3251
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "Hosted on a legitimate Google Sites domain",
+            "No forms requesting sensitive information",
+            "No warning signs or deceptive elements detected"
+          ],
+          "source": "cloud",
+          "latencyMs": 935
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The page is hosted on google.com.",
+            "No login or payment forms are present.",
+            "The content is educational and doesn't request sensitive information."
+          ],
+          "source": "on-device",
+          "latencyMs": 3251
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "The page is hosted on google.com.",
+            "No login or payment forms are present.",
+            "The content is educational and doesn't request sensitive information."
+          ],
+          "source": "on-device",
+          "latencyMs": 3251
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-ms-forms-quiz",
+      "category": "user-content-legit",
+      "label": "benign",
+      "score": 0,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "No strong warning signs found"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Page is hosted on office.com, a legitimate Microsoft domain.",
+            "No login, payment, or personal fields are present in the forms.",
+            "No pressure phrases or links to external sites are detected."
+          ],
+          "source": "on-device",
+          "latencyMs": 3021
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 1,
+          "reasons": [
+            "Hosted on legitimate Microsoft Office Forms domain",
+            "No credentials, payment, or sensitive data requested",
+            "No warning signs or deceptive branding"
+          ],
+          "source": "cloud",
+          "latencyMs": 10902
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Page is hosted on office.com, a legitimate Microsoft domain.",
+            "No login, payment, or personal fields are present in the forms.",
+            "No pressure phrases or links to external sites are detected."
+          ],
+          "source": "on-device",
+          "latencyMs": 3021
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Page is hosted on office.com, a legitimate Microsoft domain.",
+            "No login, payment, or personal fields are present in the forms.",
+            "No pressure phrases or links to external sites are detected."
+          ],
+          "source": "on-device",
+          "latencyMs": 3021
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-crypto-scam-warning",
+      "category": "security-news",
+      "label": "benign",
+      "score": 3,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Promises to multiply crypto you send"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Contains a crypto giveaway signal (risk score 3)",
+            "Visible text warns about crypto scams",
+            "Domain is an example, potentially suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 2890
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The page is an informational news article discussing scams rather than conducting one",
+            "No login, payment, or data collection forms are present",
+            "The low rules engine risk score aligns with the educational nature of the content"
+          ],
+          "source": "cloud",
+          "latencyMs": 611
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The page is an informational news article discussing scams rather than conducting one",
+            "No login, payment, or data collection forms are present",
+            "The low rules engine risk score aligns with the educational nature of the content"
+          ],
+          "source": "cloud",
+          "latencyMs": 611
+        },
+        "local": {
+          "verdict": "suspicious",
+          "confidence": 0.7,
+          "reasons": [
+            "Contains a crypto giveaway signal (risk score 3)",
+            "Visible text warns about crypto scams",
+            "Domain is an example, potentially suspicious"
+          ],
+          "source": "on-device",
+          "latencyMs": 2890
+        },
+        "cloud": {
+          "verdict": "safe",
+          "confidence": 0.9,
+          "reasons": [
+            "The page is an informational news article discussing scams rather than conducting one",
+            "No login, payment, or data collection forms are present",
+            "The low rules engine risk score aligns with the educational nature of the content"
+          ],
+          "source": "cloud",
+          "latencyMs": 611
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "suspicious"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-tech-support-scam-explainer",
+      "category": "security-news",
+      "label": "benign",
+      "score": 3,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Fake virus alert telling you to call for help"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "Site requests information on its own domain",
+            "No login/payment forms",
+            "Content explains scams, not prompting action"
+          ],
+          "source": "on-device",
+          "latencyMs": 2617
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Official domain for Malwarebytes, a legitimate cybersecurity company",
+            "Educational page explaining tech support scams without asking for credentials or payment",
+            "No forms or suspicious links present"
+          ],
+          "source": "cloud",
+          "latencyMs": 6999
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "Site requests information on its own domain",
+            "No login/payment forms",
+            "Content explains scams, not prompting action"
+          ],
+          "source": "on-device",
+          "latencyMs": 2617
+        },
+        "local": {
+          "verdict": "safe",
+          "confidence": 0.8,
+          "reasons": [
+            "Site requests information on its own domain",
+            "No login/payment forms",
+            "Content explains scams, not prompting action"
+          ],
+          "source": "on-device",
+          "latencyMs": 2617
+        },
+        "cloud": null,
+        "escalation": {
+          "escalate": false,
+          "reason": "confident"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "b-metamask-help-import",
+      "category": "security-news",
+      "label": "benign",
+      "score": 3,
+      "checked": true,
+      "rules": {
+        "verdict": "safe",
+        "confidence": 0.6,
+        "reasons": [
+          "Asks for a wallet recovery phrase"
+        ],
+        "source": "rules",
+        "latencyMs": 0
+      },
+      "local": {
+        "ok": true,
+        "result": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "Seed phrase request",
+            "Visible text warns against entering seed phrase on a website (indirectly indicating a potential phishing attempt)",
+            "Metamask's official website explicitly warns against entering seed phrases on websites."
+          ],
+          "source": "on-device",
+          "latencyMs": 3244
+        }
+      },
+      "cloud": {
+        "ok": true,
+        "result": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Hosted on the official metamask.io domain",
+            "Explicitly instructs users never to enter their Secret Recovery Phrase on a website",
+            "No forms or credential-harvesting elements present"
+          ],
+          "source": "cloud",
+          "latencyMs": 6979
+        }
+      },
+      "hybrid": {
+        "final": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Hosted on the official metamask.io domain",
+            "Explicitly instructs users never to enter their Secret Recovery Phrase on a website",
+            "No forms or credential-harvesting elements present"
+          ],
+          "source": "cloud",
+          "latencyMs": 6979
+        },
+        "local": {
+          "verdict": "phishing",
+          "confidence": 0.9,
+          "reasons": [
+            "Seed phrase request",
+            "Visible text warns against entering seed phrase on a website (indirectly indicating a potential phishing attempt)",
+            "Metamask's official website explicitly warns against entering seed phrases on websites."
+          ],
+          "source": "on-device",
+          "latencyMs": 3244
+        },
+        "cloud": {
+          "verdict": "safe",
+          "confidence": 0.95,
+          "reasons": [
+            "Hosted on the official metamask.io domain",
+            "Explicitly instructs users never to enter their Secret Recovery Phrase on a website",
+            "No forms or credential-harvesting elements present"
+          ],
+          "source": "cloud",
+          "latencyMs": 6979
+        },
+        "escalation": {
+          "escalate": true,
+          "reason": "unsupported-phishing"
+        },
+        "errors": []
+      }
+    }
+  ]
+}
