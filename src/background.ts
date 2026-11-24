@@ -100,11 +100,17 @@ async function leave(tabId: number) {
   }
 }
 
+/** Our own extension pages (side panel, eval page), as opposed to content scripts,
+ *  which share our extension id but report the web page's URL. */
+const isExtensionPage = (sender: chrome.runtime.MessageSender) =>
+  sender.id === chrome.runtime.id && Boolean(sender.url?.startsWith(chrome.runtime.getURL("")));
+
 chrome.runtime.onMessage.addListener((msg: HpgMessage, sender, sendResponse) => {
-  if (msg?.type === "hpg/probe-offscreen" && sender.id === chrome.runtime.id && !sender.tab) {
-    sendOffscreen({ target: "offscreen", type: "probe" })
+  if ((msg?.type === "hpg/probe-offscreen" || msg?.type === "hpg/model") && isExtensionPage(sender)) {
+    const req: OffscreenRequest = msg.type === "hpg/model" ? msg.req : { target: "offscreen", type: "probe" };
+    sendOffscreen(req)
       .then(sendResponse)
-      .catch((err) => sendResponse({ error: String(err) }));
+      .catch((err) => sendResponse({ ok: false, error: String(err) }));
     return true;
   }
   const tabId = sender.tab?.id;

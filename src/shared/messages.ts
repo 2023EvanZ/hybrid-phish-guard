@@ -39,7 +39,9 @@ export type HpgMessage =
   /** In-page banner -> background: take the user away from this page. */
   | { type: "hpg/leave" }
   /** Side panel diagnostics -> background: create the offscreen document and probe it. */
-  | { type: "hpg/probe-offscreen" };
+  | { type: "hpg/probe-offscreen" }
+  /** Model eval page -> background: forward one request to the offscreen document. */
+  | { type: "hpg/model"; req: OffscreenRequest };
 
 /** The verdict for a reported page, or null when the page wasn't checked. */
 export interface ReportReply {
