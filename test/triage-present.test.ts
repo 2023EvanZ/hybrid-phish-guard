@@ -50,3 +50,12 @@ test("provenanceNote explains escalations and fallbacks", async () => {
   const distrusted = { ...report("phishing", "rules"), local: report("safe").final, escalation: { escalate: true, reason: "contradicts-heuristics" as const } };
   assert.match(provenanceNote(distrusted)!, /wasn't trusted/);
 });
+
+test("provenanceNote says when a device has no Gemini Nano", () => {
+  const cloudOnly = {
+    ...report("phishing", "cloud"),
+    escalation: { escalate: true, reason: "no-local-result" as const },
+    errors: ["on-device model: Gemini Nano isn't available on this device yet (status: downloadable)"],
+  };
+  assert.match(provenanceNote(cloudOnly)!, /isn't available on this device, so this page was checked in the cloud/);
+});

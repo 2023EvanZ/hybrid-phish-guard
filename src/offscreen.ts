@@ -11,6 +11,7 @@
 // send the unredacted prompt to the cloud when Nano is unavailable.
 import { getGenerativeModel, InferenceMode } from "firebase/ai";
 import { ai, configMissing } from "./firebase.ts";
+import { NANO_UNAVAILABLE } from "./shared/messages.ts";
 import type { GenerateReply, ModelMode, OffscreenRequest, ProbeReply } from "./shared/messages.ts";
 import { VERDICT_JSON_SCHEMA } from "./triage/prompt.ts";
 
@@ -26,10 +27,26 @@ const models: Record<ModelMode, ReturnType<typeof getGenerativeModel>> = {
 
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
+type LM = { availability(): Promise<string> };
+const languageModel = () => (self as unknown as { LanguageModel?: LM }).LanguageModel;
+
+
+// Many machines can't run Gemini Nano (hardware, disk space, or an older Chrome), and on
+// others it's still downloading. Say so at once instead of letting every page wait for
+// the 10 s local timeout. Asked on every call (availability() is cheap), so pages switch
+// to on-device as soon as a download finishes.
+async function assertNanoReady(): Promise<void> {
+  const lm = languageModel();
+  if (!lm) throw new Error(`${NANO_UNAVAILABLE} in this browser (no Prompt API)`);
+  const status = await lm.availability();
+  if (status !== "available") throw new Error(`${NANO_UNAVAILABLE} on this device yet (status: ${status})`);
+}
+
 async function generate(mode: ModelMode, prompt: string): Promise<string> {
   if (mode === "cloud" && configMissing.length) {
     throw new Error(`Firebase config missing: ${configMissing.join(", ")}`);
   }
+  if (mode === "on-device") await assertNanoReady();
   const result = await models[mode].generateContent(prompt);
   return result.response.text();
 }
@@ -56,10 +73,8 @@ timed("on-device", WARMUP_PROMPT).then(
   },
 );
 
-type LM = { availability(): Promise<string> };
-
 async function probe(): Promise<ProbeReply> {
-  const lm = (self as unknown as { LanguageModel?: LM }).LanguageModel;
+  const lm = languageModel();
   let availability: string | null = null;
   if (lm) {
     try {

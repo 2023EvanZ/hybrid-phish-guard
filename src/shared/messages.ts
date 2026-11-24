@@ -80,3 +80,6 @@ export interface ProbeReply {
   /** A fresh tiny on-device call made for the probe. */
   probe: { ms: number; text: string } | { error: string };
 }
+
+/** Error prefix for a device without a ready Gemini Nano; the side panel keys on it. */
+export const NANO_UNAVAILABLE = "Gemini Nano isn't available";

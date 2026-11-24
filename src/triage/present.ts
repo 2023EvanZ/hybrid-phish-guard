@@ -1,6 +1,7 @@
 // How verdicts are shown to people. Pure, so the wording and the banner policy are
 // unit-tested and shared by the side panel and the in-page banner.
 
+import { NANO_UNAVAILABLE } from "../shared/messages.ts";
 import type { EscalationReason } from "./policy.ts";
 import type { TriageReport } from "./pipeline.ts";
 import type { Verdict, VerdictSource } from "./types.ts";
@@ -73,6 +74,10 @@ export function badgeFor(report: TriageReport | undefined): { text: string; colo
 export function provenanceNote(report: TriageReport): string | null {
   const { final, local, escalation, errors } = report;
   if (final.source === "on-device") return null;
+  const noNano = errors.some((e) => e.includes(NANO_UNAVAILABLE));
+  if (final.source === "cloud" && noNano) {
+    return "Gemini Nano isn't available on this device, so this page was checked in the cloud with personal details removed.";
+  }
   if (final.source === "cloud") return `Sent to the cloud because ${ESCALATION_TEXT[escalation.reason]}.`;
   if (local && escalation.reason === "contradicts-heuristics") {
     return "The on-device model said \"safe\" despite strong warning signs, so its answer wasn't trusted.";
