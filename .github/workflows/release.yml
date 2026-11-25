@@ -1,0 +1,47 @@
+name: Release
+
+# Push a tag like v0.0.5 (matching public/manifest.json's version) to build the judge zip
+# and publish it as a GitHub Release.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # create the Release and upload the zip
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: Tag must match the manifest version
+        run: |
+          version=$(node -p 'require("./public/manifest.json").version')
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME doesn't match manifest version $version"
+            exit 1
+          fi
+      - run: npm ci
+      - run: npm test
+      # The Firebase web config comes from repository secrets. The App Check debug token is
+      # deliberately NOT a secret here: release builds must never contain it.
+      - name: Release build and checks
+        run: npm run build:release
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+      - name: Publish the Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release/hybrid-phish-guard-*.zip \
+            --verify-tag --title "$GITHUB_REF_NAME" --generate-notes

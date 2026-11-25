@@ -1,5 +1,7 @@
 # Hybrid Phish Guard
 
+[![CI](https://github.com/2023EvanZ/hybrid-phish-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/2023EvanZ/hybrid-phish-guard/actions/workflows/ci.yml)
+
 A Chrome extension that warns you about phishing and scam pages using **on-device AI first**. The page you're looking at only leaves your machine when the local model is unsure, and then only after personal data has been stripped out.
 
 > **Status: work in progress** for the #BuildHybridAI 2026 hackathon. The prefilter, page analysis, triage pipeline and redaction are tested. Gemini Nano (on-device) and Gemini (cloud) run through Firebase AI Logic from an offscreen document; both work end to end in Chrome (real pages, in-page banner), and three model eval runs are recorded in [eval/README.md](eval/README.md).
@@ -73,7 +75,18 @@ npm run eval    # score the classifier on the labeled eval set (see eval/README.
 
 Load `dist/` at `chrome://extensions` with Developer mode on (**Load unpacked**).
 
-The Firebase-backed models need a Firebase project with AI Logic enabled on the Gemini Developer API. Copy `.env.example` to `.env`, fill in the web app config, and rebuild. App Check runs with a debug token in development builds only; release builds leave App Check out (see [Try it](#try-it)).
+The Firebase-backed models need a Firebase project with AI Logic enabled on the Gemini Developer API. Copy `.env.example` to `.env`, fill in the web app config, and rebuild. App Check runs with a debug token in development builds only; release builds never start App Check (see [Try it](#try-it)).
+
+### CI and releases
+
+GitHub Actions runs two workflows:
+
+- **CI** (`.github/workflows/ci.yml`, every push and pull request): type-check, unit tests, the rules-engine eval, the development build, and the release build with its checks (using a placeholder Firebase config, so that zip is for inspection only). A second job scans the full git history for committed secrets with [gitleaks](https://github.com/gitleaks/gitleaks).
+- **Release** (`.github/workflows/release.yml`, on a `v*` tag): checks that the tag matches the manifest version, builds the release zip with the Firebase web config from repository secrets (`VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID`), and publishes it as a GitHub Release. The App Check debug token is never given to CI.
+
+To cut a release: bump `version` in `public/manifest.json`, commit, then `git tag v<version> && git push origin v<version>`.
+
+Actions are pinned to commit SHAs.
 
 ### Testing in a normal browser tab
 
