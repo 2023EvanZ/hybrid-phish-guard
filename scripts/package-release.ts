@@ -3,6 +3,7 @@
 //
 // Fails the build if:
 // - the App Check debug token from .env appears anywhere in dist/ (it's a secret);
+// - App Check code is present (release builds swap it out; see vite.config.ts);
 // - sourcemaps are present (they'd ship the full source tree; release builds skip them);
 // - the Firebase web config is missing (the zip would have no working cloud model).
 // Never prints secret values, only which check failed and where.
@@ -48,6 +49,11 @@ if (token) {
   const leaked = all.filter((f) => readFileSync(f).includes(token));
   if (leaked.length) fail(`App Check debug token found in ${leaked.map((f) => relative(root, f)).join(", ")}`);
 }
+
+// App Check is swapped out of release builds (vite.config.ts); its token-exchange host
+// showing up means the alias stopped matching.
+const appCheck = all.filter((f) => readFileSync(f).includes("firebaseappcheck.googleapis.com"));
+if (appCheck.length) fail(`App Check code found in ${appCheck.map((f) => relative(root, f)).join(", ")}`);
 
 const required = ["VITE_FIREBASE_API_KEY", "VITE_FIREBASE_AUTH_DOMAIN", "VITE_FIREBASE_PROJECT_ID", "VITE_FIREBASE_APP_ID"];
 const missing = required.filter((k) => !(process.env[k] || env[k]));
