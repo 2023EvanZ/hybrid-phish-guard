@@ -1,5 +1,5 @@
-// How verdicts are shown to people. Pure, so the wording and the banner policy are
-// unit-tested and shared by the side panel and the in-page banner.
+// How verdicts are shown to people. Pure, so the wording and the in-page notice policy are
+// unit-tested and shared by the side panel and the in-page notice.
 
 import { NANO_UNAVAILABLE } from "../shared/messages.ts";
 import type { EscalationReason } from "./policy.ts";
@@ -49,14 +49,31 @@ export function verdictView(report: TriageReport): VerdictView {
   };
 }
 
+/** How the in-page corner notice starts out, or null for no notice. */
+export type NoticeMode = "expanded" | "collapsed";
+
 /**
- * The in-page banner interrupts the user, so it is reserved for "phishing". The rules
- * fallback rates about a third of benign login pages "suspicious" on the eval set;
- * bannering those would teach people to ignore the banner. "Suspicious" shows in the
- * toolbar badge and the side panel instead.
+ * Only "phishing" interrupts: its notice opens already expanded, so it can't be missed.
+ * "Suspicious" gets a small collapsed icon the user can open or ignore, because the rules
+ * fallback rates about a third of benign login pages suspicious on the eval set, and
+ * interrupting on those would teach people to ignore the warning. "Safe" shows nothing.
  */
-export function shouldShowBanner(report: TriageReport): boolean {
-  return report.final.verdict === "phishing";
+export function noticeMode(report: TriageReport): NoticeMode | null {
+  switch (report.final.verdict) {
+    case "phishing":
+      return "expanded";
+    case "suspicious":
+      return "collapsed";
+    default:
+      return null;
+  }
+}
+
+/** One line of advice under the headline in the expanded notice. */
+export function adviceFor(report: TriageReport): string {
+  return report.final.verdict === "phishing"
+    ? "Don't enter passwords, card numbers or codes here."
+    : "Check the web address before entering anything sensitive.";
 }
 
 export function badgeFor(report: TriageReport | undefined): { text: string; color: string } {

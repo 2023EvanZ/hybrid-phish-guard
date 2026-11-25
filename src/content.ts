@@ -1,15 +1,15 @@
 // Content script (top frame only). Runs the prefilter when the page settles, keeps
 // watching for late-rendered login forms for a short window, answers on-demand
-// "inspect this page" requests from the side panel, and shows the warning banner when
-// the background's verdict calls for it.
+// "inspect this page" requests from the side panel, and shows the corner notice when the
+// background's verdict calls for it.
 //
 // Built separately as a classic IIFE script (vite.content.config.ts): content scripts
 // cannot be ES modules.
 
-import { showBanner } from "./content/banner.ts";
+import { showNotice } from "./content/notice.ts";
 import { buildFeatures, quickDecision } from "./content/extract.ts";
 import type { HpgMessage, PrefilterReport, ReportReply } from "./shared/messages.ts";
-import { shouldShowBanner, verdictView } from "./triage/present.ts";
+import { adviceFor, noticeMode, provenanceNote, verdictView } from "./triage/present.ts";
 
 const WATCH_MS = 15_000;
 const DEBOUNCE_MS = 750;
@@ -27,9 +27,15 @@ async function send(report: PrefilterReport, manual = false): Promise<void> {
     return; // the extension was reloaded and this script is orphaned
   }
   const verdict = reply?.verdict;
-  if (verdict && shouldShowBanner(verdict)) {
-    showBanner(document, verdictView(verdict), {
+  const mode = verdict ? noticeMode(verdict) : null;
+  if (verdict && mode) {
+    const content = { view: verdictView(verdict), advice: adviceFor(verdict), note: provenanceNote(verdict), mode };
+    showNotice(document, content, {
       onLeave: () => void chrome.runtime.sendMessage({ type: "hpg/leave" } satisfies HpgMessage).catch(() => {}),
+      onFullReport: () =>
+        chrome.runtime
+          .sendMessage({ type: "hpg/open-panel" } satisfies HpgMessage)
+          .then((r: { opened?: boolean } | undefined) => Boolean(r?.opened), () => false),
     });
   }
 }
@@ -72,7 +78,7 @@ chrome.runtime.onMessage.addListener((msg: HpgMessage, _sender, sendResponse) =>
   const features = buildFeatures(document, location.href, { force: true });
   const report: PrefilterReport = { url: location.href, prefilter: features.prefilter, features };
   // Through the background like any other report, so the verdict is stored for the
-  // panel and the banner appears if it's phishing.
+  // panel and the notice appears if there's something to show.
   void send(report, true).finally(() => sendResponse(report));
   return true; // async reply
 });

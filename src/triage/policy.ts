@@ -63,7 +63,7 @@ export function shouldEscalate(
   ) {
     return { escalate: true, reason: "unverified-brand" };
   }
-  // The mirror image: a banner interrupts the user, so a "phishing" the rules see almost
+  // The mirror image: a phishing warning interrupts the user, so a "phishing" the rules see almost
   // no evidence for (e.g. an article *about* seed-phrase scams) gets a second opinion.
   // Costs a cloud call on low-signal phishing too, which the cloud handles well.
   if (local.verdict === "phishing" && features.prefilter.score < config.lowRiskScore) {

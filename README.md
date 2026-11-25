@@ -4,7 +4,7 @@
 
 A Chrome extension that warns you about phishing and scam pages using **on-device AI first**. The page you're looking at only leaves your machine when the local model is unsure, and then only after personal data has been stripped out.
 
-> **Status: work in progress** for the #BuildHybridAI 2026 hackathon. The prefilter, page analysis, triage pipeline and redaction are tested. Gemini Nano (on-device) and Gemini (cloud) run through Firebase AI Logic from an offscreen document; both work end to end in Chrome (real pages, in-page banner), and three model eval runs are recorded in [eval/README.md](eval/README.md).
+> **Status: work in progress** for the #BuildHybridAI 2026 hackathon. The prefilter, page analysis, triage pipeline and redaction are tested. Gemini Nano (on-device) and Gemini (cloud) run through Firebase AI Logic from an offscreen document; both work end to end in Chrome (real pages, in-page warning), and three model eval runs are recorded in [eval/README.md](eval/README.md).
 
 ## Try it
 
@@ -20,9 +20,9 @@ You need desktop Chrome 139 or newer.
 
 | Page | What it shows |
 |---|---|
-| `http://wellsfarg0-secure-login.localhost:8765/demo/phish-login.html` | A lookalike bank login that sends passwords to another site. Expect a red banner. |
+| `http://wellsfarg0-secure-login.localhost:8765/demo/phish-login.html` | A lookalike bank login that sends passwords to another site. Expect a red warning card in the top-right corner. |
 | `http://windows-security-alert.localhost:8765/demo/tech-support.html` | A fake virus alert with a phone number and no form. Expect a warning. |
-| `http://news.localhost:8765/demo/benign-article.html` | An ordinary article. Expect no banner. |
+| `http://news.localhost:8765/demo/benign-article.html` | An ordinary article. Expect nothing on the page. |
 
 Chrome sends any `*.localhost` address to your own machine, so the fake hostnames never reach the internet.
 
@@ -52,14 +52,14 @@ page loads
 - **Prefilter** ([src/prefilter](src/prefilter)): cheap URL, form and text checks run on every page. Catches brand lookalikes (`wellsfarg0-secure-login…`), credential forms that submit to a different site, raw IPs, punycode, and scam scripts that need no form (fake virus alerts, crypto giveaways, seed-phrase requests). A short allowlist skips big sites; Google Forms/Sites and Microsoft Forms pages, which are widely abused for phishing, are always checked. Page text for the gate is read without forcing layout.
 - **Feature extraction** ([src/content](src/content)): reads form *attributes* only, never what you type. Watches for login forms that render late in single-page apps.
 - **Triage** ([src/triage](src/triage)): a prompt sized for Gemini Nano's context window, a parser that tolerates the format drift small models produce, and an escalation policy. The pipeline runs in the background service worker. The models run in an offscreen document ([src/offscreen.ts](src/offscreen.ts)), because Chrome's Prompt API isn't available in service workers; it only turns prompts into text, so redaction and parsing stay in the tested pipeline. Gemini Nano is warmed up when the document loads (first call ~8–16 s, then ~1 s).
-- **Warnings**: a "phishing" verdict puts a banner at the top of the page (in a closed shadow root, so the page can't restyle or rewrite it) with **Leave this page** and **Dismiss**. "Suspicious" only sets an amber toolbar badge and shows in the side panel: the rules fallback rates about a third of benign login pages suspicious on the eval set, and bannering those would train people to ignore the banner. The side panel shows the verdict, its reasons, and how it was reached (on-device, cloud after redaction, or rules).
+- **Warnings**: a notice in the top-right corner of the page (in a closed shadow root, so the page can't restyle or rewrite it). On "phishing" it opens as a red card with the reasons, how the page was checked, **Leave this page** and **Full report** (opens the side panel); it can be minimized to a small icon or closed. On "suspicious" it starts as a small amber icon that expands into the same card on click, without interrupting: the rules fallback rates about a third of benign login pages suspicious on the eval set, and interrupting on those would train people to ignore the warning. "Safe" shows nothing on the page. The side panel shows the verdict, its reasons, and how it was reached (on-device, cloud after redaction, or rules).
 
 ### Privacy and safety design
 
 - **No silent cloud fallback.** The on-device model runs in `ONLY_ON_DEVICE` mode, not `PREFER_ON_DEVICE`, because the latter would fall back to the cloud with the unredacted page. Escalation is explicit and always goes through redaction.
 - **Redaction before the cloud** ([src/triage/redact.ts](src/triage/redact.ts)): emails, phone/card/account numbers, greeting names, URL query strings, fragments and per-victim URL tokens are removed. The phishing evidence (domain, path shape, form targets) is kept. This is best effort; names outside greetings and street addresses are not detected.
 - **Prompt-injection guard.** Page text is marked untrusted in the prompt and cannot close its delimiter. If the local model still says "safe" on a page the rules score as high risk, the verdict is not trusted and is escalated.
-- **Nano decides alone only when the evidence agrees.** A Nano "phishing" on a page the rules score under 5 goes to the cloud before any banner. So does a Nano "safe" on a page that asks for a password, card, bank details or a one-time code under a brand it isn't hosted by, which is where an unknown lookalike domain would be. Nano doesn't reliably catch one-letter typos.
+- **Nano decides alone only when the evidence agrees.** A Nano "phishing" on a page the rules score under 5 goes to the cloud before any warning appears. So does a Nano "safe" on a page that asks for a password, card, bank details or a one-time code under a brand it isn't hosted by, which is where an unknown lookalike domain would be. Nano doesn't reliably catch one-letter typos.
 
 ## Development
 

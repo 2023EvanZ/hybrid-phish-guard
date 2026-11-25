@@ -36,8 +36,10 @@ export type HpgMessage =
   | { type: "hpg/report"; report: PrefilterReport; manual?: boolean }
   /** Side panel -> content script. Answered with the forced PrefilterReport. */
   | { type: "hpg/inspect" }
-  /** In-page banner -> background: take the user away from this page. */
+  /** In-page notice -> background: take the user away from this page. */
   | { type: "hpg/leave" }
+  /** In-page notice's "Full report" button -> background: open the side panel. Answered with { opened }. */
+  | { type: "hpg/open-panel" }
   /** Side panel diagnostics -> background: create the offscreen document and probe it. */
   | { type: "hpg/probe-offscreen" }
   /** Model eval page -> background: forward one request to the offscreen document. */

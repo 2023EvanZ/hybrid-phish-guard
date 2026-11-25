@@ -125,6 +125,19 @@ chrome.runtime.onMessage.addListener((msg: HpgMessage, sender, sendResponse) => 
     return true; // async reply
   }
   if (msg.type === "hpg/leave") void leave(tabId);
+  if (msg.type === "hpg/open-panel") {
+    // sidePanel.open() only works during a user gesture. Called synchronously here, in
+    // the handler for a click in the page, before any await. If Chrome doesn't count
+    // that as a gesture, the notice tells the user to use the toolbar icon instead.
+    chrome.sidePanel.open({ tabId }).then(
+      () => sendResponse({ opened: true }),
+      (err) => {
+        console.warn("couldn't open the side panel from the page", err);
+        sendResponse({ opened: false });
+      },
+    );
+    return true;
+  }
 });
 
 // A new document gets a fresh report from its content script; drop the old one so pages
