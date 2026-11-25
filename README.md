@@ -81,7 +81,7 @@ The Firebase-backed models need a Firebase project with AI Logic enabled on the 
 
 GitHub Actions runs two workflows:
 
-- **CI** (`.github/workflows/ci.yml`, every push and pull request): type-check, unit tests, the rules-engine eval, the development build, and the release build with its checks (using a placeholder Firebase config, so that zip is for inspection only). A second job scans the full git history for committed secrets with [gitleaks](https://github.com/gitleaks/gitleaks).
+- **CI** (`.github/workflows/ci.yml`, every push and pull request): type-check, unit tests, the rules-engine eval, the development build, and the release build with its checks (using a placeholder Firebase config, so that zip is for inspection only). A second job scans for committed secrets with [gitleaks](https://github.com/gitleaks/gitleaks): new commits on every push and pull request, and the full git history weekly or when the workflow is run by hand.
 - **Release** (`.github/workflows/release.yml`, on a `v*` tag): checks that the tag matches the manifest version, builds the release zip with the Firebase web config from repository secrets (`VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID`), and publishes it as a GitHub Release. The App Check debug token is never given to CI.
 
 To cut a release: bump `version` in `public/manifest.json`, commit, then `git tag v<version> && git push origin v<version>`.
