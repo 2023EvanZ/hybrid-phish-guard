@@ -9,7 +9,7 @@
 import { showNotice } from "./content/notice.ts";
 import { buildFeatures, quickDecision } from "./content/extract.ts";
 import type { HpgMessage, PrefilterReport, ReportReply } from "./shared/messages.ts";
-import { adviceFor, noticeMode, provenanceNote, verdictView } from "./triage/present.ts";
+import { adviceFor, provenanceNote, showsNotice, verdictView } from "./triage/present.ts";
 
 const WATCH_MS = 15_000;
 const DEBOUNCE_MS = 750;
@@ -27,9 +27,8 @@ async function send(report: PrefilterReport, manual = false): Promise<void> {
     return; // the extension was reloaded and this script is orphaned
   }
   const verdict = reply?.verdict;
-  const mode = verdict ? noticeMode(verdict) : null;
-  if (verdict && mode) {
-    const content = { view: verdictView(verdict), advice: adviceFor(verdict), note: provenanceNote(verdict), mode };
+  if (verdict && showsNotice(verdict)) {
+    const content = { view: verdictView(verdict), advice: adviceFor(verdict), note: provenanceNote(verdict) };
     showNotice(document, content, {
       onLeave: () => void chrome.runtime.sendMessage({ type: "hpg/leave" } satisfies HpgMessage).catch(() => {}),
       onFullReport: () =>

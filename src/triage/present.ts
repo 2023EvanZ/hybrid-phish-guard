@@ -49,24 +49,15 @@ export function verdictView(report: TriageReport): VerdictView {
   };
 }
 
-/** How the in-page corner notice starts out, or null for no notice. */
-export type NoticeMode = "expanded" | "collapsed";
-
 /**
- * Only "phishing" interrupts: its notice opens already expanded, so it can't be missed.
- * "Suspicious" gets a small collapsed icon the user can open or ignore, because the rules
- * fallback rates about a third of benign login pages suspicious on the eval set, and
- * interrupting on those would teach people to ignore the warning. "Safe" shows nothing.
+ * Whether the page gets the corner notice: an icon that expands into the full card on
+ * click. Shown for "phishing" (red, with a pulsing ring) and "suspicious" (amber); "safe"
+ * shows nothing. It never opens by itself: the rules fallback rates about a third of
+ * benign login pages suspicious on the eval set, and interrupting on those would teach
+ * people to ignore the warning.
  */
-export function noticeMode(report: TriageReport): NoticeMode | null {
-  switch (report.final.verdict) {
-    case "phishing":
-      return "expanded";
-    case "suspicious":
-      return "collapsed";
-    default:
-      return null;
-  }
+export function showsNotice(report: TriageReport): boolean {
+  return report.final.verdict !== "safe";
 }
 
 /** One line of advice under the headline in the expanded notice. */

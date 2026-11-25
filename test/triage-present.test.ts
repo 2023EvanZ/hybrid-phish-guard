@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { triage } from "../src/triage/pipeline.ts";
-import { adviceFor, badgeFor, noticeMode, provenanceNote, verdictView } from "../src/triage/present.ts";
+import { adviceFor, badgeFor, showsNotice, provenanceNote, verdictView } from "../src/triage/present.ts";
 import type { TriageReport } from "../src/triage/pipeline.ts";
 import type { Verdict, VerdictSource } from "../src/triage/types.ts";
 import { benignFeatures, phishFeatures } from "./helpers.ts";
@@ -23,10 +23,10 @@ test("verdictView words the verdict and says where it came from", async () => {
   assert.equal(verdictView(report("safe", "cloud", 0.82)).detail, "Checked in the cloud, with personal data removed, 82% confident");
 });
 
-test("only a phishing verdict interrupts the page", () => {
-  assert.equal(noticeMode(report("phishing")), "expanded");
-  assert.equal(noticeMode(report("suspicious")), "collapsed");
-  assert.equal(noticeMode(report("safe")), null);
+test("phishing and suspicious get the corner notice, safe gets nothing", () => {
+  assert.equal(showsNotice(report("phishing")), true);
+  assert.equal(showsNotice(report("suspicious")), true);
+  assert.equal(showsNotice(report("safe")), false);
   assert.match(adviceFor(report("phishing")), /Don't enter passwords/);
   assert.match(adviceFor(report("suspicious")), /Check the web address/);
 });

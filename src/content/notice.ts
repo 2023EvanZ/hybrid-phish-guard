@@ -1,19 +1,19 @@
 // The in-page notice: a small icon in the top-right corner that expands into a card with
-// the verdict, its reasons and how the page was checked. "Phishing" opens expanded (see
-// noticeMode in triage/present.ts); "suspicious" starts as the icon alone.
+// the verdict, its reasons and how the page was checked. It always starts as the icon
+// (see showsNotice in triage/present.ts). "Phishing" gets a red icon with a pulsing ring
+// and is announced to screen readers; "suspicious" gets a plain amber icon.
 //
 // It lives in a closed shadow root so the page's CSS can't restyle it and its scripts
 // can't read or rewrite the text through the host element. A hostile page can still
 // remove the host; the toolbar badge and side panel remain as backstops.
 
-import type { NoticeMode, Tone, VerdictView } from "../triage/present.ts";
+import type { Tone, VerdictView } from "../triage/present.ts";
 
 export interface NoticeContent {
   view: VerdictView;
   advice: string;
   /** How the verdict was reached, when there's something to add (provenanceNote). */
   note: string | null;
-  mode: NoticeMode;
 }
 
 export interface NoticeActions {
@@ -52,6 +52,13 @@ const STYLE = `
   }
   .icon svg { width: 22px; height: 22px; }
   .wrap[data-open="true"] .icon { display: none; }
+  /* Phishing: a ring that pulses a few times to draw the eye, then stays as a halo. */
+  .wrap[data-tone="danger"] .icon { animation: ring 1.6s ease-out 4; box-shadow: 0 0 0 4px rgba(185,28,28,.35), 0 4px 14px rgba(0,0,0,.28); }
+  @keyframes ring {
+    0% { box-shadow: 0 0 0 0 rgba(185,28,28,.6), 0 4px 14px rgba(0,0,0,.28); }
+    100% { box-shadow: 0 0 0 14px rgba(185,28,28,0), 0 4px 14px rgba(0,0,0,.28); }
+  }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   .card {
     display: none; width: min(360px, calc(100vw - 32px));
@@ -61,7 +68,9 @@ const STYLE = `
   }
   .wrap[data-open="true"] .card { display: block; animation: pop .14s ease-out; }
   @keyframes pop { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
-  @media (prefers-reduced-motion: reduce) { .wrap[data-open="true"] .card { animation: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .wrap[data-open="true"] .card, .wrap[data-tone="danger"] .icon { animation: none; }
+  }
 
   .head {
     display: flex; gap: 10px; align-items: flex-start;
@@ -131,7 +140,7 @@ function el<K extends keyof HTMLElementTagNameMap>(doc: Document, tag: K, cls?: 
 /** Shows the notice (replacing any existing one) and returns a function that removes it. */
 export function showNotice(doc: Document, content: NoticeContent, actions: NoticeActions): () => void {
   doc.getElementById(HOST_ID)?.remove();
-  const { view, advice, note, mode } = content;
+  const { view, advice, note } = content;
   const tone: Tone = view.tone;
 
   const host = doc.createElement("div");
@@ -221,8 +230,14 @@ export function showNotice(doc: Document, content: NoticeContent, actions: Notic
     });
   });
 
+  // Screen readers hear phishing warnings without the card opening or focus moving.
+  const live = el(doc, "div", "sr");
+  live.setAttribute("role", tone === "danger" ? "alert" : "status");
+  wrap.append(live);
+
   doc.documentElement.append(host);
-  // Phishing opens expanded with focus on "Leave this page", as the banner did.
-  setOpen(mode === "expanded", mode === "expanded");
+  setOpen(false, false);
+  // Filled after insertion so the live region announces it.
+  if (tone === "danger") setTimeout(() => (live.textContent = `Hybrid Phish Guard: ${view.headline}.`), 100);
   return remove;
 }
