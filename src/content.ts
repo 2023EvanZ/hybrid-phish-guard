@@ -7,9 +7,11 @@
 // cannot be ES modules.
 
 import { showNotice } from "./content/notice.ts";
+import type { NoticeActions, NoticeContent, NoticeHandle } from "./content/notice.ts";
 import { buildFeatures, quickDecision } from "./content/extract.ts";
-import type { HpgMessage, PrefilterReport, ReportReply } from "./shared/messages.ts";
-import { adviceFor, provenanceNote, showsNotice, verdictView } from "./triage/present.ts";
+import type { ExplainReply, HpgMessage, PrefilterReport, ReportReply } from "./shared/messages.ts";
+import { adviceFor, pendingView, provenanceNote, showsNotice, verdictView } from "./triage/present.ts";
+import { rulesVerdict } from "./triage/rules.ts";
 
 const WATCH_MS = 15_000;
 const DEBOUNCE_MS = 750;
@@ -18,7 +20,37 @@ let flagged = false;
 let observer: MutationObserver | undefined;
 let debounce: ReturnType<typeof setTimeout> | undefined;
 
+let notice: NoticeHandle | undefined;
+
+const actions: NoticeActions = {
+  onLeave: () => void chrome.runtime.sendMessage({ type: "hpg/leave" } satisfies HpgMessage).catch(() => {}),
+  onFullReport: () =>
+    chrome.runtime
+      .sendMessage({ type: "hpg/open-panel" } satisfies HpgMessage)
+      .then((r: { opened?: boolean } | undefined) => Boolean(r?.opened), () => false),
+  onExplain: () =>
+    chrome.runtime
+      .sendMessage({ type: "hpg/explain" } satisfies HpgMessage)
+      .then((r: ExplainReply | undefined) => r?.reasons ?? null, () => null),
+};
+
+function present(content: NoticeContent) {
+  // Once the user closes it, it stays closed for this page. If the page removed it, it
+  // comes back.
+  if (notice?.closedByUser) return;
+  if (notice?.connected) notice.update(content);
+  else notice = showNotice(document, content, actions);
+}
+
 async function send(report: PrefilterReport, manual = false): Promise<void> {
+  if (manual && notice?.closedByUser) notice = undefined; // an explicit re-check may show it again
+  // Instant warning: when the rules alone rate the page phishing (no false alarms on the
+  // eval sets), show it now instead of after the ~3 s model check, then let the model's
+  // verdict update or withdraw it.
+  const rules = report.features ? rulesVerdict(report.features) : null;
+  const instant = rules?.verdict === "phishing";
+  if (instant) present({ view: pendingView(rules), advice: adviceFor(rules.verdict), note: null, pending: true });
+
   const msg: HpgMessage = { type: "hpg/report", report, manual };
   let reply: ReportReply | undefined;
   try {
@@ -28,14 +60,18 @@ async function send(report: PrefilterReport, manual = false): Promise<void> {
   }
   const verdict = reply?.verdict;
   if (verdict && showsNotice(verdict)) {
-    const content = { view: verdictView(verdict), advice: adviceFor(verdict), note: provenanceNote(verdict) };
-    showNotice(document, content, {
-      onLeave: () => void chrome.runtime.sendMessage({ type: "hpg/leave" } satisfies HpgMessage).catch(() => {}),
-      onFullReport: () =>
-        chrome.runtime
-          .sendMessage({ type: "hpg/open-panel" } satisfies HpgMessage)
-          .then((r: { opened?: boolean } | undefined) => Boolean(r?.opened), () => false),
+    present({
+      view: verdictView(verdict),
+      advice: adviceFor(verdict.final.verdict),
+      note: provenanceNote(verdict),
+      explainable: verdict.final.source === "on-device",
     });
+  } else if (verdict) {
+    notice?.remove(); // the models found it safe: withdraw the instant warning
+    notice = undefined;
+  } else if (instant) {
+    // Triage failed outright: keep the rules verdict, but stop saying it's being checked.
+    present({ view: pendingView(rules), advice: adviceFor(rules.verdict), note: "The AI check didn't finish, so this is the rule-based verdict." });
   }
 }
 

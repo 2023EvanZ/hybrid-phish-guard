@@ -14,12 +14,29 @@ export interface NoticeContent {
   advice: string;
   /** How the verdict was reached, when there's something to add (provenanceNote). */
   note: string | null;
+  /** True while this is the instant rules verdict and the models haven't answered yet. */
+  pending?: boolean;
+  /** Offer Gemini Nano's explanation when the card is opened (on-device verdicts only:
+   *  they come without reasons, to keep Nano fast). */
+  explainable?: boolean;
 }
 
 export interface NoticeActions {
   onLeave(): void;
   /** Resolves true if the side panel opened. */
   onFullReport(): Promise<boolean>;
+  /** Gemini Nano's reasons for its verdict, or null if it couldn't give them. */
+  onExplain(): Promise<string[] | null>;
+}
+
+export interface NoticeHandle {
+  /** Replaces the content, keeping the open or minimized state. */
+  update(content: NoticeContent): void;
+  remove(): void;
+  /** False once the notice is closed, or removed by the page. */
+  readonly connected: boolean;
+  /** True if the user closed it with the × button. */
+  readonly closedByUser: boolean;
 }
 
 const HOST_ID = "hybrid-phish-guard-notice";
@@ -104,6 +121,9 @@ const STYLE = `
   }
   .actions .primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .hint { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+  .ai { margin: 0 0 10px; }
+  .ai h3 { margin: 0 0 2px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+  .ai p { margin: 0; font-size: 12.5px; color: var(--muted); }
   .brand { margin: 10px 0 0; font-size: 11.5px; color: var(--muted); }
 `;
 
@@ -137,35 +157,26 @@ function el<K extends keyof HTMLElementTagNameMap>(doc: Document, tag: K, cls?: 
   return node;
 }
 
-/** Shows the notice (replacing any existing one) and returns a function that removes it. */
-export function showNotice(doc: Document, content: NoticeContent, actions: NoticeActions): () => void {
+/** Shows the notice (replacing any existing one). It always starts minimized to the icon. */
+export function showNotice(doc: Document, initial: NoticeContent, actions: NoticeActions): NoticeHandle {
   doc.getElementById(HOST_ID)?.remove();
-  const { view, advice, note } = content;
-  const tone: Tone = view.tone;
 
   const host = doc.createElement("div");
   host.id = HOST_ID;
   // Inline !important so page stylesheets can't hide the host itself.
   host.style.setProperty("display", "block", "important");
   const root = host.attachShadow({ mode: "closed" });
-
   const wrap = el(doc, "div", "wrap");
-  wrap.dataset.tone = tone;
 
   // Collapsed state: the icon alone.
   const iconBtn = el(doc, "button", "icon");
-  iconBtn.setAttribute("aria-label", `Hybrid Phish Guard: ${view.headline}. Show details`);
   iconBtn.setAttribute("aria-expanded", "false");
-  iconBtn.title = view.headline;
   iconBtn.append(icon(doc, "shield"));
 
-  // Expanded state: the card.
+  // Expanded state: the card. Its body is rebuilt by render() on every update.
   const card = el(doc, "section", "card");
-  card.setAttribute("role", tone === "danger" ? "alertdialog" : "dialog");
-  card.setAttribute("aria-label", `Hybrid Phish Guard: ${view.headline}`);
-
   const head = el(doc, "div", "head");
-  const h = el(doc, "h2", undefined, view.headline);
+  const h = el(doc, "h2");
   const minimize = el(doc, "button");
   minimize.setAttribute("aria-label", "Minimize");
   minimize.title = "Minimize";
@@ -175,69 +186,134 @@ export function showNotice(doc: Document, content: NoticeContent, actions: Notic
   close.title = "Close";
   close.append(icon(doc, "close"));
   head.append(icon(doc, "shield"), h, minimize, close);
-
   const body = el(doc, "div", "body");
-  body.append(el(doc, "p", "advice", advice));
-  if (view.reasons.length) {
-    const list = el(doc, "ul");
-    for (const r of view.reasons) list.append(el(doc, "li", undefined, r));
-    body.append(list);
-  }
-  const how = el(doc, "div", "how");
-  how.append(el(doc, "p", undefined, view.detail));
-  if (note) how.append(el(doc, "p", undefined, note));
-  body.append(how);
-
-  const buttons = el(doc, "div", "actions");
-  const report = el(doc, "button", undefined, "Full report");
-  if (tone === "danger") {
-    const leave = el(doc, "button", "primary", "Leave this page");
-    leave.addEventListener("click", () => actions.onLeave());
-    buttons.append(leave, report);
-  } else {
-    report.classList.add("primary");
-    buttons.append(report);
-  }
-  const hint = el(doc, "p", "hint");
-  hint.hidden = true;
-  body.append(buttons, hint, el(doc, "p", "brand", "Hybrid Phish Guard"));
-
   card.append(head, body);
-  wrap.append(iconBtn, card);
+
+  // Screen readers hear phishing warnings without the card opening or focus moving.
+  const live = el(doc, "div", "sr");
+  live.setAttribute("role", "alert");
+  wrap.append(iconBtn, card, live);
   const style = doc.createElement("style");
   style.textContent = STYLE;
   root.append(style, wrap);
 
+  let content = initial;
+  type Explanation = { state: "idle" } | { state: "loading" } | { state: "failed" } | { state: "done"; reasons: string[] };
+  let explanation: Explanation = { state: "idle" };
+  let hintText = "";
+  let announced = false;
+
+  function render() {
+    const { view, advice, note, pending, explainable } = content;
+    const tone: Tone = view.tone;
+    wrap.dataset.tone = tone;
+    iconBtn.setAttribute("aria-label", `Hybrid Phish Guard: ${view.headline}. Show details`);
+    iconBtn.title = view.headline;
+    card.setAttribute("role", tone === "danger" ? "alertdialog" : "dialog");
+    card.setAttribute("aria-label", `Hybrid Phish Guard: ${view.headline}`);
+    h.textContent = view.headline;
+
+    const parts: HTMLElement[] = [el(doc, "p", "advice", advice)];
+    if (view.reasons.length) {
+      const list = el(doc, "ul");
+      for (const r of view.reasons) list.append(el(doc, "li", undefined, r));
+      parts.push(list);
+    }
+    if (explainable && explanation.state !== "idle") {
+      const ai = el(doc, "div", "ai");
+      ai.append(el(doc, "h3", undefined, "Gemini Nano's explanation"));
+      if (explanation.state === "loading") ai.append(el(doc, "p", undefined, "Asking the on-device model…"));
+      else if (explanation.state === "failed") ai.append(el(doc, "p", undefined, "The on-device model couldn't explain this one."));
+      else {
+        const list = el(doc, "ul");
+        for (const r of explanation.reasons) list.append(el(doc, "li", undefined, r));
+        ai.append(list);
+      }
+      parts.push(ai);
+    }
+    const how = el(doc, "div", "how");
+    how.append(el(doc, "p", undefined, view.detail));
+    if (pending) how.append(el(doc, "p", undefined, "Checking with the AI model…"));
+    else if (note) how.append(el(doc, "p", undefined, note));
+    parts.push(how);
+
+    const buttons = el(doc, "div", "actions");
+    const report = el(doc, "button", undefined, "Full report");
+    report.addEventListener("click", () => {
+      void actions.onFullReport().then((opened) => {
+        hintText = opened ? "" : "Click the Hybrid Phish Guard icon in the toolbar to see the full report.";
+        render();
+      });
+    });
+    if (tone === "danger") {
+      const leave = el(doc, "button", "primary", "Leave this page");
+      leave.addEventListener("click", () => actions.onLeave());
+      buttons.append(leave, report);
+    } else {
+      report.classList.add("primary");
+      buttons.append(report);
+    }
+    parts.push(buttons);
+    if (hintText) parts.push(el(doc, "p", "hint", hintText));
+    parts.push(el(doc, "p", "brand", "Hybrid Phish Guard"));
+    body.replaceChildren(...parts);
+
+    if (tone === "danger" && !announced) {
+      announced = true;
+      // Filled after insertion so the live region announces it.
+      setTimeout(() => (live.textContent = `Hybrid Phish Guard: ${view.headline}.`), 100);
+    }
+  }
+
+  function explain() {
+    if (!content.explainable || explanation.state !== "idle") return;
+    explanation = { state: "loading" };
+    render();
+    void actions.onExplain().then((reasons) => {
+      explanation = reasons?.length ? { state: "done", reasons } : { state: "failed" };
+      render();
+    });
+  }
+
   const setOpen = (open: boolean, focus: boolean) => {
     wrap.dataset.open = String(open);
     iconBtn.setAttribute("aria-expanded", String(open));
+    if (open) explain();
     if (!focus) return;
-    const target = open ? (buttons.querySelector("button") as HTMLButtonElement) : iconBtn;
+    const target = open ? (body.querySelector(".actions button") as HTMLButtonElement) : iconBtn;
     target.focus({ preventScroll: true });
   };
   const remove = () => host.remove();
+  let closedByUser = false;
 
   iconBtn.addEventListener("click", () => setOpen(true, true));
   minimize.addEventListener("click", () => setOpen(false, true));
-  close.addEventListener("click", remove);
+  close.addEventListener("click", () => {
+    closedByUser = true;
+    remove();
+  });
   card.addEventListener("keydown", (e) => {
     if (e.key === "Escape") setOpen(false, true);
   });
-  report.addEventListener("click", () => {
-    void actions.onFullReport().then((opened) => {
-      hint.hidden = opened;
-      if (!opened) hint.textContent = "Click the Hybrid Phish Guard icon in the toolbar to see the full report.";
-    });
-  });
 
-  // Screen readers hear phishing warnings without the card opening or focus moving.
-  const live = el(doc, "div", "sr");
-  live.setAttribute("role", tone === "danger" ? "alert" : "status");
-  wrap.append(live);
-
+  render();
   doc.documentElement.append(host);
   setOpen(false, false);
-  // Filled after insertion so the live region announces it.
-  if (tone === "danger") setTimeout(() => (live.textContent = `Hybrid Phish Guard: ${view.headline}.`), 100);
-  return remove;
+
+  return {
+    update(next) {
+      // A different verdict (or source) needs its own explanation.
+      if (next.view.detail !== content.view.detail || next.view.headline !== content.view.headline) explanation = { state: "idle" };
+      content = next;
+      render();
+      if (wrap.dataset.open === "true") explain();
+    },
+    remove,
+    get connected() {
+      return host.isConnected;
+    },
+    get closedByUser() {
+      return closedByUser;
+    },
+  };
 }

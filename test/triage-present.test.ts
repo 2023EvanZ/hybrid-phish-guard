@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { triage } from "../src/triage/pipeline.ts";
-import { adviceFor, badgeFor, showsNotice, provenanceNote, verdictView } from "../src/triage/present.ts";
+import { adviceFor, badgeFor, pendingView, showsNotice, provenanceNote, verdictView } from "../src/triage/present.ts";
 import type { TriageReport } from "../src/triage/pipeline.ts";
 import type { Verdict, VerdictSource } from "../src/triage/types.ts";
 import { benignFeatures, phishFeatures } from "./helpers.ts";
@@ -27,8 +27,8 @@ test("phishing and suspicious get the corner notice, safe gets nothing", () => {
   assert.equal(showsNotice(report("phishing")), true);
   assert.equal(showsNotice(report("suspicious")), true);
   assert.equal(showsNotice(report("safe")), false);
-  assert.match(adviceFor(report("phishing")), /Don't enter passwords/);
-  assert.match(adviceFor(report("suspicious")), /Check the web address/);
+  assert.match(adviceFor("phishing"), /Don't enter passwords/);
+  assert.match(adviceFor("suspicious"), /Check the web address/);
 });
 
 test("badge: red for phishing, amber for suspicious, none otherwise", async () => {
@@ -60,4 +60,12 @@ test("provenanceNote says when a device has no Gemini Nano", () => {
     errors: ["on-device model: Gemini Nano isn't available on this device yet (status: downloadable)"],
   };
   assert.match(provenanceNote(cloudOnly)!, /isn't available on this device, so this page was checked in the cloud/);
+});
+
+test("the instant rules warning says where it came from", () => {
+  const v = pendingView({ verdict: "phishing", confidence: 0.75, reasons: ["Web address imitates a known brand"], source: "rules", latencyMs: 0 });
+  assert.equal(v.tone, "danger");
+  assert.equal(v.headline, "This page looks like phishing");
+  assert.equal(v.detail, "Found by the rule-based check");
+  assert.deepEqual(v.reasons, ["Web address imitates a known brand"]);
 });

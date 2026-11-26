@@ -26,6 +26,48 @@ content script runs, then passed through the prefilter gate and a classifier.
 - **Strict**: only a `phishing` verdict counts as a warning.
 - **Lenient**: `suspicious` counts too (the UI warns on both).
 
+## Models, run 4: cloud blocked by App Check (2026-11-25)
+
+Raw output: [results/2026-11-25-models-run4.json](results/2026-11-25-models-run4.json).
+Release build 0.0.5 (no App Check), Chrome 158, prompt and policy as after run 3.
+
+**Every cloud call failed** (73 of 73): `401 Firebase App Check token is invalid`. The
+release build sends no App Check token, so the Firebase project is enforcing App Check
+for AI Logic. Escalated pages fell back to Nano's verdict, so "hybrid" in this run is
+Nano alone and **the policy change after run 3 is still untested**. The fix is in the
+Firebase console (App Check -> APIs -> Firebase AI Logic -> Unenforce), not the code.
+
+| Gemini Nano | Dev, strict | Dev, lenient | Held-out, strict | Held-out, lenient |
+|---|---|---|---|---|
+| Recall | 71.9% (23/32) | 96.9% (31/32) | 14.3% (1/7) | 71.4% (5/7) |
+| False alarms | 5.3% (2/38) | 23.7% (9/38) | 0% (0/8) | 12.5% (1/8) |
+
+- **Held-out, the first time the models saw it.** Nano caught 5 of 7 if "suspicious"
+  counts (the rules: 4 of 7), but called only 1 of 7 "phishing": on new pages it mostly
+  hedges with "suspicious". Misses: `h-p-bofa-typo` (a one-letter typo, again "safe";
+  the unverified-brand rule escalated it, but the cloud failed) and
+  `h-p-coinbase-callback` (no form, so the gate never checks it). Seven phishing pages
+  is too few for these rates to mean much: one page is 14 points.
+- **Latency.** Nano median 3.0 s per page (p10 2.6 s, p90 3.5 s, max 4.3 s), with
+  0 failures. The answers average ~210 characters of JSON, mostly reasons, which led
+  to the speed change below.
+
+## Speed change after run 4 (2026-11-25)
+
+Not yet measured on the models; the next run will show the effect.
+
+- **Instant rules warning.** When the rules alone rate a page "phishing" (score 8+: no
+  false alarms on the dev or held-out sets in any run), the content script shows the
+  warning at once, marked "Checking with the AI model…", instead of after the model
+  check. The model's verdict then updates it, or withdraws it if the models find the
+  page safe. 11 of 63 checked dev pages qualify.
+- **Nano answers verdict and confidence only** (no reasons), cutting its output from
+  ~60 tokens to ~15. The card shows the rules' warning signs as the reasons, and asks
+  Nano to explain itself only when the user opens the card. **Risk to check in run 5:**
+  writing reasons may have helped Nano's verdicts, so accuracy could drop.
+- The eval page now reports model time to the final verdict (median, p90, max) and how
+  many pages get the instant warning.
+
 ## Policy change after run 3 (2026-11-24)
 
 Shipped in [src/triage/policy.ts](../src/triage/policy.ts), made after the held-out cases

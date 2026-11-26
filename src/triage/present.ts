@@ -4,7 +4,7 @@
 import { NANO_UNAVAILABLE } from "../shared/messages.ts";
 import type { EscalationReason } from "./policy.ts";
 import type { TriageReport } from "./pipeline.ts";
-import type { Verdict, VerdictSource } from "./types.ts";
+import type { TriageResult, Verdict, VerdictSource } from "./types.ts";
 
 export type Tone = "danger" | "warning" | "ok" | "neutral";
 
@@ -50,6 +50,15 @@ export function verdictView(report: TriageReport): VerdictView {
 }
 
 /**
+ * The instant warning shown from the rules alone while the models run. Only used for a
+ * rules "phishing" (score 8+), which had no false alarms on the dev or held-out sets.
+ */
+export function pendingView(rules: TriageResult): VerdictView {
+  const { tone, headline } = HEADLINE[rules.verdict];
+  return { tone, headline, detail: "Found by the rule-based check", reasons: rules.reasons };
+}
+
+/**
  * Whether the page gets the corner notice: an icon that expands into the full card on
  * click. Shown for "phishing" (red, with a pulsing ring) and "suspicious" (amber); "safe"
  * shows nothing. It never opens by itself: the rules fallback rates about a third of
@@ -61,8 +70,8 @@ export function showsNotice(report: TriageReport): boolean {
 }
 
 /** One line of advice under the headline in the expanded notice. */
-export function adviceFor(report: TriageReport): string {
-  return report.final.verdict === "phishing"
+export function adviceFor(verdict: Verdict): string {
+  return verdict === "phishing"
     ? "Don't enter passwords, card numbers or codes here."
     : "Check the web address before entering anything sensitive.";
 }
