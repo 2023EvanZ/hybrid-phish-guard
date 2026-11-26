@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_CONFIDENCE, parseVerdict } from "../src/triage/parse.ts";
+import { DEFAULT_CONFIDENCE, parseReasons, parseVerdict } from "../src/triage/parse.ts";
 
 const ok = (text: string) => {
   const r = parseVerdict(text);
@@ -45,4 +45,13 @@ test("rejects output it cannot interpret", () => {
   assert.match(err('{"verdict":"maybe","confidence":0.5}'), /unrecognised verdict/);
   assert.match(err('{"verdict":"safe","confidence":250}'), /invalid confidence/);
   assert.match(err('{"verdict":"safe","confidence":-0.1}'), /invalid confidence/);
+});
+
+test("parseReasons reads an explanation and gives up quietly on anything else", () => {
+  assert.deepEqual(parseReasons('{"reasons": ["Address misspells PayPal", "  Form sends to another site "]}'), [
+    "Address misspells PayPal",
+    "Form sends to another site",
+  ]);
+  assert.deepEqual(parseReasons("not json"), []);
+  assert.deepEqual(parseReasons('{"verdict": "safe"}'), []);
 });

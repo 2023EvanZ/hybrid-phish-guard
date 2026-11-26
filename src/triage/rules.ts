@@ -9,6 +9,8 @@ import type { Classifier, TriageResult } from "./types.ts";
 
 export const RULES_PHISHING_SCORE = 8;
 export const RULES_SUSPICIOUS_SCORE = 4;
+/** The rules' reason when nothing stood out. */
+export const NO_SIGNS = "No strong warning signs found";
 
 const REASON_TEXT: Partial<Record<ReasonCode, string>> = {
   "brand-in-host": "Web address imitates a known brand",
@@ -51,7 +53,7 @@ export function rulesVerdict(features: PageFeatures): TriageResult {
   return {
     verdict: "safe",
     confidence: 0.6,
-    reasons: reasonText.length ? reasonText : ["No strong warning signs found"],
+    reasons: reasonText.length ? reasonText : [NO_SIGNS],
     source: "rules",
     latencyMs: 0,
   };

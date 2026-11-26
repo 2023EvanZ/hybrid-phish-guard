@@ -7,11 +7,13 @@
 // an offscreen document (src/offscreen.ts). The pipeline here still owns prompt building,
 // redaction and parsing; the offscreen document only turns prompts into text.
 import { verdictKey, tabKey } from "./shared/messages.ts";
-import type { HpgMessage, OffscreenRequest, PrefilterReport, ReportReply, StoredVerdict } from "./shared/messages.ts";
+import type { ExplainReply, GenerateReply, HpgMessage, OffscreenRequest, PrefilterReport, ReportReply, StoredVerdict } from "./shared/messages.ts";
 import { modelClassifier } from "./triage/model.ts";
+import { parseReasons } from "./triage/parse.ts";
 import { triage } from "./triage/pipeline.ts";
 import type { TriageDeps } from "./triage/pipeline.ts";
 import { badgeFor } from "./triage/present.ts";
+import { buildExplainPrompt } from "./triage/prompt.ts";
 import { offscreenTextModel } from "./triage/remote.ts";
 
 chrome.sidePanel
@@ -51,8 +53,11 @@ async function sendOffscreen(req: OffscreenRequest): Promise<unknown> {
   }
 }
 
+// Nano answers without reasons, so it finishes sooner (see triage/prompt.ts).
+const NANO_PROMPT = { reasons: false };
+
 const deps: TriageDeps = {
-  local: modelClassifier(offscreenTextModel("on-device", sendOffscreen), "on-device"),
+  local: modelClassifier(offscreenTextModel("on-device", sendOffscreen), "on-device", undefined, NANO_PROMPT),
   cloud: modelClassifier(offscreenTextModel("cloud", sendOffscreen), "cloud"),
 };
 
@@ -100,6 +105,20 @@ async function leave(tabId: number) {
   }
 }
 
+/** Gemini Nano's reasons for the on-device verdict stored for this tab. On-device only:
+ *  the prompt carries the unredacted page. */
+async function explain(tabId: number): Promise<ExplainReply> {
+  const stored = await chrome.storage.session.get([tabKey(tabId), verdictKey(tabId)]);
+  const report = stored[tabKey(tabId)] as PrefilterReport | undefined;
+  const verdict = stored[verdictKey(tabId)] as StoredVerdict | undefined;
+  if (!report?.features || verdict?.triage.final.source !== "on-device") return { reasons: null };
+  const reply = await sendOffscreen({ target: "offscreen", type: "explain", prompt: buildExplainPrompt(report.features, verdict.triage.final.verdict) });
+  const r = reply as GenerateReply | undefined;
+  if (!r?.ok) return { reasons: null };
+  const reasons = parseReasons(r.text);
+  return { reasons: reasons.length ? reasons : null };
+}
+
 /** Our own extension pages (side panel, eval page), as opposed to content scripts,
  *  which share our extension id but report the web page's URL. */
 const isExtensionPage = (sender: chrome.runtime.MessageSender) =>
@@ -125,6 +144,13 @@ chrome.runtime.onMessage.addListener((msg: HpgMessage, sender, sendResponse) => 
     return true; // async reply
   }
   if (msg.type === "hpg/leave") void leave(tabId);
+  if (msg.type === "hpg/explain") {
+    explain(tabId).then(sendResponse, (err) => {
+      console.warn("explanation failed", err);
+      sendResponse({ reasons: null } satisfies ExplainReply);
+    });
+    return true;
+  }
   if (msg.type === "hpg/open-panel") {
     // sidePanel.open() only works during a user gesture. Called synchronously here, in
     // the handler for a click in the page, before any await. If Chrome doesn't count

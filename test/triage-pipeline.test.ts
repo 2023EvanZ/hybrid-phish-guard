@@ -87,3 +87,24 @@ test("modelClassifier: prompt in, parsed verdict out; bad output throws", async 
   const bad: TextModel = { generate: async () => "Looks dodgy to me!" };
   await assert.rejects(modelClassifier(bad, "on-device").classify(phishFeatures()), /output rejected: no JSON/);
 });
+
+test("a reason-less Nano warning shows the rules' warning signs; a Nano 'safe' stays without reasons", async () => {
+  const bare = (verdict: Verdict): Classifier => ({
+    source: "on-device",
+    classify: async () => ({ verdict, confidence: 0.9, reasons: [], source: "on-device", latencyMs: 1 }),
+  });
+  const warned = await triage(phishFeatures(), { local: bare("phishing") });
+  assert.equal(warned.final.source, "on-device");
+  assert.ok(warned.final.reasons.includes("Web address imitates a known brand"), warned.final.reasons.join("; "));
+  const safe = await triage(benignFeatures(), { local: bare("safe") });
+  assert.deepEqual(safe.final.reasons, []);
+});
+
+test("the on-device prompt can leave out reasons", async () => {
+  const prompts: string[] = [];
+  const model: TextModel = { generate: async (p) => (prompts.push(p), '{"verdict":"safe","confidence":0.9}') };
+  const r = await modelClassifier(model, "on-device", undefined, { reasons: false }).classify(benignFeatures());
+  assert.equal(r.verdict, "safe");
+  assert.deepEqual(r.reasons, []);
+  assert.doesNotMatch(prompts[0], /"reasons"/);
+});

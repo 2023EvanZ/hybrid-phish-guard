@@ -72,3 +72,15 @@ export function parseVerdict(text: string): ParseResult {
 
   return { ok: true, value: { verdict, confidence, reasons: normalizeReasons(rec.reasons) } };
 }
+
+/** Parses Nano's on-demand explanation: {"reasons": [...]}. Empty list on anything else. */
+export function parseReasons(text: string): string[] {
+  const json = extractJsonObject(text);
+  if (!json) return [];
+  try {
+    const obj = JSON.parse(json) as unknown;
+    return typeof obj === "object" && obj !== null ? normalizeReasons((obj as Record<string, unknown>).reasons) : [];
+  } catch {
+    return [];
+  }
+}

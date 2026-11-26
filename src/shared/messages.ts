@@ -40,6 +40,9 @@ export type HpgMessage =
   | { type: "hpg/leave" }
   /** In-page notice's "Full report" button -> background: open the side panel. Answered with { opened }. */
   | { type: "hpg/open-panel" }
+  /** In-page notice opened on an on-device verdict -> background: ask Gemini Nano why.
+   *  Answered with ExplainReply. */
+  | { type: "hpg/explain" }
   /** Side panel diagnostics -> background: create the offscreen document and probe it. */
   | { type: "hpg/probe-offscreen" }
   /** Model eval page -> background: forward one request to the offscreen document. */
@@ -69,7 +72,13 @@ export type ModelMode = "on-device" | "cloud";
 
 export type OffscreenRequest =
   | { target: "offscreen"; type: "generate"; mode: ModelMode; prompt: string }
+  /** On-device only: a prompt answered with {"reasons": [...]} (buildExplainPrompt). */
+  | { target: "offscreen"; type: "explain"; prompt: string }
   | { target: "offscreen"; type: "probe" };
+
+export interface ExplainReply {
+  reasons: string[] | null;
+}
 
 export type GenerateReply = { ok: true; text: string } | { ok: false; error: string };
 

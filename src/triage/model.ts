@@ -8,6 +8,7 @@
 
 import { parseVerdict } from "./parse.ts";
 import { buildTriagePrompt } from "./prompt.ts";
+import type { PromptOptions } from "./prompt.ts";
 import type { Classifier, VerdictSource } from "./types.ts";
 
 export interface TextModel {
@@ -18,12 +19,13 @@ export function modelClassifier(
   model: TextModel,
   source: Exclude<VerdictSource, "rules">,
   now: () => number = () => performance.now(),
+  prompt: PromptOptions = {},
 ): Classifier {
   return {
     source,
     async classify(features) {
       const t0 = now();
-      const text = await model.generate(buildTriagePrompt(features));
+      const text = await model.generate(buildTriagePrompt(features, prompt));
       const parsed = parseVerdict(text);
       // A short snippet of the raw output makes format failures diagnosable from an eval run.
       if (!parsed.ok) throw new Error(`${source} model output rejected: ${parsed.error} (output: ${JSON.stringify(text.slice(0, 80))})`);

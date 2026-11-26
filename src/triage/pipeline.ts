@@ -5,7 +5,7 @@ import type { PageFeatures } from "../shared/messages.ts";
 import { DEFAULT_POLICY, shouldEscalate } from "./policy.ts";
 import type { EscalationDecision, PolicyConfig } from "./policy.ts";
 import { redactFeatures } from "./redact.ts";
-import { rulesVerdict } from "./rules.ts";
+import { NO_SIGNS, rulesVerdict } from "./rules.ts";
 import type { Classifier, TriageResult } from "./types.ts";
 
 export interface TriageDeps {
@@ -38,13 +38,24 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
 
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
+/**
+ * Gemini Nano answers without reasons, to stay fast (see prompt.ts). When it warns, show
+ * the rules engine's warning signs as the reasons; Nano explains itself on demand.
+ */
+function withSignals(local: TriageResult, features: PageFeatures): TriageResult {
+  if (local.reasons.length || local.verdict === "safe") return local;
+  const signals = rulesVerdict(features).reasons.filter((r) => r !== NO_SIGNS);
+  return { ...local, reasons: signals };
+}
+
 export async function triage(features: PageFeatures, deps: TriageDeps = {}): Promise<TriageReport> {
   const errors: string[] = [];
 
   let local: TriageResult | null = null;
   if (deps.local) {
     try {
-      local = await withTimeout(deps.local.classify(features), deps.localTimeoutMs ?? DEFAULT_LOCAL_TIMEOUT_MS, "on-device model");
+      const raw = await withTimeout(deps.local.classify(features), deps.localTimeoutMs ?? DEFAULT_LOCAL_TIMEOUT_MS, "on-device model");
+      local = withSignals(raw, features);
     } catch (e) {
       errors.push(message(e));
     }

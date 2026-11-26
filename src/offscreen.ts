@@ -13,17 +13,24 @@ import { getGenerativeModel, InferenceMode } from "firebase/ai";
 import { ai, configMissing } from "./firebase.ts";
 import { NANO_UNAVAILABLE } from "./shared/messages.ts";
 import type { GenerateReply, ModelMode, OffscreenRequest, ProbeReply } from "./shared/messages.ts";
-import { VERDICT_JSON_SCHEMA } from "./triage/prompt.ts";
+import { REASONS_JSON_SCHEMA, VERDICT_ONLY_JSON_SCHEMA } from "./triage/prompt.ts";
 
 const models: Record<ModelMode, ReturnType<typeof getGenerativeModel>> = {
   // responseConstraint makes Chrome's Prompt API decode only output matching the schema.
   // Eval run 2 had 5 of 63 Nano answers rejected as invalid JSON, all on phishing pages.
+  // Verdict and confidence only: reasons cost most of Nano's time (see triage/prompt.ts).
   "on-device": getGenerativeModel(ai, {
     mode: InferenceMode.ONLY_ON_DEVICE,
-    onDeviceParams: { promptOptions: { responseConstraint: VERDICT_JSON_SCHEMA } },
+    onDeviceParams: { promptOptions: { responseConstraint: VERDICT_ONLY_JSON_SCHEMA } },
   }),
   cloud: getGenerativeModel(ai, { mode: InferenceMode.ONLY_IN_CLOUD }),
 };
+
+// Nano's explanation of a verdict, asked for when the user opens the warning card.
+const explainModel = getGenerativeModel(ai, {
+  mode: InferenceMode.ONLY_ON_DEVICE,
+  onDeviceParams: { promptOptions: { responseConstraint: REASONS_JSON_SCHEMA } },
+});
 
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
@@ -100,6 +107,15 @@ chrome.runtime.onMessage.addListener((msg: OffscreenRequest, sender, sendRespons
       (text) => sendResponse({ ok: true, text } satisfies GenerateReply),
       (e) => sendResponse({ ok: false, error: message(e) } satisfies GenerateReply),
     );
+    return true;
+  }
+  if (msg.type === "explain") {
+    assertNanoReady()
+      .then(() => explainModel.generateContent(msg.prompt))
+      .then(
+        (result) => sendResponse({ ok: true, text: result.response.text() } satisfies GenerateReply),
+        (e) => sendResponse({ ok: false, error: message(e) } satisfies GenerateReply),
+      );
     return true;
   }
   if (msg.type === "probe") {
