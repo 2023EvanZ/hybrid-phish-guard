@@ -149,6 +149,22 @@ test("scam scripts open the gate; mentions without the full script don't", () =>
   assert.equal(run("https://www.youtube.com/watch?v=x", [], "", "Send 1 ETH and get 2x back!").shouldCheck, false);
 });
 
+test("a callback script opens the gate only on a page posing as a brand", () => {
+  const script = "PayPal: your account has been locked after unusual activity. Call our team at 1-888-555-0143 to restore access.";
+  const scam = run("https://account-help-center.com/case/1", [], "", script);
+  assert.equal(scam.shouldCheck, true);
+  assert.ok(scam.reasons.includes("callback-scam"));
+  // The same words on the brand's own site are a help page, not a scam.
+  const own = run("https://www.paypal.com/us/smarthelp/article/1", [], "", script);
+  assert.ok(!own.reasons.includes("callback-scam"));
+  // No brand named: not counted (a known gap, see eval held-out set 2).
+  const noBrand = run("https://account-help-center.com/case/1", [], "", "Your card has been suspended. Call 1-866-555-0119 now.");
+  assert.equal(noBrand.shouldCheck, false);
+  // The phone number has to be in the sentence that says to call.
+  const warning = run("https://news.example.com/a", [], "", "Scammers claim your PayPal account is locked and tell you to call a number. Report it to 919-555-0155.");
+  assert.ok(!warning.reasons.includes("callback-scam"));
+});
+
 test("isPrivateIp: loopback, RFC 1918, link-local and IPv6 local ranges only", () => {
   for (const h of ["10.0.0.1", "127.0.0.1", "172.16.0.1", "172.31.255.1", "192.168.1.1", "169.254.1.1", "[::1]", "[fd12:3456::1]", "[fe80::1]"]) {
     assert.equal(isPrivateIp(h), true, h);

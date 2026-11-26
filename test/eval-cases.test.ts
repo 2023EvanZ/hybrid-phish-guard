@@ -10,7 +10,8 @@ test("eval cases have unique ids, notes, and build into features", () => {
     assert.ok(!ids.has(c.id), `duplicate id ${c.id}`);
     ids.add(c.id);
     assert.ok(c.note.length > 0, `${c.id} needs a note`);
-    assert.equal(c.id.startsWith("p-"), c.label === "phishing", `${c.id}: prefix must match label`);
+    // Retired held-out cases keep their h- prefix (h-p-, h-b-).
+    assert.equal(/^(h-)?p-/.test(c.id), c.label === "phishing", `${c.id}: prefix must match label`);
     assert.doesNotThrow(() => caseFeatures(c), c.id);
   }
 });
@@ -38,13 +39,15 @@ test("the eval set is roughly balanced", () => {
 
 // Regression floor for the rules fallback, set at the baseline recorded in eval/README.md.
 // If a heuristics change lowers these, the test fails; if it raises them, raise the floor.
+// Re-baselined on 2026-11-26, when retired held-out set 1 joined the dev set (+1 false
+// alarm, h-b-city-utility-paymentus) and the callback-scam signal caught h-p-coinbase-callback.
 test("rules fallback does not regress below the recorded baseline", async () => {
   const { evaluateCases } = await import("../eval/evaluate.ts");
   const { summarize } = await import("../eval/metrics.ts");
   const { rulesClassifier } = await import("../src/triage/rules.ts");
   const s = summarize(await evaluateCases(ALL_CASES, rulesClassifier));
   assert.equal(s.gate.phishingChecked, 1, "every phishing case must reach a classifier");
-  assert.ok(s.lenient.tp >= 30, `lenient TP ${s.lenient.tp} < 30`);
-  assert.ok(s.lenient.fp <= 11, `lenient FP ${s.lenient.fp} > 11`);
+  assert.ok(s.lenient.tp >= 35, `lenient TP ${s.lenient.tp} < 35`);
+  assert.ok(s.lenient.fp <= 12, `lenient FP ${s.lenient.fp} > 12`);
   assert.ok(s.strict.fp <= 0, `strict FP ${s.strict.fp} > 0`);
 });

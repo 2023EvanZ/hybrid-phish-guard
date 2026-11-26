@@ -1,7 +1,8 @@
 # Evaluation set
 
-70 hand-written, labeled page descriptions (32 phishing/scam, 38 benign) in
-[cases/](cases), scored by `npm run eval`. Each case is a URL, title, visible text and
+85 hand-written, labeled page descriptions (39 phishing/scam, 46 benign) in
+[cases/](cases), scored by `npm run eval`: the original 70, plus held-out set 1 since it
+was retired on 2026-11-26. Held-out set 2 (12 cases) is scored separately. Each case is a URL, title, visible text and
 form field list; it is turned into `PageFeatures` by the same pure prefilter code the
 content script runs, then passed through the prefilter gate and a classifier.
 
@@ -25,6 +26,45 @@ content script runs, then passed through the prefilter gate and a classifier.
   gets no warning, so it counts as a "safe" prediction in the scores below.
 - **Strict**: only a `phishing` verdict counts as a warning.
 - **Lenient**: `suspicious` counts too (the UI warns on both).
+
+## No-form gate change after run 5 (2026-11-26)
+
+Run 5's only held-out miss was `h-p-coinbase-callback`: "your account is locked, call this
+number", with no form, so the gate never checked it. The existing no-form scripts (fake
+virus alert, crypto giveaway, recovery phrase) didn't cover it.
+
+**Order of work, so the held-out result means something.** Because that case drove the
+change, held-out set 1 was retired into the dev set, and held-out set 2 (12 no-form pages:
+6 callback scams, 6 legitimate pages that say to call) was written and committed
+(c7b4829) before the change was written. Its header records the fix the author had in
+mind and the cases added to break it.
+
+**The change** ([src/prefilter/signals.ts](../src/prefilter/signals.ts)): a new
+`callback-scam` script, which opens the gate and adds 3 points. It needs an account threat
+or unexpected charge ("account has been locked", "you've been charged", "didn't
+authorize") and "call" followed by a phone number in the same sentence. It only counts
+on a page that names a brand it isn't hosted by, because a bank's own "lost card? call
+us" page has the same words.
+
+**Rules only** (the models haven't seen it yet):
+
+| | Before | After |
+|---|---|---|
+| Dev (85): phishing pages checked | 38/39 | 39/39 |
+| Dev: lenient recall / false alarms | 34/39, 12/46 | 35/39, 12/46 |
+| Dev: benign pages checked | 35/46 | 35/46 (no new pages) |
+| Held-out set 2: lenient recall | 0/6 (all skipped) | 4/6 |
+| Held-out set 2: false alarms / benign checked | 0/6, 0/6 | 0/6, 0/6 |
+
+- On the dev set the signal fires on exactly one page, the one it was built for. The
+  dev false alarm added when set 1 joined (`h-b-city-utility-paymentus`) predates it.
+- **The two held-out misses are the known gap, and the cases written to expose it:**
+  `h-p-card-fraud-dept` names no brand, and `h-p-geek-squad-renewal` names one the brand
+  list doesn't know and has no account-lock wording. Dropping the brand requirement would
+  catch the first, at the cost of checking every legitimate "call us" page.
+- The 4 caught pages are rated "suspicious" by the rules (score 5-7). What matters more is
+  that they now reach Gemini Nano and the cloud. The next model run will show how those
+  do.
 
 ## Models, run 5: first full hybrid run with the cloud reachable (2026-11-26)
 
@@ -143,7 +183,7 @@ The cost is privacy and latency: about 4 in 10 checked pages now get a cloud cal
 redacted features, about 1 s), against 1 in 4 before. That is still far below run 1, where
 28 of 31 benign pages went to the cloud.
 
-## Held-out cases (2026-11-24)
+## Held-out cases, set 1 (2026-11-24; retired 2026-11-26)
 
 15 cases (7 phishing, 8 benign) in [cases/heldout.ts](cases/heldout.ts), written after
 model run 3 and before the next policy change. They were committed (1366d2a) before

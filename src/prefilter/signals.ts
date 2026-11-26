@@ -37,7 +37,8 @@ export type ReasonCode =
   | "form-builder-host"
   | "tech-support-pitch"
   | "crypto-giveaway"
-  | "seed-phrase-request";
+  | "seed-phrase-request"
+  | "callback-scam";
 
 // ---------------------------------------------------------------- fields & forms
 
@@ -236,7 +237,7 @@ export function urlSignals(url: URL): UrlSignals {
 
 // ---------------------------------------------------------------------- text
 
-export type ScamPattern = "tech-support-pitch" | "crypto-giveaway" | "seed-phrase-request";
+export type ScamPattern = "tech-support-pitch" | "crypto-giveaway" | "seed-phrase-request" | "callback-scam";
 
 export interface TextSignals {
   brandsMentioned: string[];
@@ -270,7 +271,7 @@ const URGENCY_PATTERNS: RegExp[] = [
 const gap = (n: number) => `(?:[^.!?]|\\.(?=\\d)){0,${n}}`;
 const re = (src: string) => new RegExp(src, "i");
 
-const SCAM_PATTERNS: Record<ScamPattern, RegExp[]> = {
+const SCAM_PATTERNS: Record<Exclude<ScamPattern, "callback-scam">, RegExp[]> = {
   // "Your computer is infected ... call support", the fake virus-alert script.
   "tech-support-pitch": [
     re(`\\b(computer|pc|device|system|windows|mac|browser)\\b${gap(40)}\\b(infected|blocked|locked|compromised|hacked)\\b|\\b(virus|spyware|trojan|malware)\\b${gap(20)}\\b(detected|found|alert)\\b`),
@@ -286,9 +287,26 @@ const SCAM_PATTERNS: Record<ScamPattern, RegExp[]> = {
   ],
 };
 
+// "Your account is locked / you were charged ... call 1-8xx-xxx-xxxx", the callback scam
+// (eval: h-p-coinbase-callback, which the gate used to skip). Both parts must match, and
+// the call must come with an actual phone number in the same sentence. On its own this
+// also matches legitimate help pages ("lost your card? call us at ..."), so it only counts
+// when the page also speaks for a brand it isn't hosted by (see textSignals).
+const PHONE = `(?:\\+?1[-. ]?)?\\(?\\d{3}\\)?[-. ]?\\s?\\d{3}[-. ]\\d{4}\\b`;
+const CALLBACK_SCRIPT: RegExp[] = [
+  re(
+    `\\b(account|card|access|refund|payment|subscription|order)\\b${gap(40)}\\b(locked|suspended|blocked|frozen|compromised|disabled|deactivated|on hold|charged|renewed)\\b` +
+      `|\\b(unauthori[sz]ed|did not authori[sz]e|didn'?t authori[sz]e|did not make|didn'?t make|unusual (sign-?in|login|activity)|suspicious (transaction|activity|charge))\\b` +
+      `|\\b(been|was|were) charged\\b`,
+  ),
+  re(`\\bcall\\b${gap(60)}${PHONE}`),
+];
+
 export function scamPatterns(text: string): ScamPattern[] {
-  return (Object.keys(SCAM_PATTERNS) as ScamPattern[]).filter((p) => SCAM_PATTERNS[p].every((re) => re.test(text)));
+  return (Object.keys(SCAM_PATTERNS) as Exclude<ScamPattern, "callback-scam">[]).filter((p) => SCAM_PATTERNS[p].every((re) => re.test(text)));
 }
+
+export const hasCallbackScript = (text: string) => CALLBACK_SCRIPT.every((r) => r.test(text));
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -300,14 +318,19 @@ export function textSignals(title: string, text: string, hostname: string): Text
   const brandsMentioned = BRANDS.filter((b) =>
     b.keywords.some((k) => new RegExp(`\\b${escapeRe(k)}\\b`, "i").test(prose)),
   );
+  const brandMismatch = brandsMentioned.filter((b) => !brandOwnsHost(b, hostname)).map((b) => b.name);
+  const patterns = scamPatterns(haystack);
+  // The callback script counts only on a page posing as a brand it isn't hosted by: a
+  // bank's own "lost card? call us" page has the same words on the right domain.
+  if (brandMismatch.length && hasCallbackScript(haystack)) patterns.push("callback-scam");
   return {
     brandsMentioned: brandsMentioned.map((b) => b.name),
-    brandMismatch: brandsMentioned.filter((b) => !brandOwnsHost(b, hostname)).map((b) => b.name),
+    brandMismatch,
     urgencyHits: URGENCY_PATTERNS.flatMap((re) => {
       const m = haystack.match(re);
       return m ? [m[0]] : [];
     }),
-    scamPatterns: scamPatterns(haystack),
+    scamPatterns: patterns,
   };
 }
 
@@ -325,7 +348,8 @@ export const URL_ONLY_THRESHOLD = 3;
 
 /**
  * The gate opens on a sensitive form, a risky URL, a form-builder page, or a specific scam
- * script in the text (tech-support pitch, crypto giveaway, seed-phrase request). Generic
+ * script in the text (tech-support pitch, crypto giveaway, seed-phrase request, or a
+ * callback script on a page posing as a brand). Generic
  * text signals (brand mentions, pressure phrases) raise the score but never open the
  * gate: news and advice pages use the same words.
  */
