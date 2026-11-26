@@ -1,18 +1,24 @@
-// Held-out cases: written on 2026-11-24, after model eval run 3 and before the next policy
-// change, and committed before anything scored them (rules included). They are kept out
-// of ALL_CASES so the rules tests and earlier tuning never touch them.
+// Held-out set 2: written on 2026-11-26, after model eval run 5 and BEFORE the no-form
+// gate change was written, and committed before anything scored them (rules included).
+// Kept out of ALL_CASES so the rules tests and tuning never touch them.
 //
 // How they were written, so the result can be judged:
-// - Scenarios are drawn from common real-world phishing patterns and everyday legitimate
-//   pages, not from the failures of runs 1-3. The author (same as for the dev set) knows
-//   Nano's known weak spots (typos, cross-site forms); the mix below tries to match how
-//   often each pattern shows up, not to avoid or pile onto those.
-// - No case is to be edited, dropped or relabeled after seeing a score. If a case turns
-//   out to be mislabeled or malformed, it is fixed in a separate commit that says so.
-// - Once these have informed a change, they stop being held out; new ones replace them.
+// - Narrow on purpose: they test the coming change, which is about scam pages with no
+//   form (mostly "your account is locked / you were charged, call this number"). So the
+//   set is all no-form pages, unlike set 1. It is not a general accuracy sample.
+// - The author had a candidate fix in mind while writing: open the gate on an
+//   account-threat + phone-call script, but only when the page names a brand it isn't
+//   hosted by. Cases were added to break that fix on both sides: a fake-invoice scam
+//   naming a brand the brand list may not know (h-p-geek-squad-renewal), a scam with no
+//   brand at all (h-p-card-fraud-dept), and legitimate pages that tell you to call
+//   (a credit union's lost-card page, an airline rebooking page, scam warnings that
+//   quote the script).
+// - The rules from set 1 still apply: no case is edited, dropped or relabeled after a
+//   score is seen; a malformed case is fixed in a separate commit that says so; once these
+//   inform a change they stop being held out.
 //
-// Hostnames are illustrative or real; paths and page text are approximations written from
-// scratch. None were visited.
+// Hostnames are illustrative or real; paths, text and phone numbers (555 numbers) are
+// written from scratch. None were visited.
 
 import type { EvalCase } from "../case.ts";
 
@@ -21,125 +27,91 @@ const B = (c: Omit<EvalCase, "label">): EvalCase => ({ ...c, label: "benign" });
 
 export const HELDOUT_PHISHING: EvalCase[] = [
   P({
-    id: "h-p-onedrive-compromised-wp", category: "compromised-site",
-    note: "Shared-document lure in a hacked dental office WordPress install; no brand in the host.",
-    url: "https://www.greenvalleydental.com/wp-includes/js/od/index.php",
-    title: "OneDrive - Shared document",
-    text: "Mary Collins shared \"Q4 Invoice.pdf\" with you. To view the document, sign in with your Microsoft account.",
-    forms: [{ fields: ["email", "password"] }],
+    id: "h-p-amazon-order-callback", category: "callback-scam",
+    note: "Fake order confirmation for an expensive purchase, pushing a 'cancel' phone line.",
+    url: "https://order-cancellation-desk.com/confirm/114-8820",
+    title: "Your Amazon.com order #114-8820193",
+    text: "Amazon: Your order of Apple iPhone 15 Pro Max (256GB) for $1,249.00 has been placed and will ship today. If you did not authorize this purchase, call Amazon Support immediately at +1 (844) 555-0187 to cancel and receive a full refund.",
   }),
   P({
-    id: "h-p-toll-unpaid", category: "delivery-toll",
-    note: "Unpaid-toll smishing landing page; toll brand only in the text.",
-    url: "https://ezdrive-tollservices.com/pay/balance",
-    title: "Toll Services - Outstanding Balance",
-    text: "Our records show an unpaid toll balance of $4.15. To avoid a late fee of $50.00 and suspension of your vehicle registration, pay today.",
-    forms: [{ fields: ["name", "card", "exp", "cvv"] }],
+    id: "h-p-irs-refund-hold", category: "callback-scam",
+    note: "Tax refund 'on hold' notice with a deadline and a verification phone line.",
+    url: "https://refund-status-notice.org/case/IRS-2026-44817",
+    title: "Notice CP-53: Refund on Hold",
+    text: "Internal Revenue Service. Your 2025 federal tax refund of $3,482.00 is on hold pending identity verification. Call the IRS Verification Unit at 1-877-555-0102 within 48 hours to release your refund and avoid a penalty.",
   }),
   P({
-    id: "h-p-docusign-r2", category: "free-hosting",
-    note: "Document-signing lure on a Cloudflare R2 public bucket URL.",
-    url: "https://pub-3f9a2c71b8e04d55.r2.dev/docs/review.html",
-    title: "DocuSign",
-    text: "Please review and sign: Employee Compensation Adjustment 2026. Sign in with your email to access the document.",
-    forms: [{ fields: ["email", "password"] }],
+    id: "h-p-card-fraud-dept", category: "callback-scam",
+    note: "Card-blocked alert that names no brand at all; only the script gives it away.",
+    url: "https://secure-card-alerts.net/notice",
+    title: "Fraud Prevention Alert",
+    text: "Fraud Prevention Department. A suspicious transaction of $980.00 at BESTBUY ONLINE was declined and your debit card has been temporarily suspended. Call 1-866-555-0119 now to verify your identity and reactivate your card.",
   }),
   P({
-    id: "h-p-bofa-typo", category: "typosquat",
-    note: "One-letter swap in the brand (l for i) on a secure- subdomain.",
-    url: "https://secure.bankofamerlca.com/login/sign-in",
-    title: "Bank of America | Online Banking | Sign In",
-    text: "Sign in to Online Banking. Online ID. Passcode. Forgot ID/Passcode?",
-    forms: [{ fields: ["user", "password"] }],
+    id: "h-p-paypal-invoice-callback", category: "callback-scam",
+    note: "Fake PayPal invoice for antivirus software with a 'dispute' phone number.",
+    url: "https://billing-invoice-center.com/inv/77310",
+    title: "Invoice from Norton LifeLock",
+    text: "PayPal. You've been charged $499.99 USD for Norton LifeLock 360 Total Protection (3-year plan). If you didn't authorize this payment, call the PayPal billing department at 1-808-555-0166 within 24 hours to dispute the charge.",
   }),
   P({
-    id: "h-p-coinbase-callback", category: "tech-support",
-    note: "Fake account-lock page pushing a phone number; no form, brand only in the text.",
-    url: "https://wallet-recovery-center.com/case/88213",
-    title: "Account Locked - Case #88213",
-    text: "Coinbase Security: your account has been locked after a login attempt from Lagos, Nigeria. Do not attempt to log in. Call our recovery team immediately at 1-888-555-0143 to secure your funds.",
+    id: "h-p-microsoft-account-locked", category: "callback-scam",
+    note: "Microsoft account 'locked' page with a support number; no form.",
+    url: "https://account-protection-center.live/ms/locked",
+    title: "Microsoft account locked",
+    text: "Your Microsoft account has been locked due to unusual sign-in activity from Moscow, Russia. To protect your data, do not restart your computer. Call Microsoft Support at 1-855-555-0133 to unlock your account.",
   }),
   P({
-    id: "h-p-job-onboarding", category: "job-scam",
-    note: "Fake remote-job onboarding asking for SSN and bank details for 'direct deposit'.",
-    url: "https://careers-amazonhiring.net/onboarding/step2",
-    title: "Onboarding - Direct Deposit Setup",
-    text: "Congratulations on your new remote Data Entry role ($42/hr). Complete direct deposit setup today so we can send your equipment check.",
-    forms: [{ fields: ["name", "ssn", "routing", "account"] }],
-  }),
-  P({
-    id: "h-p-att-webflow", category: "free-hosting",
-    note: "Webmail login clone on a site-builder subdomain.",
-    url: "https://att-mail-signin.webflow.io/",
-    title: "AT&T Mail - Sign In",
-    text: "Sign in to AT&T Mail. Your mailbox will be deactivated if you do not verify your account.",
-    forms: [{ fields: ["email", "password"] }],
+    id: "h-p-geek-squad-renewal", category: "callback-scam",
+    note: "Fake auto-renewal invoice for a brand that may not be on the brand list; no account-lock wording.",
+    url: "https://gs-renewal-dept.com/invoice",
+    title: "Geek Squad Subscription Renewal",
+    text: "Thank you for renewing your Geek Squad Total Protection plan. $399.99 has been charged to your account and the renewal is non-refundable after 24 hours. To cancel and request a refund, call our billing team at 1-888-555-0177.",
   }),
 ];
 
 export const HELDOUT_BENIGN: EvalCase[] = [
   B({
-    id: "h-b-chase-logon", category: "bank-login",
-    note: "The real Chase online logon.",
-    url: "https://secure.chase.com/web/auth/#/logon/logon/chaseOnline",
-    title: "Sign in - chase.com",
-    text: "Welcome. Username. Password. Remember me. Forgot username/password?",
-    forms: [{ fields: ["user", "password"], synthetic: true }],
+    id: "h-b-credit-union-lost-card", category: "support-phone",
+    note: "A credit union's own lost/stolen card page: account-threat words plus a phone number, on its own domain.",
+    url: "https://www.navyfederal.org/services/card-services/lost-stolen-cards.html",
+    title: "Lost or Stolen Cards | Navy Federal Credit Union",
+    text: "Report a lost or stolen card right away. If your card is lost, stolen or you notice unauthorized transactions, we'll lock your card and send a replacement. Call us 24/7 at 1-888-555-0110.",
   }),
   B({
-    id: "h-b-stripe-checkout", category: "hosted-checkout",
-    note: "Stripe-hosted checkout for a small merchant; the page names a business that isn't the host.",
-    url: "https://checkout.stripe.com/c/pay/cs_live_a1B2c3D4e5F6g7H8",
-    title: "Acme Coffee Roasters",
-    text: "Pay Acme Coffee Roasters. 2 lb Ethiopia Yirgacheffe, $38.00. Pay with card. Email. Card information. Name on card.",
-    forms: [{ fields: ["email", "card", "exp", "cvv", "name"], synthetic: true }],
+    id: "h-b-airline-rebooking", category: "support-phone",
+    note: "Airline page about cancelled flights that says to call to rebook.",
+    url: "https://www.flyfrontier.com/travel/travel-info/flight-status/",
+    title: "Flight Status | Frontier Airlines",
+    text: "Check the status of your flight. If your flight has been cancelled or delayed more than 3 hours, you can rebook online or call our reservations team at 801-555-0123.",
   }),
   B({
-    id: "h-b-okta-tenant", category: "sso",
-    note: "A company's Okta sign-in on its okta.com tenant subdomain.",
-    url: "https://acmecorp.okta.com/",
-    title: "Acme Corp - Sign In",
-    text: "Sign In. Username. Keep me signed in. Next. Help.",
-    forms: [{ fields: ["user", "password"] }],
+    id: "h-b-news-callback-warning", category: "security-news",
+    note: "Local news story quoting the callback-scam script, with a brand name and a sheriff's office number.",
+    url: "https://www.wral.com/news/local/sheriff-warns-of-bank-impersonation-calls/",
+    title: "Sheriff warns of bank impersonation scam",
+    text: "The Wake County Sheriff's Office is warning residents about callers claiming to be from Wells Fargo who say your account has been locked and ask you to call a number to unlock it. Victims who called were asked for gift cards. Anyone targeted can report it to 919-555-0155.",
   }),
   B({
-    id: "h-b-city-utility-paymentus", category: "cross-origin-legit",
-    note: "City utility bill page whose payment form posts to its payment processor.",
-    url: "https://www.springfieldmo.gov/utilities/pay-my-bill",
-    title: "Pay My Utility Bill | City of Springfield",
-    text: "Pay your water and sewer bill online. Payments are processed by Paymentus. A convenience fee applies to card payments.",
-    forms: [{ action: "https://ipn.paymentus.com/cp/sprm", fields: ["account", "name", "card", "exp", "cvv"] }],
+    id: "h-b-ftc-callback-advice", category: "government",
+    note: "FTC consumer advice describing fake 'your account is suspended, call us' messages.",
+    url: "https://consumer.ftc.gov/articles/how-spot-avoid-and-report-tech-support-scams",
+    title: "How To Spot, Avoid, and Report Tech Support Scams",
+    text: "Scammers may say your account has been suspended or that you were charged for a subscription, and tell you to call a phone number to fix it. Don't call the number. Contact the company using a number you know is real.",
   }),
   B({
-    id: "h-b-reddit-scam-thread", category: "security-news",
-    note: "Forum thread quoting a toll scam text and asking whether it's real.",
-    url: "https://www.reddit.com/r/Scams/comments/1h2k9x/got_a_text_saying_i_owe_a_toll_is_this_real/",
-    title: "Got a text saying I owe a toll, is this real? : r/Scams",
-    text: "Got this text: 'Your vehicle has an unpaid toll of $4.15. Pay now to avoid a $50 late fee' with a link. I haven't driven on a toll road in months. Top comment: It's a scam, don't click it. Report it and delete.",
+    id: "h-b-coinbase-help-compromised", category: "support-phone",
+    note: "The brand's own help article on compromised accounts, on its own domain.",
+    url: "https://help.coinbase.com/en/coinbase/privacy-and-security/account-compromised/i-think-my-account-was-compromised",
+    title: "I think my account was compromised | Coinbase Help",
+    text: "If you think your Coinbase account was compromised, lock your account right away from the app. Coinbase will never call you or ask you to call a number to unlock your account. To reach us, use the support options in the app.",
   }),
   B({
-    id: "h-b-google-signin", category: "ordinary-login",
-    note: "Google account sign-in, email step.",
-    url: "https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fmail.google.com",
-    title: "Gmail",
-    text: "Sign in. to continue to Gmail. Email or phone. Forgot email? Create account.",
-    forms: [{ fields: ["email"] }],
-  }),
-  B({
-    id: "h-b-university-sso", category: "sso",
-    note: "University single sign-on with a Duo prompt mention.",
-    url: "https://shib.ncsu.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s1",
-    title: "NC State Unity ID Login",
-    text: "Log in with your Unity ID. Unity ID. Password. You will be prompted for two-factor authentication with Duo.",
-    forms: [{ fields: ["user", "password"] }],
-  }),
-  B({
-    id: "h-b-small-shop-sale", category: "ordinary-payment",
-    note: "Small store checkout with sale-deadline urgency.",
-    url: "https://www.bluebirdcandleco.com/checkouts/c/8f2e1a",
-    title: "Checkout - Bluebird Candle Co.",
-    text: "Holiday sale ends at midnight! Complete your order to lock in 25% off. Shipping address. Payment. All transactions are secure and encrypted.",
-    forms: [{ fields: ["email", "name", "address", "card", "exp", "cvv"] }],
+    id: "h-b-shop-contact-page", category: "support-phone",
+    note: "Small store's contact page with an order-problem phone line.",
+    url: "https://www.bluebirdcandleco.com/pages/contact",
+    title: "Contact Us - Bluebird Candle Co.",
+    text: "Problem with an order or a charge you don't recognize? Call us at 828-555-0142, Monday to Friday 9 to 5, and we'll make it right.",
   }),
 ];
 
