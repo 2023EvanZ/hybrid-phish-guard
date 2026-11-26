@@ -87,11 +87,33 @@ export function badgeFor(report: TriageReport | undefined): { text: string; colo
   }
 }
 
+/** Whether anything about the page left the device, for the in-page card. */
+export interface WhereView {
+  leftDevice: boolean;
+  text: string;
+}
+
+export const NOTHING_SENT: WhereView = { leftDevice: false, text: "Nothing about this page left your device." };
+const REDACTED_SENT: WhereView = { leftDevice: true, text: "Only a summary of this page, with personal details removed, left your device." };
+
+/** Based on sentToCloud, not the verdict's source: a cloud call that failed still sent
+ *  the redacted summary, even though the verdict then came from Nano or the rules. */
+export function whereView(report: TriageReport): WhereView {
+  return report.sentToCloud != null ? REDACTED_SENT : NOTHING_SENT; // != null: reports stored before 0.0.6 lack the field
+}
+
 /** One sentence on how the verdict was reached, or null when there's nothing to add. */
 export function provenanceNote(report: TriageReport): string | null {
   const { final, local, escalation, errors } = report;
-  if (final.source === "on-device") return null;
   const noNano = errors.some((e) => e.includes(NANO_UNAVAILABLE));
+  if (report.sentToCloud != null && !report.cloud) {
+    // The cloud was asked but didn't answer, so the verdict fell back to Nano or the rules.
+    const sent = noNano
+      ? "Gemini Nano isn't available on this device, so this page was sent to the cloud"
+      : `Sent to the cloud because ${ESCALATION_TEXT[escalation.reason]}`;
+    return `${sent}, but no answer came back, so ${final.source === "on-device" ? "this is Gemini Nano's verdict" : "the rules decided"}.`;
+  }
+  if (final.source === "on-device") return null;
   if (final.source === "cloud" && noNano) {
     return "Gemini Nano isn't available on this device, so this page was checked in the cloud with personal details removed.";
   }

@@ -10,7 +10,7 @@ import { showNotice } from "./content/notice.ts";
 import type { NoticeActions, NoticeContent, NoticeHandle } from "./content/notice.ts";
 import { buildFeatures, quickDecision } from "./content/extract.ts";
 import type { ExplainReply, HpgMessage, PrefilterReport, ReportReply, TrustReply } from "./shared/messages.ts";
-import { adviceFor, pendingView, provenanceNote, showsNotice, verdictView } from "./triage/present.ts";
+import { NOTHING_SENT, adviceFor, pendingView, provenanceNote, showsNotice, verdictView, whereView } from "./triage/present.ts";
 import { rulesVerdict } from "./triage/rules.ts";
 
 const WATCH_MS = 15_000;
@@ -70,6 +70,7 @@ async function send(report: PrefilterReport, manual = false): Promise<void> {
       note: provenanceNote(verdict),
       explainable: verdict.final.source === "on-device",
       trustable: verdict.final.verdict === "suspicious",
+      where: whereView(verdict),
     });
   } else if (verdict) {
     notice?.remove(); // the models found it safe: withdraw the instant warning
@@ -77,7 +78,7 @@ async function send(report: PrefilterReport, manual = false): Promise<void> {
   } else if (instant && reply?.trusted) {
     // Trust is only ever given to a "suspicious" site; a rules "phishing" there now means
     // the page changed (e.g. the site was hacked), so the warning stays.
-    present({ view: pendingView(rules), advice: adviceFor(rules.verdict), note: "You trust this site, so the AI check was skipped, but the rule-based check rates it phishing." });
+    present({ view: pendingView(rules), advice: adviceFor(rules.verdict), note: "You trust this site, so the AI check was skipped, but the rule-based check rates it phishing.", where: NOTHING_SENT });
   } else if (instant) {
     // Triage failed outright: keep the rules verdict, but stop saying it's being checked.
     present({ view: pendingView(rules), advice: adviceFor(rules.verdict), note: "The AI check didn't finish, so this is the rule-based verdict." });

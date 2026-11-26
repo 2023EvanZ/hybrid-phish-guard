@@ -7,7 +7,7 @@
 // can't read or rewrite the text through the host element. A hostile page can still
 // remove the host; the toolbar badge and side panel remain as backstops.
 
-import type { Tone, VerdictView } from "../triage/present.ts";
+import type { Tone, VerdictView, WhereView } from "../triage/present.ts";
 
 export interface NoticeContent {
   view: VerdictView;
@@ -21,6 +21,9 @@ export interface NoticeContent {
   explainable?: boolean;
   /** Offer "Trust this site" (suspicious verdicts only; the background enforces it too). */
   trustable?: boolean;
+  /** Whether anything about the page left the device (whereView). Omitted while the
+   *  verdict is pending or unknown, since the AI check may still send it. */
+  where?: WhereView | null;
 }
 
 export interface NoticeActions {
@@ -129,6 +132,16 @@ const STYLE = `
   .ai h3 { margin: 0 0 2px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
   .ai p { margin: 0; font-size: 12.5px; color: var(--muted); }
   .brand { margin: 10px 0 0; font-size: 11.5px; color: var(--muted); }
+  .where {
+    display: flex; gap: 6px; align-items: flex-start; flex-wrap: wrap;
+    margin: -4px 0 12px; font-size: 12.5px; color: var(--muted);
+  }
+  .where svg { flex: none; width: 16px; height: 16px; margin-top: 1px; }
+  .where span { flex: 1 1 200px; }
+  .where button {
+    border: 0; padding: 0; background: none; color: inherit; font-weight: 600;
+    text-decoration: underline; text-underline-offset: 2px; margin-left: 22px;
+  }
 `;
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -137,6 +150,8 @@ const ICONS = {
   shield: "M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z M12 8v5 M12 16.5v.01",
   minimize: "M6 12h12",
   close: "M6 6l12 12 M18 6L6 18",
+  device: "M5 5h14v10H5z M3 19h18",
+  cloud: "M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.6 4.2 4.2 0 0 0 7 18z",
 } as const;
 
 function icon(doc: Document, name: keyof typeof ICONS): SVGSVGElement {
@@ -210,7 +225,7 @@ export function showNotice(doc: Document, initial: NoticeContent, actions: Notic
   let trust: Trust = { state: "idle" };
 
   function render() {
-    const { view, advice, note, pending, explainable, trustable } = content;
+    const { view, advice, note, pending, explainable, trustable, where } = content;
     const tone: Tone = view.tone;
     wrap.dataset.tone = tone;
     iconBtn.setAttribute("aria-label", `Hybrid Phish Guard: ${view.headline}. Show details`);
@@ -252,14 +267,26 @@ export function showNotice(doc: Document, initial: NoticeContent, actions: Notic
     else if (note) how.append(el(doc, "p", undefined, note));
     parts.push(how);
 
-    const buttons = el(doc, "div", "actions");
-    const report = el(doc, "button", undefined, "Full report");
-    report.addEventListener("click", () => {
+    const openReport = () => {
       void actions.onFullReport().then((opened) => {
         hintText = opened ? "" : "Click the Hybrid Phish Guard icon in the toolbar to see the full report.";
         render();
       });
-    });
+    };
+    if (where && !pending) {
+      const row = el(doc, "p", "where");
+      row.append(icon(doc, where.leftDevice ? "cloud" : "device"), el(doc, "span", undefined, where.text));
+      if (where.leftDevice) {
+        const what = el(doc, "button", undefined, "See what was sent");
+        what.addEventListener("click", openReport);
+        row.append(what);
+      }
+      parts.push(row);
+    }
+
+    const buttons = el(doc, "div", "actions");
+    const report = el(doc, "button", undefined, "Full report");
+    report.addEventListener("click", openReport);
     if (tone === "danger") {
       const leave = el(doc, "button", "primary", "Leave this page");
       leave.addEventListener("click", () => actions.onLeave());
