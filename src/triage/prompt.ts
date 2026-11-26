@@ -116,6 +116,12 @@ export interface PromptOptions {
   reasons?: boolean;
 }
 
+/** Gemini Nano answers without reasons, so it finishes sooner (see the top of this file). */
+export const NANO_PROMPT: PromptOptions = { reasons: false };
+/** The cloud model gives reasons. The privacy view rebuilds the cloud prompt with these
+ *  same options, so it shows the text that was actually sent. */
+export const CLOUD_PROMPT: PromptOptions = {};
+
 function withPageText(head: string, features: PageFeatures): string {
   const tail = `\n${DELIM}`;
   // Shrink the page text, never the instructions or signals, to fit the budget.

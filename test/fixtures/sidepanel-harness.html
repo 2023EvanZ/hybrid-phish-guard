@@ -4,15 +4,27 @@
 <body>
 <!-- Test-only: renders the built side panel (dist/) with stubbed chrome.* APIs, so the
      panel UI can be checked in a normal browser tab. ?state= picks what is stored:
-     phishing (default), suspicious, cloud, skipped, none. -->
+     phishing (default), suspicious, device, cloud, cloud-failed, skipped, none. -->
 <script type="module">
   const state = new URLSearchParams(location.search).get("state") ?? "phishing";
   const report = await (await fetch("/test/fixtures/sample-report.json")).json();
   const verdict = await (await fetch("/test/fixtures/sample-verdict.json")).json();
   if (state === "suspicious") Object.assign(verdict.triage.final, { verdict: "suspicious", confidence: 0.5 });
-  if (state === "cloud") {
-    Object.assign(verdict.triage.final, { source: "cloud", confidence: 0.93 });
-    verdict.triage.escalation = { escalate: true, reason: "low-confidence" };
+  const nano = { verdict: "suspicious", confidence: 0.62, reasons: [], source: "on-device", latencyMs: 1790 };
+  if (state === "device") {
+    Object.assign(verdict.triage, { local: { ...nano, verdict: "phishing", confidence: 0.95 }, escalation: { escalate: false, reason: "confident" } });
+    verdict.triage.final = verdict.triage.local;
+  }
+  if (state === "cloud" || state === "cloud-failed") {
+    const sent = await (await fetch("/test/fixtures/sample-sent.json")).json();
+    Object.assign(verdict.triage, { local: nano, escalation: { escalate: true, reason: "low-confidence" }, sentToCloud: sent });
+    if (state === "cloud") {
+      verdict.triage.cloud = { ...verdict.triage.final, source: "cloud", confidence: 0.93, latencyMs: 1120 };
+      verdict.triage.final = verdict.triage.cloud;
+    } else {
+      verdict.triage.final = nano;
+      verdict.triage.errors = ["cloud model: quota exceeded"];
+    }
   }
   const store = {};
   if (state !== "none") store["tab:1"] = state === "skipped" ? { url: report.url, prefilter: { shouldCheck: false, score: 0, reasons: [] } } : report;

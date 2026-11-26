@@ -9,6 +9,7 @@ import { isRateLimit, report, runCase, SYSTEMS, withRetry } from "../eval/models
 import type { Attempt, CaseRun, ModelStats } from "../eval/models.ts";
 import type { HpgMessage, ModelMode, OffscreenRequest } from "./shared/messages.ts";
 import { modelClassifier } from "./triage/model.ts";
+import { CLOUD_PROMPT, NANO_PROMPT } from "./triage/prompt.ts";
 import type { Classifier } from "./triage/types.ts";
 import { offscreenTextModel } from "./triage/remote.ts";
 
@@ -29,7 +30,7 @@ const log = (msg: string) => {
 const send = (req: OffscreenRequest) => chrome.runtime.sendMessage({ type: "hpg/model", req } satisfies HpgMessage);
 // Same prompts as production: Nano answers without reasons (see triage/prompt.ts).
 const classifier = (mode: ModelMode) =>
-  modelClassifier(offscreenTextModel(mode, send), mode, undefined, mode === "on-device" ? { reasons: false } : {});
+  modelClassifier(offscreenTextModel(mode, send), mode, undefined, mode === "on-device" ? NANO_PROMPT : CLOUD_PROMPT);
 
 // Dev cases first, then the held-out cases, which are scored separately: the dev set
 // has been tuned against, the held-out set hasn't (see eval/cases/heldout.ts).

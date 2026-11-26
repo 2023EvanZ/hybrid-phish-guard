@@ -11,6 +11,7 @@
         --warning-bg: #fffbeb; --warning-edge: #d97706; --warning-fg: #92400e;
         --ok-bg: #f0fdf4; --ok-edge: #16a34a; --ok-fg: #166534;
         --neutral-bg: #f9fafb; --neutral-edge: #9ca3af; --neutral-fg: #374151;
+        --line: #e5e7eb; --device-bg: #dcfce7; --device-fg: #166534; --cloud-bg: #dbeafe; --cloud-fg: #1e40af;
       }
       @media (prefers-color-scheme: dark) {
         :root {
@@ -19,6 +20,7 @@
           --warning-bg: #3a2604; --warning-fg: #fde68a;
           --ok-bg: #052e16; --ok-fg: #bbf7d0;
           --neutral-bg: #1f2937; --neutral-fg: #e5e7eb;
+          --line: #374151; --device-bg: #052e16; --device-fg: #bbf7d0; --cloud-bg: #172554; --cloud-fg: #bfdbfe;
         }
       }
       body { font: 13px/1.45 system-ui, sans-serif; margin: 12px; background: var(--bg); color: var(--fg); }
@@ -38,6 +40,26 @@
       pre { white-space: pre-wrap; word-break: break-word; background: var(--code-bg); color: var(--fg); padding: 8px; max-height: 45vh; overflow: auto; }
       pre:empty { display: none; }
       summary { cursor: pointer; margin-top: 16px; font-weight: 600; }
+      .privacy { margin-top: 16px; border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+      .privacy[hidden] { display: none; }
+      .privacy h2 { font-size: 13px; margin: 0 0 6px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+      .privacy .p-headline { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
+      .privacy p { margin: 4px 0; }
+      .steps { list-style: none; margin: 8px 0; padding: 0; }
+      .steps li { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; padding: 6px 0; border-top: 1px solid var(--line); }
+      .steps li[data-ran="false"] { opacity: .6; }
+      .steps .s-name { font-weight: 600; }
+      .steps .s-result { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+      .chip { font-size: 11px; padding: 1px 7px; border-radius: 999px; align-self: start; white-space: nowrap; }
+      .chip[data-where="device"] { background: var(--device-bg); color: var(--device-fg); }
+      .chip[data-where="cloud"] { background: var(--cloud-bg); color: var(--cloud-fg); }
+      .privacy details summary { margin-top: 8px; font-size: 12px; }
+      .privacy ul { margin: 6px 0; padding-left: 18px; font-size: 12px; }
+      .redactions { margin: 6px 0; font-size: 12px; }
+      .redactions dt { font-weight: 600; margin-top: 6px; }
+      .redactions dd { margin: 0; font-family: ui-monospace, monospace; font-size: 11px; word-break: break-all; }
+      .redactions dd span { color: var(--muted); font-family: system-ui, sans-serif; }
+      #p-prompt { font-size: 11px; max-height: 35vh; }
     </style>
   </head>
   <body>
@@ -50,6 +72,27 @@
     </section>
     <p id="page-status" class="muted"></p>
     <button id="inspect">Check this page now</button>
+    <section id="privacy" class="privacy" aria-labelledby="p-title" hidden>
+      <h2 id="p-title">Where this check ran</h2>
+      <p id="p-headline" class="p-headline"></p>
+      <p id="p-why" class="muted"></p>
+      <ol id="p-steps" class="steps"></ol>
+      <details id="p-sent">
+        <summary>What was sent to the cloud</summary>
+        <p id="p-sent-summary" class="muted"></p>
+        <dl id="p-redactions" class="redactions"></dl>
+        <p id="p-removed" class="muted"></p>
+        <p id="p-gaps" class="muted"></p>
+        <details>
+          <summary>Exact prompt sent</summary>
+          <pre id="p-prompt"></pre>
+        </details>
+      </details>
+      <details>
+        <summary>What never leaves this device</summary>
+        <ul id="p-never"></ul>
+      </details>
+    </section>
     <details>
       <summary>Technical details</summary>
       <pre id="page-features"></pre>

@@ -13,7 +13,7 @@ import { parseReasons } from "./triage/parse.ts";
 import { triage } from "./triage/pipeline.ts";
 import type { TriageDeps } from "./triage/pipeline.ts";
 import { badgeFor } from "./triage/present.ts";
-import { buildExplainPrompt } from "./triage/prompt.ts";
+import { CLOUD_PROMPT, NANO_PROMPT, buildExplainPrompt } from "./triage/prompt.ts";
 import { offscreenTextModel } from "./triage/remote.ts";
 
 chrome.sidePanel
@@ -53,12 +53,9 @@ async function sendOffscreen(req: OffscreenRequest): Promise<unknown> {
   }
 }
 
-// Nano answers without reasons, so it finishes sooner (see triage/prompt.ts).
-const NANO_PROMPT = { reasons: false };
-
 const deps: TriageDeps = {
   local: modelClassifier(offscreenTextModel("on-device", sendOffscreen), "on-device", undefined, NANO_PROMPT),
-  cloud: modelClassifier(offscreenTextModel("cloud", sendOffscreen), "cloud"),
+  cloud: modelClassifier(offscreenTextModel("cloud", sendOffscreen), "cloud", undefined, CLOUD_PROMPT),
 };
 
 async function classifiers(): Promise<TriageDeps> {

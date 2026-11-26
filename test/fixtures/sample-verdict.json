@@ -19,6 +19,7 @@
       "escalate": true,
       "reason": "no-local-result"
     },
-    "errors": []
+    "errors": [],
+    "sentToCloud": null
   }
 }

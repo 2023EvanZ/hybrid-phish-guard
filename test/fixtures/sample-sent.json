@@ -1,0 +1,62 @@
+{
+  "url": "https://wellsfarg0-secure-login.example.ru/verify?[redacted]#[redacted]",
+  "title": "Wells Fargo Sign On",
+  "urlSignals": {
+    "hostname": "wellsfarg0-secure-login.example.ru",
+    "registrableDomain": "example.ru",
+    "isHttps": true,
+    "isIp": false,
+    "isPunycode": false,
+    "hasAt": false,
+    "subdomainDepth": 1,
+    "hyphenCount": 2,
+    "suspiciousTld": false,
+    "brandsInHost": [
+      "Wells Fargo"
+    ]
+  },
+  "forms": [
+    {
+      "action": "https://collect.evil.example/p.php?[redacted]",
+      "method": "post",
+      "crossOrigin": true,
+      "insecure": false,
+      "synthetic": false,
+      "fieldKinds": [
+        "identity",
+        "password"
+      ]
+    }
+  ],
+  "text": {
+    "brandsMentioned": [
+      "Wells Fargo"
+    ],
+    "brandMismatch": [
+      "Wells Fargo"
+    ],
+    "urgencyHits": [
+      "Verify your identity",
+      "account has been locked",
+      "within 24 hours"
+    ]
+  },
+  "links": {
+    "total": 0,
+    "external": 0,
+    "mismatchedText": 0
+  },
+  "textSnippet": "Dear [name], your account has been locked. Verify your identity within 24 hours. Call [number] or reply to [email]. Card [number].",
+  "prefilter": {
+    "shouldCheck": true,
+    "score": 12,
+    "reasons": [
+      "password-field",
+      "cross-origin-form",
+      "brand-in-host",
+      "brand-text-mismatch",
+      "urgency-language"
+    ]
+  },
+  "capturedAt": 0
+}

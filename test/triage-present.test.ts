@@ -12,6 +12,7 @@ const report = (verdict: Verdict, source: VerdictSource = "on-device", confidenc
   cloud: null,
   escalation: { escalate: false, reason: "confident" },
   errors: [],
+  sentToCloud: null,
 });
 
 test("verdictView words the verdict and says where it came from", async () => {

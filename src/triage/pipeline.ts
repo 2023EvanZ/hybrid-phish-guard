@@ -23,6 +23,10 @@ export interface TriageReport {
   cloud: TriageResult | null;
   escalation: EscalationDecision;
   errors: string[];
+  /** Exactly what left the device: the redacted features given to the cloud model, or
+   *  null when the cloud wasn't asked. Set before the call, so a cloud call that failed
+   *  is still disclosed. The side panel's privacy view shows it. */
+  sentToCloud: PageFeatures | null;
 }
 
 export const DEFAULT_LOCAL_TIMEOUT_MS = 10_000;
@@ -62,14 +66,16 @@ export async function triage(features: PageFeatures, deps: TriageDeps = {}): Pro
   }
 
   const escalation = shouldEscalate(local, features, deps.policy ?? DEFAULT_POLICY);
-  if (!escalation.escalate && local) return { final: local, local, cloud: null, escalation, errors };
+  if (!escalation.escalate && local) return { final: local, local, cloud: null, escalation, errors, sentToCloud: null };
 
   let cloud: TriageResult | null = null;
+  let sentToCloud: PageFeatures | null = null;
   if (deps.cloud) {
     try {
       // Only redacted features ever leave the device.
-      cloud = await withTimeout(deps.cloud.classify(redactFeatures(features)), deps.cloudTimeoutMs ?? DEFAULT_CLOUD_TIMEOUT_MS, "cloud model");
-      return { final: cloud, local, cloud, escalation, errors };
+      sentToCloud = redactFeatures(features);
+      cloud = await withTimeout(deps.cloud.classify(sentToCloud), deps.cloudTimeoutMs ?? DEFAULT_CLOUD_TIMEOUT_MS, "cloud model");
+      return { final: cloud, local, cloud, escalation, errors, sentToCloud };
     } catch (e) {
       errors.push(message(e));
     }
@@ -78,5 +84,5 @@ export async function triage(features: PageFeatures, deps: TriageDeps = {}): Pro
   // Cloud unavailable. Keep the local verdict unless it is the one we distrusted: a
   // "safe" that contradicts strong heuristics falls back to the rules instead.
   const final = local && escalation.reason !== "contradicts-heuristics" ? local : rulesVerdict(features);
-  return { final, local, cloud, escalation, errors };
+  return { final, local, cloud, escalation, errors, sentToCloud };
 }

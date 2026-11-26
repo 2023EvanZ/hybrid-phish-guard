@@ -3,6 +3,9 @@
 import { tabKey, verdictKey } from "./shared/messages.ts";
 import type { HpgMessage, PrefilterReport, StoredVerdict } from "./shared/messages.ts";
 import { provenanceNote, verdictView } from "./triage/present.ts";
+import { NEVER_SENT, REDACTION_GAPS, SENT_SUMMARY, privacyView } from "./triage/privacy.ts";
+import type { TriageReport } from "./triage/pipeline.ts";
+import type { PageFeatures } from "./shared/messages.ts";
 import type { Tone } from "./triage/present.ts";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -14,6 +17,57 @@ const noteEl = $<HTMLParagraphElement>("v-note");
 const statusEl = $<HTMLParagraphElement>("page-status");
 const featuresEl = $<HTMLPreElement>("page-features");
 const inspectBtn = $<HTMLButtonElement>("inspect");
+const privacyEl = $<HTMLElement>("privacy");
+
+/** Builds an element with text content only: page-derived strings never go through innerHTML. */
+function el<K extends keyof HTMLElementTagNameMap>(tag: K, text = "", className = ""): HTMLElementTagNameMap[K] {
+  const node = document.createElement(tag);
+  node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+
+$<HTMLUListElement>("p-never").replaceChildren(...NEVER_SENT.map((line) => el("li", line)));
+$<HTMLParagraphElement>("p-sent-summary").textContent = SENT_SUMMARY;
+$<HTMLParagraphElement>("p-gaps").textContent = REDACTION_GAPS;
+
+function showPrivacy(features: PageFeatures | undefined, report: TriageReport | undefined) {
+  if (!features || !report) {
+    privacyEl.hidden = true;
+    return;
+  }
+  const view = privacyView(features, report);
+  privacyEl.hidden = false;
+  privacyEl.dataset.left = String(view.leftDevice);
+  $("p-headline").textContent = view.headline;
+  $("p-why").textContent = view.why;
+  $("p-steps").replaceChildren(
+    ...view.steps.map((step) => {
+      const li = el("li");
+      li.dataset.ran = String(step.ran);
+      const chip = el("span", step.where === "device" ? "This device" : "Cloud", "chip");
+      chip.dataset.where = step.where;
+      li.append(el("span", step.name, "s-name"), chip, el("span", step.result, "s-result"));
+      return li;
+    }),
+  );
+  const sentEl = $<HTMLDetailsElement>("p-sent");
+  sentEl.hidden = !view.sent;
+  if (!view.sent) return;
+  $("p-redactions").replaceChildren(
+    ...view.sent.redactions.flatMap((r) => {
+      const onPage = el("dd");
+      onPage.append(el("span", "On the page: "), r.onPage);
+      const sent = el("dd");
+      sent.append(el("span", "Sent: "), r.sent);
+      return [el("dt", r.field), onPage, sent];
+    }),
+  );
+  $("p-removed").textContent = view.sent.removedFromText
+    ? `Replaced in the page text: ${view.sent.removedFromText}.`
+    : "No email addresses, long numbers or greeting names were found in the page text.";
+  $("p-prompt").textContent = view.sent.prompt;
+}
 
 function paint(tone: Tone, headline: string, detail: string, reasons: string[] = [], note: string | null = null) {
   card.dataset.tone = tone;
@@ -36,6 +90,7 @@ function skipText(report: PrefilterReport): string {
 
 function show(report: PrefilterReport | undefined, verdict: StoredVerdict | undefined) {
   featuresEl.textContent = report?.features ? JSON.stringify(report.features, null, 2) : "";
+  showPrivacy(report?.features, verdict?.triage);
   if (!report) {
     paint("neutral", "No report for this tab", "It may not be a web page, or it was open before the extension loaded. Reload it to check.");
     statusEl.textContent = "";

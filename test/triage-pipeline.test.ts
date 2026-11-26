@@ -108,3 +108,19 @@ test("the on-device prompt can leave out reasons", async () => {
   assert.deepEqual(r.reasons, []);
   assert.doesNotMatch(prompts[0], /"reasons"/);
 });
+
+test("the report records exactly what was sent to the cloud, even when the call fails", async () => {
+  const cloud = fake("cloud", "phishing", 0.95);
+  const sent = await triage(phishFeatures(), { local: fake("on-device", "phishing", 0.4).classifier, cloud: cloud.classifier });
+  assert.deepEqual(sent.sentToCloud, cloud.seen[0]);
+
+  const confident = await triage(phishFeatures(), { local: fake("on-device", "phishing", 0.9).classifier, cloud: cloud.classifier });
+  assert.equal(confident.sentToCloud, null);
+
+  const failed = await triage(phishFeatures(), { local: fake("on-device", "phishing", 0.4).classifier, cloud: failing("cloud", "quota exceeded") });
+  assert.ok(failed.sentToCloud, "a failed call still sent the features");
+  assert.ok(!JSON.stringify(failed.sentToCloud).includes("jane.doe@gmail.com"));
+
+  const noCloud = await triage(phishFeatures(), { local: fake("on-device", "phishing", 0.4).classifier });
+  assert.equal(noCloud.sentToCloud, null);
+});
