@@ -60,6 +60,10 @@
       .redactions dd { margin: 0; font-family: ui-monospace, monospace; font-size: 11px; word-break: break-all; }
       .redactions dd span { color: var(--muted); font-family: system-ui, sans-serif; }
       #p-prompt { font-size: 11px; max-height: 35vh; }
+      button[hidden] { display: none; }
+      .trusted ul { list-style: none; margin: 6px 0; padding: 0; }
+      .trusted li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; border-top: 1px solid var(--line); word-break: break-all; }
+      .trusted li button { display: inline-block; width: auto; margin: 0; padding: 2px 10px; flex: none; }
     </style>
   </head>
   <body>
@@ -72,6 +76,8 @@
     </section>
     <p id="page-status" class="muted"></p>
     <button id="inspect">Check this page now</button>
+    <button id="trust" hidden>Trust this site (stop checking it automatically)</button>
+    <button id="untrust" hidden>Stop trusting this site</button>
     <section id="privacy" class="privacy" aria-labelledby="p-title" hidden>
       <h2 id="p-title">Where this check ran</h2>
       <p id="p-headline" class="p-headline"></p>
@@ -93,6 +99,11 @@
         <ul id="p-never"></ul>
       </details>
     </section>
+    <details class="trusted">
+      <summary>Trusted sites (<span id="trusted-count">0</span>)</summary>
+      <p class="muted">These sites aren't checked automatically. "Check this page now" still checks them. Stored only on this device.</p>
+      <ul id="trusted-list"></ul>
+    </details>
     <details>
       <summary>Technical details</summary>
       <pre id="page-features"></pre>

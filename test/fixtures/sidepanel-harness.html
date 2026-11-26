@@ -4,7 +4,7 @@
 <body>
 <!-- Test-only: renders the built side panel (dist/) with stubbed chrome.* APIs, so the
      panel UI can be checked in a normal browser tab. ?state= picks what is stored:
-     phishing (default), suspicious, device, cloud, cloud-failed, skipped, none. -->
+     phishing (default), suspicious, device, cloud, cloud-failed, skipped, trusted, none. -->
 <script type="module">
   const state = new URLSearchParams(location.search).get("state") ?? "phishing";
   const report = await (await fetch("/test/fixtures/sample-report.json")).json();
@@ -27,15 +27,36 @@
     }
   }
   const store = {};
+  const local = { trustedSites: ["portal.example-utility.com"] };
   if (state !== "none") store["tab:1"] = state === "skipped" ? { url: report.url, prefilter: { shouldCheck: false, score: 0, reasons: [] } } : report;
-  if (!["none", "skipped"].includes(state)) store["verdict:1"] = verdict;
+  if (!["none", "skipped", "trusted"].includes(state)) store["verdict:1"] = verdict;
+  if (state === "trusted") local.trustedSites.push(new URL(report.url).hostname);
+  const listeners = [];
   const noop = { addListener() {} };
+  const changed = { addListener(fn) { listeners.push(fn); } };
+  const pick = (src, keys) => Object.fromEntries([keys].flat().filter((k) => k in src).map((k) => [k, src[k]]));
+  window.__harness = { store, local };
   window.chrome = {
     tabs: { query: async () => [{ id: 1 }], sendMessage: async () => report, onActivated: noop, onUpdated: noop },
+    runtime: {
+      // Mirrors the background's trustTab: suspicious verdicts only.
+      async sendMessage(msg) {
+        if (msg.type !== "hpg/trust-tab") return undefined;
+        const v = store["verdict:1"];
+        if (v?.triage.final.verdict !== "suspicious") return { host: null };
+        const host = new URL(v.url).hostname;
+        local.trustedSites = [...new Set([...local.trustedSites, host])].sort();
+        delete store["verdict:1"];
+        listeners.forEach((fn) => fn({}));
+        return { host };
+      },
+    },
     storage: {
-      session: {
-        get: async (keys) => Object.fromEntries([keys].flat().filter((k) => k in store).map((k) => [k, store[k]])),
-        onChanged: noop,
+      session: { get: async (keys) => pick(store, keys), onChanged: changed },
+      local: {
+        get: async (keys) => pick(local, keys),
+        set: async (items) => { Object.assign(local, items); listeners.forEach((fn) => fn(items)); },
+        onChanged: changed,
       },
     },
   };

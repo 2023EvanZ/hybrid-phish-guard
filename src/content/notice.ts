@@ -19,6 +19,8 @@ export interface NoticeContent {
   /** Offer Gemini Nano's explanation when the card is opened (on-device verdicts only:
    *  they come without reasons, to keep Nano fast). */
   explainable?: boolean;
+  /** Offer "Trust this site" (suspicious verdicts only; the background enforces it too). */
+  trustable?: boolean;
 }
 
 export interface NoticeActions {
@@ -27,6 +29,8 @@ export interface NoticeActions {
   onFullReport(): Promise<boolean>;
   /** Gemini Nano's reasons for its verdict, or null if it couldn't give them. */
   onExplain(): Promise<string[] | null>;
+  /** Trusts this site. Resolves to the trusted hostname, or null if it was refused. */
+  onTrust(): Promise<string | null>;
 }
 
 export interface NoticeHandle {
@@ -202,9 +206,11 @@ export function showNotice(doc: Document, initial: NoticeContent, actions: Notic
   let explanation: Explanation = { state: "idle" };
   let hintText = "";
   let announced = false;
+  type Trust = { state: "idle" } | { state: "saving" } | { state: "done"; host: string };
+  let trust: Trust = { state: "idle" };
 
   function render() {
-    const { view, advice, note, pending, explainable } = content;
+    const { view, advice, note, pending, explainable, trustable } = content;
     const tone: Tone = view.tone;
     wrap.dataset.tone = tone;
     iconBtn.setAttribute("aria-label", `Hybrid Phish Guard: ${view.headline}. Show details`);
@@ -213,6 +219,15 @@ export function showNotice(doc: Document, initial: NoticeContent, actions: Notic
     card.setAttribute("aria-label", `Hybrid Phish Guard: ${view.headline}`);
     h.textContent = view.headline;
 
+    if (trust.state === "done") {
+      h.textContent = "Site trusted";
+      body.replaceChildren(
+        el(doc, "p", "advice", `${trust.host} won't be checked automatically from now on.`),
+        el(doc, "p", "hint", "To undo this, open the side panel and remove it under Trusted sites."),
+        el(doc, "p", "brand", "Hybrid Phish Guard"),
+      );
+      return;
+    }
     const parts: HTMLElement[] = [el(doc, "p", "advice", advice)];
     if (view.reasons.length) {
       const list = el(doc, "ul");
@@ -252,6 +267,20 @@ export function showNotice(doc: Document, initial: NoticeContent, actions: Notic
     } else {
       report.classList.add("primary");
       buttons.append(report);
+      if (trustable && !pending) {
+        const trustBtn = el(doc, "button", undefined, trust.state === "saving" ? "Trusting…" : "Trust this site");
+        trustBtn.disabled = trust.state === "saving";
+        trustBtn.addEventListener("click", () => {
+          trust = { state: "saving" };
+          render();
+          void actions.onTrust().then((host) => {
+            trust = host ? { state: "done", host } : { state: "idle" };
+            if (!host) hintText = "Couldn't trust this site. Try again from the side panel.";
+            render();
+          });
+        });
+        buttons.append(trustBtn);
+      }
     }
     parts.push(buttons);
     if (hintText) parts.push(el(doc, "p", "hint", hintText));

@@ -9,7 +9,7 @@
 import { showNotice } from "./content/notice.ts";
 import type { NoticeActions, NoticeContent, NoticeHandle } from "./content/notice.ts";
 import { buildFeatures, quickDecision } from "./content/extract.ts";
-import type { ExplainReply, HpgMessage, PrefilterReport, ReportReply } from "./shared/messages.ts";
+import type { ExplainReply, HpgMessage, PrefilterReport, ReportReply, TrustReply } from "./shared/messages.ts";
 import { adviceFor, pendingView, provenanceNote, showsNotice, verdictView } from "./triage/present.ts";
 import { rulesVerdict } from "./triage/rules.ts";
 
@@ -32,6 +32,10 @@ const actions: NoticeActions = {
     chrome.runtime
       .sendMessage({ type: "hpg/explain" } satisfies HpgMessage)
       .then((r: ExplainReply | undefined) => r?.reasons ?? null, () => null),
+  onTrust: () =>
+    chrome.runtime
+      .sendMessage({ type: "hpg/trust" } satisfies HpgMessage)
+      .then((r: TrustReply | undefined) => r?.host ?? null, () => null),
 };
 
 function present(content: NoticeContent) {
@@ -65,10 +69,15 @@ async function send(report: PrefilterReport, manual = false): Promise<void> {
       advice: adviceFor(verdict.final.verdict),
       note: provenanceNote(verdict),
       explainable: verdict.final.source === "on-device",
+      trustable: verdict.final.verdict === "suspicious",
     });
   } else if (verdict) {
     notice?.remove(); // the models found it safe: withdraw the instant warning
     notice = undefined;
+  } else if (instant && reply?.trusted) {
+    // Trust is only ever given to a "suspicious" site; a rules "phishing" there now means
+    // the page changed (e.g. the site was hacked), so the warning stays.
+    present({ view: pendingView(rules), advice: adviceFor(rules.verdict), note: "You trust this site, so the AI check was skipped, but the rule-based check rates it phishing." });
   } else if (instant) {
     // Triage failed outright: keep the rules verdict, but stop saying it's being checked.
     present({ view: pendingView(rules), advice: adviceFor(rules.verdict), note: "The AI check didn't finish, so this is the rule-based verdict." });

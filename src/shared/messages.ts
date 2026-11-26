@@ -43,6 +43,10 @@ export type HpgMessage =
   /** In-page notice opened on an on-device verdict -> background: ask Gemini Nano why.
    *  Answered with ExplainReply. */
   | { type: "hpg/explain" }
+  /** In-page notice's "Trust this site" -> background. Answered with TrustReply. */
+  | { type: "hpg/trust" }
+  /** Side panel's "Trust this site" for the active tab -> background. Answered with TrustReply. */
+  | { type: "hpg/trust-tab"; tabId: number }
   /** Side panel diagnostics -> background: create the offscreen document and probe it. */
   | { type: "hpg/probe-offscreen" }
   /** Model eval page -> background: forward one request to the offscreen document. */
@@ -51,6 +55,13 @@ export type HpgMessage =
 /** The verdict for a reported page, or null when the page wasn't checked. */
 export interface ReportReply {
   verdict: TriageReport | null;
+  /** True when the page wasn't checked because the user trusts this site. */
+  trusted?: boolean;
+}
+
+/** The hostname now trusted, or null if the background refused (see mayTrust). */
+export interface TrustReply {
+  host: string | null;
 }
 
 export interface StoredVerdict {

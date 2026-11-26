@@ -1,7 +1,8 @@
 // "This page" section of the side panel: shows the active tab's verdict (computed and
 // stored by the background) and lets the user force a full inspection.
 import { tabKey, verdictKey } from "./shared/messages.ts";
-import type { HpgMessage, PrefilterReport, StoredVerdict } from "./shared/messages.ts";
+import type { HpgMessage, PrefilterReport, StoredVerdict, TrustReply } from "./shared/messages.ts";
+import { TRUSTED_KEY, mayTrust, parseTrusted, trustHost, withoutHost } from "./shared/trust.ts";
 import { provenanceNote, verdictView } from "./triage/present.ts";
 import { NEVER_SENT, REDACTION_GAPS, SENT_SUMMARY, privacyView } from "./triage/privacy.ts";
 import type { TriageReport } from "./triage/pipeline.ts";
@@ -18,6 +19,9 @@ const statusEl = $<HTMLParagraphElement>("page-status");
 const featuresEl = $<HTMLPreElement>("page-features");
 const inspectBtn = $<HTMLButtonElement>("inspect");
 const privacyEl = $<HTMLElement>("privacy");
+const trustBtn = $<HTMLButtonElement>("trust");
+const untrustBtn = $<HTMLButtonElement>("untrust");
+const trustedList = $<HTMLUListElement>("trusted-list");
 
 /** Builds an element with text content only: page-derived strings never go through innerHTML. */
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, text = "", className = ""): HTMLElementTagNameMap[K] {
@@ -88,9 +92,37 @@ function skipText(report: PrefilterReport): string {
   return "No login or payment form, and nothing unusual in the address or text.";
 }
 
-function show(report: PrefilterReport | undefined, verdict: StoredVerdict | undefined) {
+/** Removes a trusted site. If it's the page open now, checks it, since its last check
+ *  was skipped. */
+async function removeTrusted(host: string, current: string | null) {
+  const list = parseTrusted((await chrome.storage.local.get(TRUSTED_KEY))[TRUSTED_KEY]);
+  await chrome.storage.local.set({ [TRUSTED_KEY]: withoutHost(list, host) });
+  if (host === current) inspectBtn.click();
+}
+
+function showTrustedList(trusted: string[], current: string | null) {
+  $("trusted-count").textContent = String(trusted.length);
+  trustedList.replaceChildren(
+    ...trusted.map((host) => {
+      const li = el("li");
+      const remove = el("button", "Remove");
+      remove.setAttribute("aria-label", `Stop trusting ${host}`);
+      remove.onclick = () => void removeTrusted(host, current);
+      li.append(el("span", host), remove);
+      return li;
+    }),
+  );
+}
+
+function show(report: PrefilterReport | undefined, verdict: StoredVerdict | undefined, trusted: string[] = []) {
   featuresEl.textContent = report?.features ? JSON.stringify(report.features, null, 2) : "";
   showPrivacy(report?.features, verdict?.triage);
+  const host = report ? trustHost(report.url) : null;
+  showTrustedList(trusted, host);
+  const isTrusted = host !== null && trusted.includes(host);
+  trustBtn.hidden = !verdict || isTrusted || !mayTrust(verdict.triage);
+  untrustBtn.hidden = !isTrusted;
+  untrustBtn.onclick = host ? () => void removeTrusted(host, host) : null;
   if (!report) {
     paint("neutral", "No report for this tab", "It may not be a web page, or it was open before the extension loaded. Reload it to check.");
     statusEl.textContent = "";
@@ -101,6 +133,8 @@ function show(report: PrefilterReport | undefined, verdict: StoredVerdict | unde
   if (verdict) {
     const v = verdictView(verdict.triage);
     paint(v.tone, v.headline, v.detail + (verdict.manual ? " (checked on request)" : ""), v.reasons, provenanceNote(verdict.triage));
+  } else if (isTrusted) {
+    paint("neutral", "You trust this site", "It isn't checked automatically. Use \"Check this page now\" to check it anyway.");
   } else if (report.features) {
     paint("neutral", "Checking…", "");
   } else {
@@ -118,10 +152,10 @@ let renderSeq = 0;
 async function render() {
   const seq = ++renderSeq;
   const id = await activeTabId();
-  if (id === undefined) return show(undefined, undefined);
-  const stored = await chrome.storage.session.get([tabKey(id), verdictKey(id)]);
+  if (id === undefined) return show(undefined, undefined, parseTrusted((await chrome.storage.local.get(TRUSTED_KEY))[TRUSTED_KEY]));
+  const [stored, local] = await Promise.all([chrome.storage.session.get([tabKey(id), verdictKey(id)]), chrome.storage.local.get(TRUSTED_KEY)]);
   if (seq !== renderSeq) return; // a newer render started meanwhile
-  show(stored[tabKey(id)] as PrefilterReport | undefined, stored[verdictKey(id)] as StoredVerdict | undefined);
+  show(stored[tabKey(id)] as PrefilterReport | undefined, stored[verdictKey(id)] as StoredVerdict | undefined, parseTrusted(local[TRUSTED_KEY]));
 }
 
 inspectBtn.onclick = async () => {
@@ -145,6 +179,21 @@ inspectBtn.onclick = async () => {
   }
 };
 
+trustBtn.onclick = async () => {
+  const id = await activeTabId();
+  if (id === undefined) return;
+  trustBtn.disabled = true;
+  try {
+    // The background checks the verdict is "suspicious" and the site matches before saving.
+    const reply = (await chrome.runtime.sendMessage({ type: "hpg/trust-tab", tabId: id } satisfies HpgMessage)) as TrustReply | undefined;
+    if (!reply?.host) statusEl.textContent = "Couldn't trust this site.";
+  } finally {
+    trustBtn.disabled = false;
+    await render();
+  }
+};
+
+chrome.storage.local.onChanged.addListener(() => void render());
 chrome.tabs.onActivated.addListener(() => void render());
 chrome.tabs.onUpdated.addListener((_id, info) => {
   if (info.status === "complete") void render();

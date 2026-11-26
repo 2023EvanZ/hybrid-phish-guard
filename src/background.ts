@@ -7,7 +7,8 @@
 // an offscreen document (src/offscreen.ts). The pipeline here still owns prompt building,
 // redaction and parsing; the offscreen document only turns prompts into text.
 import { verdictKey, tabKey } from "./shared/messages.ts";
-import type { ExplainReply, GenerateReply, HpgMessage, OffscreenRequest, PrefilterReport, ReportReply, StoredVerdict } from "./shared/messages.ts";
+import type { ExplainReply, GenerateReply, HpgMessage, OffscreenRequest, PrefilterReport, ReportReply, StoredVerdict, TrustReply } from "./shared/messages.ts";
+import { TRUSTED_KEY, hostToTrust, parseTrusted, trustHost, withHost } from "./shared/trust.ts";
 import { modelClassifier } from "./triage/model.ts";
 import { parseReasons } from "./triage/parse.ts";
 import { triage } from "./triage/pipeline.ts";
@@ -73,13 +74,20 @@ chrome.runtime.onInstalled.addListener(warm);
 // the rules, and gets revisited once model calls (seconds) land.
 const generation = new Map<number, number>();
 
+async function trustedHosts(): Promise<string[]> {
+  return parseTrusted((await chrome.storage.local.get(TRUSTED_KEY))[TRUSTED_KEY]);
+}
+
 async function handleReport(tabId: number, report: PrefilterReport, manual: boolean): Promise<ReportReply> {
   const gen = generation.get(tabId) ?? 0;
   await chrome.storage.session.set({ [tabKey(tabId)]: report });
-  if (!report.features) {
+  const host = trustHost(report.url);
+  // A trusted site isn't checked automatically; "Check this page now" still checks it.
+  const trusted = !manual && host !== null && (await trustedHosts()).includes(host);
+  if (!report.features || trusted) {
     await chrome.storage.session.remove(verdictKey(tabId));
     await chrome.action.setBadgeText({ tabId, text: "" });
-    return { verdict: null };
+    return { verdict: null, trusted };
   }
   const result = await triage(report.features, await classifiers());
   if ((generation.get(tabId) ?? 0) === gen) {
@@ -116,6 +124,18 @@ async function explain(tabId: number): Promise<ExplainReply> {
   return { reasons: reasons.length ? reasons : null };
 }
 
+/** Trusts the site open in this tab. The rules (hostToTrust) are enforced here, in the
+ *  background, not by the button. */
+async function trustTab(tabId: number, pageUrl: string | undefined): Promise<TrustReply> {
+  const stored = (await chrome.storage.session.get(verdictKey(tabId)))[verdictKey(tabId)] as StoredVerdict | undefined;
+  const host = hostToTrust(stored, pageUrl);
+  if (host === null) return { host: null };
+  await chrome.storage.local.set({ [TRUSTED_KEY]: withHost(await trustedHosts(), host) });
+  await chrome.storage.session.remove(verdictKey(tabId));
+  await chrome.action.setBadgeText({ tabId, text: "" });
+  return { host };
+}
+
 /** Our own extension pages (side panel, eval page), as opposed to content scripts,
  *  which share our extension id but report the web page's URL. */
 const isExtensionPage = (sender: chrome.runtime.MessageSender) =>
@@ -129,8 +149,20 @@ chrome.runtime.onMessage.addListener((msg: HpgMessage, sender, sendResponse) => 
       .catch((err) => sendResponse({ ok: false, error: String(err) }));
     return true;
   }
+  if (msg?.type === "hpg/trust-tab" && isExtensionPage(sender)) {
+    chrome.storage.session
+      .get(tabKey(msg.tabId))
+      .then((s) => trustTab(msg.tabId, (s[tabKey(msg.tabId)] as PrefilterReport | undefined)?.url))
+      .then(sendResponse, () => sendResponse({ host: null } satisfies TrustReply));
+    return true;
+  }
   const tabId = sender.tab?.id;
   if (tabId === undefined || sender.frameId !== 0) return;
+  if (msg.type === "hpg/trust") {
+    // The page URL comes from Chrome (sender.url), not from the message.
+    trustTab(tabId, sender.url).then(sendResponse, () => sendResponse({ host: null } satisfies TrustReply));
+    return true;
+  }
   if (msg.type === "hpg/report") {
     handleReport(tabId, msg.report, Boolean(msg.manual))
       .then(sendResponse)

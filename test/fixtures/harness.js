@@ -19,7 +19,10 @@ Object.defineProperty(window, "chrome", {
       id: "test-harness",
       sendMessage(msg) {
         window.__hpgSent.push(msg);
-        return Promise.resolve(msg.type === "hpg/report" ? { verdict: fakeVerdict(msg.report) } : undefined);
+        if (msg.type === "hpg/report") return Promise.resolve({ verdict: fakeVerdict(msg.report) });
+        // The real background also checks the stored verdict is "suspicious" (hostToTrust).
+        if (msg.type === "hpg/trust") return Promise.resolve({ host: location.hostname });
+        return Promise.resolve(undefined);
       },
       onMessage: { addListener(fn) { window.__hpgListener = fn; } },
     },
