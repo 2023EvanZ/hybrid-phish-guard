@@ -26,6 +26,51 @@ content script runs, then passed through the prefilter gate and a classifier.
 - **Strict**: only a `phishing` verdict counts as a warning.
 - **Lenient**: `suspicious` counts too (the UI warns on both).
 
+## Models, run 5: first full hybrid run with the cloud reachable (2026-11-26)
+
+Raw output: [results/2026-11-26-models-run5.json](results/2026-11-26-models-run5.json).
+Release build of the code after the speed change (instant rules warning, verdict-only
+Nano), Chrome 158, App Check unenforced in the Firebase console. 0 failures on either
+model. This is also the first measurement of the policy change after run 3.
+
+| Dev (32 phishing / 38 benign) | Strict recall | Strict false alarms | Lenient recall | Lenient false alarms |
+|---|---|---|---|---|
+| Rules | 34.4% (11) | 0% (0) | 93.8% (30) | 28.9% (11) |
+| Gemini Nano | 75.0% (24) | 7.9% (3) | 96.9% (31) | 23.7% (9) |
+| Cloud | 100% (32) | 0% (0) | 100% (32) | 0% (0) |
+| **Hybrid** | **100% (32)** | **0% (0)** | **100% (32)** | **0% (0)** |
+
+| Held-out (7 / 8) | Strict recall | Strict false alarms | Lenient recall | Lenient false alarms |
+|---|---|---|---|---|
+| Rules | 0% (0) | 0% (0) | 57.1% (4) | 12.5% (1) |
+| Gemini Nano | 14.3% (1) | 0% (0) | 85.7% (6) | 12.5% (1) |
+| Cloud | 85.7% (6) | 0% (0) | 85.7% (6) | 0% (0) |
+| **Hybrid** | **85.7% (6)** | **0% (0)** | **85.7% (6)** | **0% (0)** |
+
+- **The hybrid matches the cloud's accuracy while 59% of checked dev pages (37 of 63)
+  never leave the device.** Every page Nano got wrong was escalated and the cloud
+  corrected it: all 9 Nano false alarms, `p-paypai` (Nano "safe", caught by the new
+  `unverified-brand` rule) and every "suspicious". The held-out result counts: the
+  policy was frozen before any model saw those cases. The one held-out miss,
+  `h-p-coinbase-callback`, has no form, so the gate never checks it; no model can fix
+  that (the no-form gate gap). `h-p-bofa-typo`, missed in run 4, was caught this time.
+- **Be honest about what this shows.** The cloud alone is just as accurate here, so the
+  hybrid's gain is privacy and cost (41% of dev pages go to the cloud, on redacted
+  features), not accuracy. And the held-out set is small: one page is 14 points.
+- **Escalations.** 26 of 63 dev pages (41%), in line with the run 2/3 replay (41-44%):
+  10 Nano "suspicious", 8 unsupported "phishing", 5 unverified-brand, 3 low-confidence.
+  13 of those were benign. Held-out: 6 of 10.
+- **Speed.** Verdict-only Nano: median 1.8 s per page (p10 1.7 s, p90 2.0 s, max 3.8 s),
+  against 3.0 s (p90 3.5 s) in run 4, so about 40% faster. Time to the final verdict
+  across all checked dev pages: median 1.9 s, p90 3.1 s, max 5.2 s. Pages that escalate
+  take Nano plus the cloud: median 2.6 s, p90 4.7 s.
+- **Did dropping reasons hurt Nano?** Not measurably. Its error list is the same as run
+  4 apart from two pages: `h-p-bofa-typo` went from "safe" to "suspicious" (better) and
+  `b-library-bibliocommons` from "suspicious" to "phishing" (worse strictly, the same
+  leniently). Two runs one day apart can't separate that from run-to-run noise.
+- **Instant warning.** 11 dev pages get it (rules score 8+), all phishing, and the models
+  confirmed every one, so none was withdrawn. No held-out page scores 8+.
+
 ## Models, run 4: cloud blocked by App Check (2026-11-25)
 
 Raw output: [results/2026-11-25-models-run4.json](results/2026-11-25-models-run4.json).
@@ -54,7 +99,7 @@ Firebase console (App Check -> APIs -> Firebase AI Logic -> Unenforce), not the 
 
 ## Speed change after run 4 (2026-11-25)
 
-Not yet measured on the models; the next run will show the effect.
+Measured in run 5 (above): Nano about 40% faster, with no measurable accuracy loss.
 
 - **Instant rules warning.** When the rules alone rate a page "phishing" (score 8+: no
   false alarms on the dev or held-out sets in any run), the content script shows the
