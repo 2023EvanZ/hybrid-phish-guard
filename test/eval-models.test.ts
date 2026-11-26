@@ -94,6 +94,14 @@ test("report computes escalation rate and confidence when right vs wrong", async
   assert.equal(r.systems["on-device"]!.lenient.fn, 1);
 });
 
+test("verdict time adds the cloud call only when the page escalated; rules phishing counts as instant", async () => {
+  const confident = await runCase(phish, { local: fake("on-device", "phishing", 0.9, 3000).classifier, cloud: fake("cloud", "phishing", 0.9, 800).classifier });
+  const escalated = await runCase(phish, { local: fake("on-device", "safe", 0.9, 2000).classifier, cloud: fake("cloud", "phishing", 0.9, 800).classifier });
+  const r = report([confident, escalated]);
+  assert.deepEqual(r.hybrid.verdictMs, { median: 3000, p90: 3000, max: 3000 }); // 3000, and 2000 + 800
+  assert.equal(r.hybrid.instantWarnings, 2); // the test page scores as phishing on rules alone
+});
+
 test("withRetry retries rate limits only, then gives up", async () => {
   let calls = 0;
   const slept: number[] = [];

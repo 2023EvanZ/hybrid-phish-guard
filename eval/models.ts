@@ -161,7 +161,27 @@ export interface HybridStats {
   reasons: Record<string, number>;
   /** Where the final verdicts came from. */
   finalSource: Record<string, number>;
+  /**
+   * Model time until the final verdict, per checked page: the on-device call, plus the
+   * cloud call when the page escalated. Excludes page load and messaging. Pages whose
+   * timed calls all failed are left out.
+   */
+  verdictMs: { median: number | null; p90: number | null; max: number | null };
+  /** Pages the rules alone rate "phishing": the extension warns on these at once,
+   *  before any model answers. */
+  instantWarnings: number;
 }
+
+/** Model time spent before the hybrid verdict was final (see HybridStats.verdictMs). */
+export function verdictMs(h: TriageReport): number | null {
+  const local = h.local?.latencyMs ?? null;
+  if (!h.escalation.escalate) return local;
+  const cloud = h.cloud?.latencyMs ?? null;
+  if (local === null && cloud === null) return null;
+  return (local ?? 0) + (cloud ?? 0);
+}
+
+const quantile = (xs: number[], q: number) => (xs.length ? xs[Math.min(xs.length - 1, Math.floor(q * xs.length))] : null);
 
 export function hybridStats(runs: CaseRun[]): HybridStats {
   const checked = runs.filter((r) => r.hybrid);
@@ -174,11 +194,14 @@ export function hybridStats(runs: CaseRun[]): HybridStats {
     reasons[h.escalation.reason] = (reasons[h.escalation.reason] ?? 0) + 1;
     finalSource[h.final.source] = (finalSource[h.final.source] ?? 0) + 1;
   }
+  const times = checked.map((r) => verdictMs(r.hybrid!)).filter((t): t is number => t !== null).sort((a, b) => a - b);
   return {
     checked: checked.length,
     escalationRate: checked.length ? escalated / checked.length : null,
     reasons,
     finalSource,
+    verdictMs: { median: quantile(times, 0.5), p90: quantile(times, 0.9), max: times.at(-1) ?? null },
+    instantWarnings: checked.filter((r) => r.rules?.verdict === "phishing").length,
   };
 }
 

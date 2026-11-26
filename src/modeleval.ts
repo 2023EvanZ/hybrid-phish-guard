@@ -27,7 +27,9 @@ const log = (msg: string) => {
 };
 
 const send = (req: OffscreenRequest) => chrome.runtime.sendMessage({ type: "hpg/model", req } satisfies HpgMessage);
-const classifier = (mode: ModelMode) => modelClassifier(offscreenTextModel(mode, send), mode);
+// Same prompts as production: Nano answers without reasons (see triage/prompt.ts).
+const classifier = (mode: ModelMode) =>
+  modelClassifier(offscreenTextModel(mode, send), mode, undefined, mode === "on-device" ? { reasons: false } : {});
 
 // Dev cases first, then the held-out cases, which are scored separately: the dev set
 // has been tuned against, the held-out set hasn't (see eval/cases/heldout.ts).
@@ -98,6 +100,11 @@ function scoresTable(target: HTMLTableElement, rep: ReturnType<typeof report>) {
 const fmt = (o: Record<string, number>) => Object.entries(o).map(([k, v]) => `${k} ${v}`).join(", ") || "none";
 const hybridLines = (name: string, h: ReturnType<typeof report>["hybrid"]) => [
   el("p", `${name}: sent to the cloud ${pct(h.escalationRate)} of ${h.checked} checked pages. Escalation decisions: ${fmt(h.reasons)}. Final verdict came from: ${fmt(h.finalSource)}.`),
+  el(
+    "p",
+    `${name}: model time to the final verdict: median ${ms(h.verdictMs.median)}, p90 ${ms(h.verdictMs.p90)}, max ${ms(h.verdictMs.max)}. ` +
+      `${h.instantWarnings} of ${h.checked} pages get an instant warning from the rules before any model answers.`,
+  ),
 ];
 
 function render(runs: CaseRun[]) {
