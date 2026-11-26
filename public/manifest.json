@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Hybrid Phish Guard",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Flags phishing and scam pages with on-device AI, escalating to the cloud only when unsure.",
   "minimum_chrome_version": "139",
   "permissions": ["sidePanel", "storage", "offscreen"],
