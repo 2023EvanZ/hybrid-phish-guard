@@ -42,6 +42,11 @@
       summary { cursor: pointer; margin-top: 16px; font-weight: 600; }
       .privacy { margin-top: 16px; border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
       .privacy[hidden] { display: none; }
+      .stats { margin-top: 16px; border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+      .stats h2 { font-size: 13px; margin: 0 0 6px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+      .stats .s-headline { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
+      .stats p { margin: 4px 0; }
+      .stats button { display: inline-block; width: auto; margin: 6px 0 0; padding: 2px 10px; }
       .privacy h2 { font-size: 13px; margin: 0 0 6px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
       .privacy .p-headline { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
       .privacy p { margin: 4px 0; }
@@ -98,6 +103,13 @@
         <summary>What never leaves this device</summary>
         <ul id="p-never"></ul>
       </details>
+    </section>
+    <section id="stats" class="stats" aria-labelledby="s-title">
+      <h2 id="s-title">Privacy so far</h2>
+      <p id="s-headline" class="s-headline"></p>
+      <p id="s-detail" class="muted"></p>
+      <p class="muted">Counts only: no web addresses or verdicts are recorded. Stored only on this device.</p>
+      <button id="s-reset">Reset counts</button>
     </section>
     <details class="trusted">
       <summary>Trusted sites (<span id="trusted-count">0</span>)</summary>

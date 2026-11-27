@@ -6,7 +6,8 @@
      panel UI can be checked in a normal browser tab. ?state= picks what is stored:
      phishing (default), suspicious, device, cloud, cloud-failed, skipped, trusted, none. -->
 <script type="module">
-  const state = new URLSearchParams(location.search).get("state") ?? "phishing";
+  const params = new URLSearchParams(location.search);
+  const state = params.get("state") ?? "phishing";
   const report = await (await fetch("/test/fixtures/sample-report.json")).json();
   const verdict = await (await fetch("/test/fixtures/sample-verdict.json")).json();
   if (state === "suspicious") Object.assign(verdict.triage.final, { verdict: "suspicious", confidence: 0.5 });
@@ -28,6 +29,8 @@
   }
   const store = {};
   const local = { trustedSites: ["portal.example-utility.com"] };
+  // ?stats=none leaves the privacy counts unset (a fresh install).
+  if (params.get("stats") !== "none") local.privacyStats = { pages: 214, sentPages: 16, since: "2026-11-20T12:00:00.000Z" };
   if (state !== "none") store["tab:1"] = state === "skipped" ? { url: report.url, prefilter: { shouldCheck: false, score: 0, reasons: [] } } : report;
   if (!["none", "skipped", "trusted"].includes(state)) store["verdict:1"] = verdict;
   if (state === "trusted") local.trustedSites.push(new URL(report.url).hostname);
@@ -41,6 +44,11 @@
     runtime: {
       // Mirrors the background's trustTab: suspicious verdicts only.
       async sendMessage(msg) {
+        if (msg.type === "hpg/reset-stats") {
+          local.privacyStats = { pages: 0, sentPages: 0, since: new Date().toISOString() };
+          listeners.forEach((fn) => fn({}));
+          return { ok: true };
+        }
         if (msg.type !== "hpg/trust-tab") return undefined;
         const v = store["verdict:1"];
         if (v?.triage.final.verdict !== "suspicious") return { host: null };

@@ -2,6 +2,7 @@
 // stored by the background) and lets the user force a full inspection.
 import { tabKey, verdictKey } from "./shared/messages.ts";
 import type { HpgMessage, PrefilterReport, StoredVerdict, TrustReply } from "./shared/messages.ts";
+import { STATS_KEY, parseStats, statsView } from "./shared/stats.ts";
 import { TRUSTED_KEY, mayTrust, parseTrusted, trustHost, withoutHost } from "./shared/trust.ts";
 import { provenanceNote, verdictView } from "./triage/present.ts";
 import { NEVER_SENT, REDACTION_GAPS, SENT_SUMMARY, privacyView } from "./triage/privacy.ts";
@@ -114,6 +115,33 @@ function showTrustedList(trusted: string[], current: string | null) {
   );
 }
 
+function showStats(value: unknown) {
+  const stats = parseStats(value, new Date());
+  const view = statsView(stats);
+  $("s-headline").textContent = view.headline;
+  $("s-detail").textContent = view.detail;
+  resetBtn.hidden = stats.pages === 0;
+}
+
+// Two clicks instead of confirm(): a native dialog from a side panel isn't something to
+// rely on, and an inline second step is easier to see anyway.
+const resetBtn = $<HTMLButtonElement>("s-reset");
+let resetArmed: ReturnType<typeof setTimeout> | undefined;
+resetBtn.onclick = async () => {
+  if (resetArmed === undefined) {
+    resetBtn.textContent = "Click again to reset to zero";
+    resetArmed = setTimeout(() => {
+      resetArmed = undefined;
+      resetBtn.textContent = "Reset counts";
+    }, 4000);
+    return;
+  }
+  clearTimeout(resetArmed);
+  resetArmed = undefined;
+  resetBtn.textContent = "Reset counts";
+  await chrome.runtime.sendMessage({ type: "hpg/reset-stats" } satisfies HpgMessage);
+};
+
 function show(report: PrefilterReport | undefined, verdict: StoredVerdict | undefined, trusted: string[] = []) {
   featuresEl.textContent = report?.features ? JSON.stringify(report.features, null, 2) : "";
   showPrivacy(report?.features, verdict?.triage);
@@ -152,9 +180,14 @@ let renderSeq = 0;
 async function render() {
   const seq = ++renderSeq;
   const id = await activeTabId();
-  if (id === undefined) return show(undefined, undefined, parseTrusted((await chrome.storage.local.get(TRUSTED_KEY))[TRUSTED_KEY]));
-  const [stored, local] = await Promise.all([chrome.storage.session.get([tabKey(id), verdictKey(id)]), chrome.storage.local.get(TRUSTED_KEY)]);
+  if (id === undefined) {
+    const local = await chrome.storage.local.get([TRUSTED_KEY, STATS_KEY]);
+    showStats(local[STATS_KEY]);
+    return show(undefined, undefined, parseTrusted(local[TRUSTED_KEY]));
+  }
+  const [stored, local] = await Promise.all([chrome.storage.session.get([tabKey(id), verdictKey(id)]), chrome.storage.local.get([TRUSTED_KEY, STATS_KEY])]);
   if (seq !== renderSeq) return; // a newer render started meanwhile
+  showStats(local[STATS_KEY]);
   show(stored[tabKey(id)] as PrefilterReport | undefined, stored[verdictKey(id)] as StoredVerdict | undefined, parseTrusted(local[TRUSTED_KEY]));
 }
 

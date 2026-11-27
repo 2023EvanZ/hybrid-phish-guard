@@ -47,6 +47,8 @@ export type HpgMessage =
   | { type: "hpg/trust" }
   /** Side panel's "Trust this site" for the active tab -> background. Answered with TrustReply. */
   | { type: "hpg/trust-tab"; tabId: number }
+  /** Side panel: start the privacy counts over (through the background, its only writer). */
+  | { type: "hpg/reset-stats" }
   /** Side panel diagnostics -> background: create the offscreen document and probe it. */
   | { type: "hpg/probe-offscreen" }
   /** Model eval page -> background: forward one request to the offscreen document. */

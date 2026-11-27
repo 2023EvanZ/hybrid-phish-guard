@@ -8,6 +8,8 @@
 // redaction and parsing; the offscreen document only turns prompts into text.
 import { verdictKey, tabKey } from "./shared/messages.ts";
 import type { ExplainReply, GenerateReply, HpgMessage, OffscreenRequest, PrefilterReport, ReportReply, StoredVerdict, TrustReply } from "./shared/messages.ts";
+import { STATS_KEY, emptyStats, pageEvent, parseStats, recordStats } from "./shared/stats.ts";
+import type { CountedPage } from "./shared/stats.ts";
 import { TRUSTED_KEY, hostToTrust, parseTrusted, trustHost, withHost } from "./shared/trust.ts";
 import { modelClassifier } from "./triage/model.ts";
 import { parseReasons } from "./triage/parse.ts";
@@ -74,6 +76,33 @@ chrome.runtime.onInstalled.addListener(warm);
 // the rules, and gets revisited once model calls (seconds) land.
 const generation = new Map<number, number>();
 
+// Privacy stats: which documents have been counted, per tab, so a page is counted once
+// however many reports it sends. In memory, so a worker restart mid-page can count a page
+// twice; acceptable for a running tally.
+const counted = new Map<number, CountedPage>();
+let statsWrite: Promise<void> = Promise.resolve();
+
+/** Counts a report from this tab's current document. Writes are chained so concurrent
+ *  reports from several tabs don't overwrite each other's increments. */
+function countPage(tabId: number, gen: number, sent: boolean): void {
+  const { next, newPage, newSend } = pageEvent(counted.get(tabId), gen, sent);
+  counted.set(tabId, next);
+  if (!newPage && !newSend) return;
+  statsWrite = statsWrite
+    .then(async () => {
+      const now = new Date();
+      const stats = parseStats((await chrome.storage.local.get(STATS_KEY))[STATS_KEY], now);
+      await chrome.storage.local.set({ [STATS_KEY]: recordStats(stats, { newPage, newSend }) });
+    })
+    .catch((err) => console.warn("privacy stats not saved", err));
+}
+
+/** Starts the counts over, in the same chain as the increments so neither is lost. */
+function resetStats(): Promise<void> {
+  statsWrite = statsWrite.then(() => chrome.storage.local.set({ [STATS_KEY]: emptyStats(new Date()) }));
+  return statsWrite;
+}
+
 async function trustedHosts(): Promise<string[]> {
   return parseTrusted((await chrome.storage.local.get(TRUSTED_KEY))[TRUSTED_KEY]);
 }
@@ -85,11 +114,14 @@ async function handleReport(tabId: number, report: PrefilterReport, manual: bool
   // A trusted site isn't checked automatically; "Check this page now" still checks it.
   const trusted = !manual && host !== null && (await trustedHosts()).includes(host);
   if (!report.features || trusted) {
+    countPage(tabId, gen, false);
     await chrome.storage.session.remove(verdictKey(tabId));
     await chrome.action.setBadgeText({ tabId, text: "" });
     return { verdict: null, trusted };
   }
   const result = await triage(report.features, await classifiers());
+  // Counted even if the tab navigated meanwhile: the summary left the device either way.
+  countPage(tabId, gen, result.sentToCloud !== null);
   if ((generation.get(tabId) ?? 0) === gen) {
     const stored: StoredVerdict = { url: report.url, manual, triage: result };
     await chrome.storage.session.set({ [verdictKey(tabId)]: stored });
@@ -149,6 +181,10 @@ chrome.runtime.onMessage.addListener((msg: HpgMessage, sender, sendResponse) => 
       .catch((err) => sendResponse({ ok: false, error: String(err) }));
     return true;
   }
+  if (msg?.type === "hpg/reset-stats" && isExtensionPage(sender)) {
+    resetStats().then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }));
+    return true;
+  }
   if (msg?.type === "hpg/trust-tab" && isExtensionPage(sender)) {
     chrome.storage.session
       .get(tabKey(msg.tabId))
@@ -204,5 +240,6 @@ chrome.tabs.onUpdated.addListener((tabId, info) => {
 });
 chrome.tabs.onRemoved.addListener((tabId) => {
   generation.delete(tabId);
+  counted.delete(tabId);
   void chrome.storage.session.remove([tabKey(tabId), verdictKey(tabId)]);
 });
