@@ -119,6 +119,11 @@ function start() {
 }
 
 chrome.runtime.onMessage.addListener((msg: HpgMessage, _sender, sendResponse) => {
+  if (msg.type === "hpg/features") {
+    // For "Report a mistake": read the page, but don't send it for checking.
+    sendResponse(buildFeatures(document, location.href, { force: true }));
+    return;
+  }
   if (msg.type !== "hpg/inspect") return;
   const features = buildFeatures(document, location.href, { force: true });
   const report: PrefilterReport = { url: location.href, prefilter: features.prefilter, features };

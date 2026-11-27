@@ -36,6 +36,9 @@ export type HpgMessage =
   | { type: "hpg/report"; report: PrefilterReport; manual?: boolean }
   /** Side panel -> content script. Answered with the forced PrefilterReport. */
   | { type: "hpg/inspect" }
+  /** Side panel's "Report a mistake" -> content script: the page's features, without
+   *  checking it (so nothing goes to the cloud). Answered with PageFeatures. */
+  | { type: "hpg/features" }
   /** In-page notice -> background: take the user away from this page. */
   | { type: "hpg/leave" }
   /** In-page notice's "Full report" button -> background: open the side panel. Answered with { opened }. */

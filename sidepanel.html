@@ -69,6 +69,14 @@
       .trusted ul { list-style: none; margin: 6px 0; padding: 0; }
       .trusted li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; border-top: 1px solid var(--line); word-break: break-all; }
       .trusted li button { display: inline-block; width: auto; margin: 0; padding: 2px 10px; flex: none; }
+      .mistakes ul { list-style: none; margin: 6px 0; padding: 0; }
+      .mistakes li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; border-top: 1px solid var(--line); word-break: break-all; }
+      .mistakes li .m-kind { display: block; color: var(--muted); font-size: 12px; word-break: normal; }
+      .mistakes li button { display: inline-block; width: auto; margin: 0; padding: 2px 10px; flex: none; }
+      .mistakes .row { display: flex; gap: 8px; }
+      .mistakes .row button { flex: 1; margin: 6px 0 0; }
+      .mistakes .row[hidden], .mistakes .row button[hidden] { display: none; }
+      #report-status:empty { display: none; }
     </style>
   </head>
   <body>
@@ -83,6 +91,8 @@
     <button id="inspect">Check this page now</button>
     <button id="trust" hidden>Trust this site (stop checking it automatically)</button>
     <button id="untrust" hidden>Stop trusting this site</button>
+    <button id="report" hidden>Report a mistake</button>
+    <p id="report-status" class="muted" role="status"></p>
     <section id="privacy" class="privacy" aria-labelledby="p-title" hidden>
       <h2 id="p-title">Where this check ran</h2>
       <p id="p-headline" class="p-headline"></p>
@@ -115,6 +125,15 @@
       <summary>Trusted sites (<span id="trusted-count">0</span>)</summary>
       <p class="muted">These sites aren't checked automatically. "Check this page now" still checks them. Stored only on this device.</p>
       <ul id="trusted-list"></ul>
+    </details>
+    <details class="mistakes">
+      <summary>Reported mistakes (<span id="mistakes-count">0</span>)</summary>
+      <p class="muted">Kept only on this device, with personal details removed; never sent anywhere. Export them as draft eval cases to review and add to the test set.</p>
+      <ul id="mistakes-list"></ul>
+      <div class="row">
+        <button id="mistakes-export">Export as eval cases</button>
+        <button id="mistakes-clear">Delete all</button>
+      </div>
     </details>
     <details>
       <summary>Technical details</summary>

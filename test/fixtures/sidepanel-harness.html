@@ -40,7 +40,7 @@
   const pick = (src, keys) => Object.fromEntries([keys].flat().filter((k) => k in src).map((k) => [k, src[k]]));
   window.__harness = { store, local };
   window.chrome = {
-    tabs: { query: async () => [{ id: 1 }], sendMessage: async () => report, onActivated: noop, onUpdated: noop },
+    tabs: { query: async () => [{ id: 1 }], sendMessage: async (_id, msg) => (msg.type === "hpg/features" ? report.features : report), onActivated: noop, onUpdated: noop },
     runtime: {
       // Mirrors the background's trustTab: suspicious verdicts only.
       async sendMessage(msg) {
