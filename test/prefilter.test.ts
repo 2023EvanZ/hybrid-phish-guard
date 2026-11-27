@@ -149,7 +149,7 @@ test("scam scripts open the gate; mentions without the full script don't", () =>
   assert.equal(run("https://www.youtube.com/watch?v=x", [], "", "Send 1 ETH and get 2x back!").shouldCheck, false);
 });
 
-test("a callback script opens the gate only on a page posing as a brand", () => {
+test("a callback script opens the gate on a page posing as a brand, or naming none under pressure", () => {
   const script = "PayPal: your account has been locked after unusual activity. Call our team at 1-888-555-0143 to restore access.";
   const scam = run("https://account-help-center.com/case/1", [], "", script);
   assert.equal(scam.shouldCheck, true);
@@ -157,9 +157,17 @@ test("a callback script opens the gate only on a page posing as a brand", () => 
   // The same words on the brand's own site are a help page, not a scam.
   const own = run("https://www.paypal.com/us/smarthelp/article/1", [], "", script);
   assert.ok(!own.reasons.includes("callback-scam"));
-  // No brand named: not counted (a known gap, see eval held-out set 2).
-  const noBrand = run("https://account-help-center.com/case/1", [], "", "Your card has been suspended. Call 1-866-555-0119 now.");
-  assert.equal(noBrand.shouldCheck, false);
+  // No brand named: needs pressure on top of the script, an urgency phrase or a made-up
+  // department. A plain "call us" help page has neither.
+  const plain = run("https://www.example-cu.org/cards", [], "", "If your card has been suspended, call us at 1-866-555-0119.");
+  assert.equal(plain.shouldCheck, false);
+  const urgent = run("https://account-help-center.com/case/1", [], "", "Your card has been suspended. Verify your identity: call 1-866-555-0119 now.");
+  assert.ok(urgent.reasons.includes("callback-scam"));
+  const dept = run("https://account-help-center.com/case/1", [], "", "$399.99 has been charged. To cancel, call our billing team at 1-888-555-0177.");
+  assert.ok(dept.reasons.includes("callback-scam"));
+  // A known brand on its own site with pressure words is still its own help page.
+  const ownUrgent = run("https://www.paypal.com/us/smarthelp/article/1", [], "", "PayPal: your account has been locked. Call our security team at 1-888-555-0143 within 24 hours.");
+  assert.ok(!ownUrgent.reasons.includes("callback-scam"));
   // The phone number has to be in the sentence that says to call.
   const warning = run("https://news.example.com/a", [], "", "Scammers claim your PayPal account is locked and tell you to call a number. Report it to 919-555-0155.");
   assert.ok(!warning.reasons.includes("callback-scam"));

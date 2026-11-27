@@ -41,13 +41,15 @@ test("the eval set is roughly balanced", () => {
 // If a heuristics change lowers these, the test fails; if it raises them, raise the floor.
 // Re-baselined on 2026-11-26, when retired held-out set 1 joined the dev set (+1 false
 // alarm, h-b-city-utility-paymentus) and the callback-scam signal caught h-p-coinbase-callback.
+// Re-baselined on 2026-11-27, when retired held-out set 2 joined the dev set (+4 caught by
+// the branded callback signal) and the no-brand callback rule caught h-p-card-fraud-dept.
 test("rules fallback does not regress below the recorded baseline", async () => {
   const { evaluateCases } = await import("../eval/evaluate.ts");
   const { summarize } = await import("../eval/metrics.ts");
   const { rulesClassifier } = await import("../src/triage/rules.ts");
   const s = summarize(await evaluateCases(ALL_CASES, rulesClassifier));
   assert.equal(s.gate.phishingChecked, 1, "every phishing case must reach a classifier");
-  assert.ok(s.lenient.tp >= 35, `lenient TP ${s.lenient.tp} < 35`);
+  assert.ok(s.lenient.tp >= 40, `lenient TP ${s.lenient.tp} < 40`);
   assert.ok(s.lenient.fp <= 12, `lenient FP ${s.lenient.fp} > 12`);
   assert.ok(s.strict.fp <= 0, `strict FP ${s.strict.fp} > 0`);
 });

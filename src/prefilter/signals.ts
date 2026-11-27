@@ -308,6 +308,11 @@ export function scamPatterns(text: string): ScamPattern[] {
 
 export const hasCallbackScript = (text: string) => CALLBACK_SCRIPT.every((r) => r.test(text));
 
+// A made-up department to call ("Fraud Prevention Department", "our billing team"). Real
+// help pages say "call us" or name the organization; scams invent a desk to sound official.
+const SCAM_DEPARTMENT = re(`\\b(fraud|billing|security|refund|verification|recovery|collections?|dispute|activation)(\\s+\\w+)?\\s+(department|dept|unit|team|desk|division)\\b`);
+export const hasScamDepartment = (text: string) => SCAM_DEPARTMENT.test(text);
+
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export function textSignals(title: string, text: string, hostname: string): TextSignals {
@@ -320,18 +325,19 @@ export function textSignals(title: string, text: string, hostname: string): Text
   );
   const brandMismatch = brandsMentioned.filter((b) => !brandOwnsHost(b, hostname)).map((b) => b.name);
   const patterns = scamPatterns(haystack);
-  // The callback script counts only on a page posing as a brand it isn't hosted by: a
-  // bank's own "lost card? call us" page has the same words on the right domain.
-  if (brandMismatch.length && hasCallbackScript(haystack)) patterns.push("callback-scam");
-  return {
-    brandsMentioned: brandsMentioned.map((b) => b.name),
-    brandMismatch,
-    urgencyHits: URGENCY_PATTERNS.flatMap((re) => {
-      const m = haystack.match(re);
-      return m ? [m[0]] : [];
-    }),
-    scamPatterns: patterns,
-  };
+  const urgencyHits = URGENCY_PATTERNS.flatMap((re) => {
+    const m = haystack.match(re);
+    return m ? [m[0]] : [];
+  });
+  // The callback script counts on a page posing as a brand it isn't hosted by: a bank's
+  // own "lost card? call us" page has the same words on the right domain. A page that
+  // names no known brand (eval: h-p-card-fraud-dept, h-p-geek-squad-renewal) counts only
+  // with pressure on top: an urgency phrase or a made-up department to call. A plain
+  // "call us" help page has neither (h-b-credit-union-lost-card).
+  if (hasCallbackScript(haystack) && (brandMismatch.length || (!brandsMentioned.length && (urgencyHits.length || hasScamDepartment(haystack))))) {
+    patterns.push("callback-scam");
+  }
+  return { brandsMentioned: brandsMentioned.map((b) => b.name), brandMismatch, urgencyHits, scamPatterns: patterns };
 }
 
 // ------------------------------------------------------------------ decision

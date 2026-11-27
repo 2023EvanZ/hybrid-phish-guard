@@ -39,6 +39,35 @@ had in mind and the cases added to break it: scams without the account-lock word
 with "contact" instead of "call", and organizations' own pages with the same threat, call
 and deadline words. Set 2 joins the dev set in the same commit as the change.
 
+**The change** ([src/prefilter/signals.ts](../src/prefilter/signals.ts)): the
+`callback-scam` script now also counts on a page that names no known brand, but only with
+pressure on top, either an existing urgency phrase or a made-up department to call
+("Fraud Prevention Department", "our billing team"). The evidence on the dev set was thin:
+three pages with the script and no brand (two scams from set 2, one credit union help page).
+
+**Rules only:**
+
+| | Before | After |
+|---|---|---|
+| Dev (97, set 2 included): phishing pages checked | 43/45 | 45/45 |
+| Dev: lenient recall / false alarms | 39/45, 12/52 | 40/45, 12/52 |
+| Dev: benign pages checked | 35/52 | 35/52 (no new pages) |
+| Held-out set 3: scams checked / lenient recall | 0/7, 0/7 | 2/7, 1/7 |
+| Held-out set 3: benign checked / false alarms | 0/7, 0/7 | 1/7, 1/7 |
+
+- **It generalizes poorly, and that is the result.** On the dev set it looks clean because
+  it was fit to two pages. On set 3 it checks 2 of 7 scams and false-alarms on 1 of 7
+  legitimate pages (`h-b-university-it-lockout`: "your account has been locked ... call
+  the service desk to unlock it immediately", rated suspicious).
+- **The misses are the cases written to break it:** scams with no account-lock or charge
+  wording (customs fee, refund overpayment, tax warrant), one that says "contact" instead
+  of "call", and an email "deactivation" page whose wording the threat pattern doesn't
+  cover. A text pattern won't reach the first group without also matching legitimate
+  pages; those are model territory if the gate can let them through.
+- `h-p-pc-care-renewal` is checked but scores only 3 (rules say safe): it now reaches
+  Gemini Nano and the cloud, which is the point of the gate. No model has run on set 3.
+- Nothing was changed after the set 3 score. Any change made because of it retires set 3.
+
 ## No-form gate change after run 5 (2026-11-26)
 
 Run 5's only held-out miss was `h-p-coinbase-callback`: "your account is locked, call this
