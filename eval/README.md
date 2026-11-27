@@ -2,7 +2,9 @@
 
 85 hand-written, labeled page descriptions (39 phishing/scam, 46 benign) in
 [cases/](cases), scored by `npm run eval`: the original 70, plus held-out set 1 since it
-was retired on 2026-11-26. Held-out set 2 (12 cases) is scored separately. Each case is a URL, title, visible text and
+was retired on 2026-11-26. Held-out set 3 (14 cases, [cases/heldout.ts](cases/heldout.ts)) is scored separately;
+set 2 ([cases/heldout-2.ts](cases/heldout-2.ts)) was retired on 2026-11-27 and joins the dev set with the
+change it drives. Each case is a URL, title, visible text and
 form field list; it is turned into `PageFeatures` by the same pure prefilter code the
 content script runs, then passed through the prefilter gate and a classifier.
 
@@ -26,6 +28,16 @@ content script runs, then passed through the prefilter gate and a classifier.
   gets no warning, so it counts as a "safe" prediction in the scores below.
 - **Strict**: only a `phishing` verdict counts as a warning.
 - **Lenient**: `suspicious` counts too (the UI warns on both).
+
+## Held-out set 3, frozen before the no-brand callback change (2026-11-27)
+
+Set 2's miss `h-p-card-fraud-dept` (a callback scam that names no brand) drives the next
+change, so set 2 is retired ([cases/heldout-2.ts](cases/heldout-2.ts)) and set 3 (14
+no-form pages: 7 callback scams, 7 legitimate pages that say to call) was written and
+committed before the change was written. Like set 2, its header records the fix the author
+had in mind and the cases added to break it: scams without the account-lock wording or
+with "contact" instead of "call", and organizations' own pages with the same threat, call
+and deadline words. Set 2 joins the dev set in the same commit as the change.
 
 ## No-form gate change after run 5 (2026-11-26)
 

@@ -1,21 +1,28 @@
-// Held-out set 2: written on 2026-11-26, after model eval run 5 and BEFORE the no-form
-// gate change was written, and committed before anything scored them (rules included).
-// Kept out of ALL_CASES so the rules tests and tuning never touch them.
+// Held-out set 3: written on 2026-11-27, after held-out set 2 was scored by the rules and
+// BEFORE the next callback-scam change was written, and committed before anything scored
+// them (rules included). Kept out of ALL_CASES so the rules tests and tuning never touch
+// them. Not yet seen by any model.
 //
 // How they were written, so the result can be judged:
-// - Narrow on purpose: they test the coming change, which is about scam pages with no
-//   form (mostly "your account is locked / you were charged, call this number"). So the
-//   set is all no-form pages, unlike set 1. It is not a general accuracy sample.
-// - The author had a candidate fix in mind while writing: open the gate on an
-//   account-threat + phone-call script, but only when the page names a brand it isn't
-//   hosted by. Cases were added to break that fix on both sides: a fake-invoice scam
-//   naming a brand the brand list may not know (h-p-geek-squad-renewal), a scam with no
-//   brand at all (h-p-card-fraud-dept), and legitimate pages that tell you to call
-//   (a credit union's lost-card page, an airline rebooking page, scam warnings that
-//   quote the script).
-// - The rules from set 1 still apply: no case is edited, dropped or relabeled after a
-//   score is seen; a malformed case is fixed in a separate commit that says so; once these
-//   inform a change they stop being held out.
+// - Narrow on purpose, like set 2: the coming change is about callback scams (no form,
+//   "call this number") that name no brand, or one the brand list doesn't know. So the
+//   set is all no-form pages. It is not a general accuracy sample.
+// - The author knows the current callback-scam signal (an account threat or unexpected
+//   charge, plus "call" and a phone number in one sentence, only on a page naming a brand
+//   it isn't hosted by) and had a candidate fix in mind while writing: on a page naming no
+//   brand, count the script when it also carries urgency (a deadline, "immediately") or a
+//   made-up department ("Fraud Prevention Department", "Billing Department").
+// - Cases were added to break that fix on both sides:
+//   - scams that don't use the account-lock / you-were-charged wording at all (customs
+//     fee, refund overpayment, tax warrant), and one that says "contact" instead of "call"
+//     (h-p-wallet-frozen-contact);
+//   - legitimate pages with the same threat + call + deadline words on the organization's
+//     own site: a utility's disconnection notice, a university IT lockout, a DMV
+//     suspension page, a gym's auto-renewal terms, a hospital billing page, a bank's own
+//     fraud page, and a scam warning that quotes a no-brand script.
+// - The rules from sets 1 and 2 still apply: no case is edited, dropped or relabeled
+//   after a score is seen; a malformed case is fixed in a separate commit that says so;
+//   once these inform a change they stop being held out.
 //
 // Hostnames are illustrative or real; paths, text and phone numbers (555 numbers) are
 // written from scratch. None were visited.
@@ -27,91 +34,105 @@ const B = (c: Omit<EvalCase, "label">): EvalCase => ({ ...c, label: "benign" });
 
 export const HELDOUT_PHISHING: EvalCase[] = [
   P({
-    id: "h-p-amazon-order-callback", category: "callback-scam",
-    note: "Fake order confirmation for an expensive purchase, pushing a 'cancel' phone line.",
-    url: "https://order-cancellation-desk.com/confirm/114-8820",
-    title: "Your Amazon.com order #114-8820193",
-    text: "Amazon: Your order of Apple iPhone 15 Pro Max (256GB) for $1,249.00 has been placed and will ship today. If you did not authorize this purchase, call Amazon Support immediately at +1 (844) 555-0187 to cancel and receive a full refund.",
+    id: "h-p-online-banking-suspended", category: "callback-scam",
+    note: "Generic 'online banking' suspension notice; no bank is named anywhere.",
+    url: "https://secure-banking-review.com/alert/7731",
+    title: "Online Banking Security Notice",
+    text: "Online Banking Security Team. Your account access has been suspended due to unusual activity. Call 1-833-555-0148 immediately to verify your identity and restore access. Failure to call within 24 hours will result in permanent closure.",
   }),
   P({
-    id: "h-p-irs-refund-hold", category: "callback-scam",
-    note: "Tax refund 'on hold' notice with a deadline and a verification phone line.",
-    url: "https://refund-status-notice.org/case/IRS-2026-44817",
-    title: "Notice CP-53: Refund on Hold",
-    text: "Internal Revenue Service. Your 2025 federal tax refund of $3,482.00 is on hold pending identity verification. Call the IRS Verification Unit at 1-877-555-0102 within 48 hours to release your refund and avoid a penalty.",
+    id: "h-p-pc-care-renewal", category: "callback-scam",
+    note: "Fake auto-renewal charge for a made-up software brand no brand list would know.",
+    url: "https://pc-care-billing.net/receipt/22091",
+    title: "Payment Receipt - Total PC Care Pro",
+    text: "Thank you for your payment. Your annual subscription to Total PC Care Pro has been renewed and $349.99 was charged to your card today. If you did not request this renewal, call our billing department at 1-888-555-0191 to cancel and get a refund.",
   }),
   P({
-    id: "h-p-card-fraud-dept", category: "callback-scam",
-    note: "Card-blocked alert that names no brand at all; only the script gives it away.",
-    url: "https://secure-card-alerts.net/notice",
-    title: "Fraud Prevention Alert",
-    text: "Fraud Prevention Department. A suspicious transaction of $980.00 at BESTBUY ONLINE was declined and your debit card has been temporarily suspended. Call 1-866-555-0119 now to verify your identity and reactivate your card.",
+    id: "h-p-email-deactivation", category: "callback-scam",
+    note: "Email account 'deactivation' page naming no provider.",
+    url: "https://mail-account-verify.net/deactivate",
+    title: "Mailbox Deactivation Notice",
+    text: "Your email account is scheduled for deactivation today because of a security violation. All messages will be deleted. To keep your account active, call Mail Support at 1-800-555-0171 now.",
   }),
   P({
-    id: "h-p-paypal-invoice-callback", category: "callback-scam",
-    note: "Fake PayPal invoice for antivirus software with a 'dispute' phone number.",
-    url: "https://billing-invoice-center.com/inv/77310",
-    title: "Invoice from Norton LifeLock",
-    text: "PayPal. You've been charged $499.99 USD for Norton LifeLock 360 Total Protection (3-year plan). If you didn't authorize this payment, call the PayPal billing department at 1-808-555-0166 within 24 hours to dispute the charge.",
+    id: "h-p-customs-release-fee", category: "callback-scam",
+    note: "Parcel held at customs with a 'release fee' phone line; no account threat or charge wording.",
+    url: "https://parcel-customs-hold.com/track/CN8812047",
+    title: "Shipment on hold - customs fee due",
+    text: "Your international parcel CN8812047 is being held at customs. An import fee of $36.80 must be paid before delivery. Please phone our clearance desk at 1-877-555-0139 today or the parcel will be returned to sender.",
   }),
   P({
-    id: "h-p-microsoft-account-locked", category: "callback-scam",
-    note: "Microsoft account 'locked' page with a support number; no form.",
-    url: "https://account-protection-center.live/ms/locked",
-    title: "Microsoft account locked",
-    text: "Your Microsoft account has been locked due to unusual sign-in activity from Moscow, Russia. To protect your data, do not restart your computer. Call Microsoft Support at 1-855-555-0133 to unlock your account.",
+    id: "h-p-refund-overpayment", category: "callback-scam",
+    note: "Refund-overpayment script: 'we sent you too much, call to fix it'. No brand, no account lock.",
+    url: "https://refund-processing-desk.com/case/55102",
+    title: "Refund Processing Error",
+    text: "Refund Department. Due to a system error, a refund of $4,999.00 was issued to your account instead of $49.99. This must be corrected right away. Call our refund desk at 1-866-555-0158 so an agent can help you return the difference.",
   }),
   P({
-    id: "h-p-geek-squad-renewal", category: "callback-scam",
-    note: "Fake auto-renewal invoice for a brand that may not be on the brand list; no account-lock wording.",
-    url: "https://gs-renewal-dept.com/invoice",
-    title: "Geek Squad Subscription Renewal",
-    text: "Thank you for renewing your Geek Squad Total Protection plan. $399.99 has been charged to your account and the renewal is non-refundable after 24 hours. To cancel and request a refund, call our billing team at 1-888-555-0177.",
+    id: "h-p-tax-warrant", category: "callback-scam",
+    note: "Back-taxes 'warrant' threat from an unnamed state agency; the threat is arrest, not an account.",
+    url: "https://state-tax-collections.org/notice/WR-40921",
+    title: "Final Notice - Outstanding Tax Balance",
+    text: "Tax Collections Unit. Final notice: you have an outstanding balance of $2,316.00. A warrant will be issued in your name if this is not resolved by end of business today. Call 1-844-555-0126 to arrange payment and stop legal action.",
+  }),
+  P({
+    id: "h-p-wallet-frozen-contact", category: "callback-scam",
+    note: "Crypto wallet 'frozen' page that says 'contact' rather than 'call'; no brand.",
+    url: "https://wallet-compliance-review.com/frozen",
+    title: "Wallet Frozen - Compliance Review",
+    text: "Your wallet has been frozen pending a compliance review and withdrawals are disabled. To unfreeze your funds, contact our recovery desk at +1 (855) 555-0162 within 12 hours.",
   }),
 ];
 
 export const HELDOUT_BENIGN: EvalCase[] = [
   B({
-    id: "h-b-credit-union-lost-card", category: "support-phone",
-    note: "A credit union's own lost/stolen card page: account-threat words plus a phone number, on its own domain.",
-    url: "https://www.navyfederal.org/services/card-services/lost-stolen-cards.html",
-    title: "Lost or Stolen Cards | Navy Federal Credit Union",
-    text: "Report a lost or stolen card right away. If your card is lost, stolen or you notice unauthorized transactions, we'll lock your card and send a replacement. Call us 24/7 at 1-888-555-0110.",
+    id: "h-b-utility-disconnection", category: "support-phone",
+    note: "A utility's own past-due page: disconnection threat, deadline and a toll-free number, on its own domain.",
+    url: "https://www.duke-energy.com/home/billing/past-due",
+    title: "Past Due Bills | Duke Energy",
+    text: "If your account is past due, service may be disconnected. To avoid disconnection, call us at 1-800-555-0114 before your due date to set up a payment arrangement. Assistance programs are available.",
   }),
   B({
-    id: "h-b-airline-rebooking", category: "support-phone",
-    note: "Airline page about cancelled flights that says to call to rebook.",
-    url: "https://www.flyfrontier.com/travel/travel-info/flight-status/",
-    title: "Flight Status | Frontier Airlines",
-    text: "Check the status of your flight. If your flight has been cancelled or delayed more than 3 hours, you can rebook online or call our reservations team at 801-555-0123.",
+    id: "h-b-university-it-lockout", category: "support-phone",
+    note: "University IT page about a locked account, telling you to call the service desk.",
+    url: "https://its.unc.edu/accounts/locked-onyen/",
+    title: "Locked Account | Information Technology Services",
+    text: "Your account has been locked after too many failed sign-in attempts. Wait 30 minutes and try again, or call the ITS Service Desk at 919-555-0137 to unlock it immediately.",
   }),
   B({
-    id: "h-b-news-callback-warning", category: "security-news",
-    note: "Local news story quoting the callback-scam script, with a brand name and a sheriff's office number.",
-    url: "https://www.wral.com/news/local/sheriff-warns-of-bank-impersonation-calls/",
-    title: "Sheriff warns of bank impersonation scam",
-    text: "The Wake County Sheriff's Office is warning residents about callers claiming to be from Wells Fargo who say your account has been locked and ask you to call a number to unlock it. Victims who called were asked for gift cards. Anyone targeted can report it to 919-555-0155.",
+    id: "h-b-dmv-license-suspended", category: "government",
+    note: "State DMV page on suspended licenses with a reinstatement phone line.",
+    url: "https://www.ncdot.gov/dmv/license-id/license-suspension/",
+    title: "License Suspensions | NCDMV",
+    text: "If your driver license has been suspended, you must resolve the suspension before driving. Fees may apply. For questions about reinstatement, call 1-877-555-0129, Monday through Friday.",
   }),
   B({
-    id: "h-b-ftc-callback-advice", category: "government",
-    note: "FTC consumer advice describing fake 'your account is suspended, call us' messages.",
-    url: "https://consumer.ftc.gov/articles/how-spot-avoid-and-report-tech-support-scams",
-    title: "How To Spot, Avoid, and Report Tech Support Scams",
-    text: "Scammers may say your account has been suspended or that you were charged for a subscription, and tell you to call a phone number to fix it. Don't call the number. Contact the company using a number you know is real.",
+    id: "h-b-gym-auto-renewal", category: "support-phone",
+    note: "A gym's membership terms: you will be charged automatically; call to cancel.",
+    url: "https://www.ymcacharlotte.org/membership/terms",
+    title: "Membership Terms | YMCA of Greater Charlotte",
+    text: "Memberships renew automatically each month and you will be charged $39.99 on your billing date. If you did not mean to renew or want to cancel, call your home branch at 704-555-0152 at least 5 days before your next billing date.",
   }),
   B({
-    id: "h-b-coinbase-help-compromised", category: "support-phone",
-    note: "The brand's own help article on compromised accounts, on its own domain.",
-    url: "https://help.coinbase.com/en/coinbase/privacy-and-security/account-compromised/i-think-my-account-was-compromised",
-    title: "I think my account was compromised | Coinbase Help",
-    text: "If you think your Coinbase account was compromised, lock your account right away from the app. Coinbase will never call you or ask you to call a number to unlock your account. To reach us, use the support options in the app.",
+    id: "h-b-hospital-billing", category: "support-phone",
+    note: "Hospital billing office page about charges you don't recognize.",
+    url: "https://www.unchealthcare.org/billing/questions/",
+    title: "Billing Questions | UNC Health",
+    text: "If you were charged for a visit you don't recognize or think your bill is wrong, call our Patient Billing Office at 919-555-0181. We can review your charges and set up a payment plan.",
   }),
   B({
-    id: "h-b-shop-contact-page", category: "support-phone",
-    note: "Small store's contact page with an order-problem phone line.",
-    url: "https://www.bluebirdcandleco.com/pages/contact",
-    title: "Contact Us - Bluebird Candle Co.",
-    text: "Problem with an order or a charge you don't recognize? Call us at 828-555-0142, Monday to Friday 9 to 5, and we'll make it right.",
+    id: "h-b-bank-fraud-page", category: "support-phone",
+    note: "A bank's own fraud page: unauthorized charges, locked card, call immediately, on its own domain.",
+    url: "https://www.firstcitizens.com/security/report-fraud",
+    title: "Report Fraud | First Citizens Bank",
+    text: "If you see a charge you didn't authorize, call us immediately at 1-888-555-0145. We'll lock your card, review the transaction and send you a new card. First Citizens will never ask for your PIN.",
+  }),
+  B({
+    id: "h-b-aarp-callback-warning", category: "security-news",
+    note: "Consumer warning that quotes a no-brand callback script verbatim.",
+    url: "https://www.aarp.org/money/scams-fraud/info-2026/refund-scam.html",
+    title: "Watch Out for Fake Refund Calls",
+    text: "The message says your account has been suspended or that a refund was sent by mistake, and tells you to call a number within 24 hours. It's a scam. Hang up, don't call back, and contact the company using the number on your statement.",
   }),
 ];
 
