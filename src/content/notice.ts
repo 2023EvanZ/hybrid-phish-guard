@@ -127,6 +127,7 @@ const STYLE = `
     border: 1px solid var(--line); background: transparent; color: var(--fg);
   }
   .actions .primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .actions button[aria-disabled="true"] { opacity: .6; cursor: progress; }
   .hint { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
   .ai { margin: 0 0 10px; }
   .ai h3 { margin: 0 0 2px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
@@ -224,7 +225,23 @@ export function showNotice(doc: Document, initial: NoticeContent, actions: Notic
   type Trust = { state: "idle" } | { state: "saving" } | { state: "done"; host: string };
   let trust: Trust = { state: "idle" };
 
+  // render() rebuilds the body, which would drop keyboard focus on <body> whenever the
+  // verdict updates (pending -> final), a hint appears or Trust/Explain finish. Buttons
+  // carry a stable key so focus can be put back on the same one, or a sensible neighbour.
+  const keyed = <T extends HTMLElement>(node: T, key: string): T => {
+    node.dataset.k = key;
+    return node;
+  };
   function render() {
+    const active = root.activeElement as HTMLElement | null;
+    const prevKey = active && body.contains(active) ? (active.dataset.k ?? "") : null;
+    draw();
+    if (prevKey === null || body.contains(root.activeElement)) return;
+    const target = (prevKey && body.querySelector<HTMLElement>(`[data-k="${prevKey}"]`)) || body.querySelector<HTMLElement>(".actions button") || minimize;
+    target.focus({ preventScroll: true });
+  }
+
+  function draw() {
     const { view, advice, note, pending, explainable, trustable, where } = content;
     const tone: Tone = view.tone;
     wrap.dataset.tone = tone;
@@ -277,7 +294,7 @@ export function showNotice(doc: Document, initial: NoticeContent, actions: Notic
       const row = el(doc, "p", "where");
       row.append(icon(doc, where.leftDevice ? "cloud" : "device"), el(doc, "span", undefined, where.text));
       if (where.leftDevice) {
-        const what = el(doc, "button", undefined, "See what was sent");
+        const what = keyed(el(doc, "button", undefined, "See what was sent"), "sent");
         what.addEventListener("click", openReport);
         row.append(what);
       }
@@ -285,19 +302,21 @@ export function showNotice(doc: Document, initial: NoticeContent, actions: Notic
     }
 
     const buttons = el(doc, "div", "actions");
-    const report = el(doc, "button", undefined, "Full report");
+    const report = keyed(el(doc, "button", undefined, "Full report"), "report");
     report.addEventListener("click", openReport);
     if (tone === "danger") {
-      const leave = el(doc, "button", "primary", "Leave this page");
+      const leave = keyed(el(doc, "button", "primary", "Leave this page"), "leave");
       leave.addEventListener("click", () => actions.onLeave());
       buttons.append(leave, report);
     } else {
       report.classList.add("primary");
       buttons.append(report);
       if (trustable && !pending) {
-        const trustBtn = el(doc, "button", undefined, trust.state === "saving" ? "Trusting…" : "Trust this site");
-        trustBtn.disabled = trust.state === "saving";
+        const trustBtn = keyed(el(doc, "button", undefined, trust.state === "saving" ? "Trusting…" : "Trust this site"), "trust");
+        // aria-disabled rather than disabled: a disabled button can't hold focus.
+        if (trust.state === "saving") trustBtn.setAttribute("aria-disabled", "true");
         trustBtn.addEventListener("click", () => {
+          if (trust.state === "saving") return;
           trust = { state: "saving" };
           render();
           void actions.onTrust().then((host) => {
